@@ -1,0 +1,60 @@
+﻿<Page xmlns:my="using:VtNetCore.UWP" 
+    x:Class="VtNetCore.UWP.App.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+      >
+
+    <Page.TopAppBar>
+        <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right" Margin="0,0,9,0" IsTabStop="False">
+            <CommandBar.SecondaryCommands>
+                <AppBarButton Icon="MapDrive" Label="Connect" Tapped="ConnectTapped"/>
+            </CommandBar.SecondaryCommands>
+            <CommandBar.Content>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Hostname:" Margin="12,14" />
+                    <TextBlock Text="{x:Bind Hostname.Text, Mode=OneWay}" Tapped="OnHostnameTapped" Margin="0,14">
+                        <FlyoutBase.AttachedFlyout>
+                            <Flyout>
+                                <TextBox x:Name="Hostname" Text="10.100.5.100"/>
+                            </Flyout>
+                        </FlyoutBase.AttachedFlyout>
+                    </TextBlock>
+
+                    <TextBlock Text="Port:" Margin="12,14" />
+                    <TextBlock Text="{x:Bind Port.Text, Mode=OneWay}" Tapped="OnHostnameTapped" Margin="0,14">
+                        <FlyoutBase.AttachedFlyout>
+                            <Flyout>
+                                <TextBox x:Name="Port" Text="22"/>
+                            </Flyout>
+                        </FlyoutBase.AttachedFlyout>
+                    </TextBlock>
+
+                    <TextBlock Text="Username:" Margin="12,14" />
+                    <TextBlock Text="{x:Bind Username.Text, Mode=OneWay}" Tapped="OnHostnameTapped" Margin="0,14">
+                        <FlyoutBase.AttachedFlyout>
+                            <Flyout>
+                                <TextBox x:Name="Username" Text="admin"/>
+                            </Flyout>
+                        </FlyoutBase.AttachedFlyout>
+                    </TextBlock>
+
+                    <TextBlock Text="Password:" Margin="12,14" />
+                    <TextBlock Text="******" Tapped="OnHostnameTapped" Margin="0,14">
+                        <FlyoutBase.AttachedFlyout>
+                            <Flyout>
+                                <PasswordBox x:Name="Password" Password="Minions12345"/>
+                            </Flyout>
+                        </FlyoutBase.AttachedFlyout>
+                    </TextBlock>
+                </StackPanel>
+            </CommandBar.Content>
+        </CommandBar>
+    </Page.TopAppBar>
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <my:VirtualTerminalControl  x:Name="terminal" />
+    </Grid>
+</Page>
