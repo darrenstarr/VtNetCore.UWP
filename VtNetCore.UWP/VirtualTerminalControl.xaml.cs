@@ -44,8 +44,6 @@
         private void OnWindowTitleChanged(object sender, TextEventArgs e)
         {
             WindowTitle = e.Text;
-            var appView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
-            appView.Title = "Terminal - " + WindowTitle;
         }
 
         private void OnSendData(object sender, SendDataEventArgs e)

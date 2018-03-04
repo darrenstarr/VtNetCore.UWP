@@ -4,3 +4,6 @@
 [submodule "modules/SSH.NET"]
 	path = modules/SSH.NET
 	url = https://github.com/darrenstarr/SSH.NET.git
+[submodule "modules/libvterm"]
+	path = modules/libvterm
+	url = https://github.com/neovim/libvterm.git
