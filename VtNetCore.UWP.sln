@@ -20,6 +20,54 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libvterm.tests", "libvterm.tests\libvterm.tests.csproj", "{1577C859-BEF5-4901-9B29-BD3E6BF175C6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libvterm", "libvterm", "{CA50B414-FA87-4FDB-8317-147021A90D29}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "t", "t", "{53360EDB-D896-4CE5-AF8B-B6F880634AC9}"
+	ProjectSection(SolutionItems) = preProject
+		modules\libvterm\t\02parser.test = modules\libvterm\t\02parser.test
+		modules\libvterm\t\03encoding_utf8.test = modules\libvterm\t\03encoding_utf8.test
+		modules\libvterm\t\10state_putglyph.test = modules\libvterm\t\10state_putglyph.test
+		modules\libvterm\t\11state_movecursor.test = modules\libvterm\t\11state_movecursor.test
+		modules\libvterm\t\12state_scroll.test = modules\libvterm\t\12state_scroll.test
+		modules\libvterm\t\13state_edit.test = modules\libvterm\t\13state_edit.test
+		modules\libvterm\t\14state_encoding.test = modules\libvterm\t\14state_encoding.test
+		modules\libvterm\t\15state_mode.test = modules\libvterm\t\15state_mode.test
+		modules\libvterm\t\16state_resize.test = modules\libvterm\t\16state_resize.test
+		modules\libvterm\t\17state_mouse.test = modules\libvterm\t\17state_mouse.test
+		modules\libvterm\t\18state_termprops.test = modules\libvterm\t\18state_termprops.test
+		modules\libvterm\t\20state_wrapping.test = modules\libvterm\t\20state_wrapping.test
+		modules\libvterm\t\21state_tabstops.test = modules\libvterm\t\21state_tabstops.test
+		modules\libvterm\t\22state_save.test = modules\libvterm\t\22state_save.test
+		modules\libvterm\t\25state_input.test = modules\libvterm\t\25state_input.test
+		modules\libvterm\t\26state_query.test = modules\libvterm\t\26state_query.test
+		modules\libvterm\t\27state_reset.test = modules\libvterm\t\27state_reset.test
+		modules\libvterm\t\28state_dbl_wh.test = modules\libvterm\t\28state_dbl_wh.test
+		modules\libvterm\t\29state_fallback.test = modules\libvterm\t\29state_fallback.test
+		modules\libvterm\t\30pen.test = modules\libvterm\t\30pen.test
+		modules\libvterm\t\40screen_ascii.test = modules\libvterm\t\40screen_ascii.test
+		modules\libvterm\t\41screen_unicode.test = modules\libvterm\t\41screen_unicode.test
+		modules\libvterm\t\42screen_damage.test = modules\libvterm\t\42screen_damage.test
+		modules\libvterm\t\43screen_resize.test = modules\libvterm\t\43screen_resize.test
+		modules\libvterm\t\44screen_pen.test = modules\libvterm\t\44screen_pen.test
+		modules\libvterm\t\45screen_protect.test = modules\libvterm\t\45screen_protect.test
+		modules\libvterm\t\46screen_extent.test = modules\libvterm\t\46screen_extent.test
+		modules\libvterm\t\47screen_dbl_wh.test = modules\libvterm\t\47screen_dbl_wh.test
+		modules\libvterm\t\48screen_termprops.test = modules\libvterm\t\48screen_termprops.test
+		modules\libvterm\t\90vttest_01-movement-1.test = modules\libvterm\t\90vttest_01-movement-1.test
+		modules\libvterm\t\90vttest_01-movement-2.test = modules\libvterm\t\90vttest_01-movement-2.test
+		modules\libvterm\t\90vttest_01-movement-3.test = modules\libvterm\t\90vttest_01-movement-3.test
+		modules\libvterm\t\90vttest_01-movement-4.test = modules\libvterm\t\90vttest_01-movement-4.test
+		modules\libvterm\t\90vttest_02-screen-1.test = modules\libvterm\t\90vttest_02-screen-1.test
+		modules\libvterm\t\90vttest_02-screen-2.test = modules\libvterm\t\90vttest_02-screen-2.test
+		modules\libvterm\t\90vttest_02-screen-3.test = modules\libvterm\t\90vttest_02-screen-3.test
+		modules\libvterm\t\90vttest_02-screen-4.test = modules\libvterm\t\90vttest_02-screen-4.test
+		modules\libvterm\t\92lp1640917.test = modules\libvterm\t\92lp1640917.test
+		modules\libvterm\t\harness.c = modules\libvterm\t\harness.c
+		modules\libvterm\t\run-test.pl = modules\libvterm\t\run-test.pl
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -116,6 +164,22 @@ Global
 		{00933C77-0972-4440-A5C0-FC2C40ECEF34}.Release|x86.ActiveCfg = Release|x86
 		{00933C77-0972-4440-A5C0-FC2C40ECEF34}.Release|x86.Build.0 = Release|x86
 		{00933C77-0972-4440-A5C0-FC2C40ECEF34}.Release|x86.Deploy.0 = Release|x86
+		{1577C859-BEF5-4901-9B29-BD3E6BF175C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1577C859-BEF5-4901-9B29-BD3E6BF175C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1577C859-BEF5-4901-9B29-BD3E6BF175C6}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{1577C859-BEF5-4901-9B29-BD3E6BF175C6}.Debug|ARM.Build.0 = Debug|Any CPU
+		{1577C859-BEF5-4901-9B29-BD3E6BF175C6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1577C859-BEF5-4901-9B29-BD3E6BF175C6}.Debug|x64.Build.0 = Debug|Any CPU
+		{1577C859-BEF5-4901-9B29-BD3E6BF175C6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1577C859-BEF5-4901-9B29-BD3E6BF175C6}.Debug|x86.Build.0 = Debug|Any CPU
+		{1577C859-BEF5-4901-9B29-BD3E6BF175C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1577C859-BEF5-4901-9B29-BD3E6BF175C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1577C859-BEF5-4901-9B29-BD3E6BF175C6}.Release|ARM.ActiveCfg = Release|Any CPU
+		{1577C859-BEF5-4901-9B29-BD3E6BF175C6}.Release|ARM.Build.0 = Release|Any CPU
+		{1577C859-BEF5-4901-9B29-BD3E6BF175C6}.Release|x64.ActiveCfg = Release|Any CPU
+		{1577C859-BEF5-4901-9B29-BD3E6BF175C6}.Release|x64.Build.0 = Release|Any CPU
+		{1577C859-BEF5-4901-9B29-BD3E6BF175C6}.Release|x86.ActiveCfg = Release|Any CPU
+		{1577C859-BEF5-4901-9B29-BD3E6BF175C6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -124,6 +188,8 @@ Global
 		{4480AD73-B513-4714-9EEA-B5AE011C1B0E} = {F7315C17-4F9E-4050-9EDB-FE818EFCAD49}
 		{AB134555-EBE0-4F6C-B2BC-26CD6014AAB4} = {F7315C17-4F9E-4050-9EDB-FE818EFCAD49}
 		{C696868A-D058-4996-A0F7-C1B738A38A94} = {F7315C17-4F9E-4050-9EDB-FE818EFCAD49}
+		{CA50B414-FA87-4FDB-8317-147021A90D29} = {F7315C17-4F9E-4050-9EDB-FE818EFCAD49}
+		{53360EDB-D896-4CE5-AF8B-B6F880634AC9} = {CA50B414-FA87-4FDB-8317-147021A90D29}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CFE8AFBD-52FF-49C8-9323-B1F40DF92918}
