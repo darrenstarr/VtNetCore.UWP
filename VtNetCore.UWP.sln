@@ -24,6 +24,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VtConnect", "modules\VtConn
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VtConnect.Tests", "modules\VtConnect\VtConnect.Tests\VtConnect.Tests.csproj", "{8379BE4C-AA1B-49F9-834B-A934FBC3BCB5}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerialPortStream-netstandard15", "modules\SerialPortStream\code\SerialPortStream-netstandard15.csproj", "{174DC88F-D87D-4596-B16E-9D42E2450D9C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -152,6 +154,22 @@ Global
 		{8379BE4C-AA1B-49F9-834B-A934FBC3BCB5}.Release|x64.Build.0 = Release|Any CPU
 		{8379BE4C-AA1B-49F9-834B-A934FBC3BCB5}.Release|x86.ActiveCfg = Release|Any CPU
 		{8379BE4C-AA1B-49F9-834B-A934FBC3BCB5}.Release|x86.Build.0 = Release|Any CPU
+		{174DC88F-D87D-4596-B16E-9D42E2450D9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{174DC88F-D87D-4596-B16E-9D42E2450D9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{174DC88F-D87D-4596-B16E-9D42E2450D9C}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{174DC88F-D87D-4596-B16E-9D42E2450D9C}.Debug|ARM.Build.0 = Debug|Any CPU
+		{174DC88F-D87D-4596-B16E-9D42E2450D9C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{174DC88F-D87D-4596-B16E-9D42E2450D9C}.Debug|x64.Build.0 = Debug|Any CPU
+		{174DC88F-D87D-4596-B16E-9D42E2450D9C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{174DC88F-D87D-4596-B16E-9D42E2450D9C}.Debug|x86.Build.0 = Debug|Any CPU
+		{174DC88F-D87D-4596-B16E-9D42E2450D9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{174DC88F-D87D-4596-B16E-9D42E2450D9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{174DC88F-D87D-4596-B16E-9D42E2450D9C}.Release|ARM.ActiveCfg = Release|Any CPU
+		{174DC88F-D87D-4596-B16E-9D42E2450D9C}.Release|ARM.Build.0 = Release|Any CPU
+		{174DC88F-D87D-4596-B16E-9D42E2450D9C}.Release|x64.ActiveCfg = Release|Any CPU
+		{174DC88F-D87D-4596-B16E-9D42E2450D9C}.Release|x64.Build.0 = Release|Any CPU
+		{174DC88F-D87D-4596-B16E-9D42E2450D9C}.Release|x86.ActiveCfg = Release|Any CPU
+		{174DC88F-D87D-4596-B16E-9D42E2450D9C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -162,6 +180,7 @@ Global
 		{C696868A-D058-4996-A0F7-C1B738A38A94} = {F7315C17-4F9E-4050-9EDB-FE818EFCAD49}
 		{6E786F2C-4EB7-4406-9274-392F13D492D6} = {F7315C17-4F9E-4050-9EDB-FE818EFCAD49}
 		{8379BE4C-AA1B-49F9-834B-A934FBC3BCB5} = {F7315C17-4F9E-4050-9EDB-FE818EFCAD49}
+		{174DC88F-D87D-4596-B16E-9D42E2450D9C} = {F7315C17-4F9E-4050-9EDB-FE818EFCAD49}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CFE8AFBD-52FF-49C8-9323-B1F40DF92918}

@@ -7,3 +7,6 @@
 [submodule "modules\\VtConnect"]
 	path = modules\\VtConnect
 	url = https://github.com/darrenstarr/VtConnect.git
+[submodule "modules/SerialPortStream"]
+	path = modules/SerialPortStream
+	url = https://github.com/darrenstarr/SerialPortStream.git
