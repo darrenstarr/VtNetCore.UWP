@@ -1,6 +1,7 @@
 ﻿namespace VtNetCore.UWP.App
 {
     using System;
+    using System.Threading.Tasks;
     using Windows.ApplicationModel.Core;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
@@ -18,14 +19,14 @@
             
         }
 
-        private void OnHostnameTapped(object sender, TappedRoutedEventArgs e)
+        private void OnUrlTapped(object sender, TappedRoutedEventArgs e)
         {
             FlyoutBase.ShowAttachedFlyout((FrameworkElement)sender);
         }
 
         private void ConnectTapped(object sender, TappedRoutedEventArgs e)
         {
-            terminal.ConnectToSsh(Hostname.Text, Convert.ToInt32(Port.Text), Username.Text, Password.Password);
+            terminal.ConnectTo(Url.Text, Username.Text, Password.Password);
         }
     }
 }

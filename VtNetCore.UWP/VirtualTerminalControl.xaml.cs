@@ -3,12 +3,11 @@
     using Microsoft.Graphics.Canvas;
     using Microsoft.Graphics.Canvas.Text;
     using Microsoft.Graphics.Canvas.UI.Xaml;
-    using Renci.SshNet;
-    using Renci.SshNet.Common;
     using System;
     using System.Numerics;
     using System.Text;
     using System.Threading.Tasks;
+    using VtConnect;
     using VtNetCore.VirtualTerminal;
     using VtNetCore.VirtualTerminal.Model;
     using VtNetCore.XTermParser;
@@ -48,10 +47,11 @@
 
         private void OnSendData(object sender, SendDataEventArgs e)
         {
-            Task.Run(() =>
-            {
-                _stream.Write(e.Data, 0, e.Data.Length);
-                _stream.Flush();
+            if(!Connected)
+                return;
+            Task.Run(async () =>
+            {   
+                await VtConnection.SendData(e.Data);             
             });
         }
 
@@ -63,8 +63,11 @@
             var ch = char.ConvertFromUtf32((int)args.KeyCode);
 
             var toSend = Encoding.UTF8.GetBytes(ch.ToString());
-            _stream.Write(toSend, 0, toSend.Length);
-            _stream.Flush();
+
+            Task.Run(async () =>
+            {
+                await VtConnection.SendData(toSend);
+            });
 
             //System.Diagnostics.Debug.WriteLine(ch.ToString());
             args.Handled = true;
@@ -81,43 +84,40 @@
         public int Columns = -1;
         public int Rows = -1;
 
-        AuthenticationMethod _authenticationMethod;
-        ConnectionInfo _connectionInfo;
-        SshClient _client;
-        ShellStream _stream;
+        public Connection VtConnection { get; set; }
 
         public bool Connected
         {
-            get { return _stream != null && _client.IsConnected && _stream.CanWrite; }
+            get { return VtConnection != null && VtConnection.IsConnected; }
         }
 
         string InputBuffer { get; set; } = "";
 
-        public bool ConnectToSsh(string hostname, int port, string username, string password)
+        public async Task<bool> ConnectTo(string uri, string username, string password)
         {
-            _authenticationMethod = new PasswordAuthenticationMethod(username, password);
+            if(Connected)
+                return false;       // Already connected
 
-            _connectionInfo = new ConnectionInfo(hostname, 22, username, _authenticationMethod);
-            _client = new SshClient(_connectionInfo);
-            try
+            var credentials = new UsernamePasswordCredentials
             {
-                _client.Connect();
-            }
-            catch (Exception e)
-            {
-                System.Diagnostics.Debug.WriteLine(e.ToString());
-                return false;
-            }
-            _stream = _client.CreateShellStream("xterm", (uint)Columns, (uint)Rows, 800, 600, 16384);
-            _stream.DataReceived += _OnDataReceived;
+                Username = username,
+                Password = password
+            };
 
-            return true;
+            var destination = new Uri(uri);
+
+            VtConnection = Connection.CreateConnection(destination);
+            VtConnection.SetTerminalWindowSize(Columns, Rows, 800, 600);
+
+            VtConnection.DataReceived += OnDataReceived;
+
+            var result = await VtConnection.Connect(destination, credentials);
+
+            return result;
         }
 
-        private void _OnDataReceived(object sender, ShellDataEventArgs e)
+        private void OnDataReceived(object sender, DataReceivedEventArgs e)
         {
-            //System.Diagnostics.Debug.WriteLine(e.Data.Length.ToString() + " received");
-
             lock (Terminal)
             {
                 int oldTopRow = Terminal.ViewPort.TopRow;
@@ -353,8 +353,8 @@
                 Rows = rows;
                 ResizeTerminal();
 
-                if (_stream != null && _stream.CanWrite)
-                    _stream.SendWindowChangeRequest((uint)columns, (uint)rows, 800, 600);
+                if (VtConnection != null)
+                    VtConnection.SetTerminalWindowSize(columns, rows, 800, 600);
             }
         }
 
@@ -398,12 +398,11 @@
             }
 
             var code = Terminal.GetKeySequence((controlPressed ? "Ctrl+" : "") + (shiftPressed ? "Shift+" : "") + e.Key.ToString());
-            if (code != null)
+            if (code != null && VtConnection != null)
             {
-                Task.Run(() =>
+                Task.Run(async () =>
                 {
-                    _stream.Write(code, 0, code.Length);
-                    _stream.Flush();
+                    await VtConnection.SendData(code);
                 });
 
                 e.Handled = true;
@@ -571,11 +570,16 @@
 
         private void PasteText(string text)
         {
+            if (VtConnection == null)
+                return;
+
             Task.Run(() =>
             {
                 var buffer = Encoding.UTF8.GetBytes(text);
-                _stream.Write(buffer, 0, buffer.Length);
-                _stream.Flush();
+                Task.Run(async () =>
+                {
+                    await VtConnection.SendData(buffer);
+                });
             });
         }
 

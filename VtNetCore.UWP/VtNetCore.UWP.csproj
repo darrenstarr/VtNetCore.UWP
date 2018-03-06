@@ -131,6 +131,10 @@
       <Project>{c696868a-d058-4996-a0f7-c1b738a38a94}</Project>
       <Name>Renci.SshNet.NETCore</Name>
     </ProjectReference>
+    <ProjectReference Include="..\modules\VtConnect\VtConnect\VtConnect.csproj">
+      <Project>{6e786f2c-4eb7-4406-9274-392f13d492d6}</Project>
+      <Name>VtConnect</Name>
+    </ProjectReference>
     <ProjectReference Include="..\modules\VtNetCore\VtNetCore\VtNetCore.csproj">
       <Project>{4480ad73-b513-4714-9eea-b5ae011c1b0e}</Project>
       <Name>VtNetCore</Name>

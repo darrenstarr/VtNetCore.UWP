@@ -14,26 +14,17 @@
             </CommandBar.SecondaryCommands>
             <CommandBar.Content>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Hostname:" Margin="12,14" />
-                    <TextBlock Text="{x:Bind Hostname.Text, Mode=OneWay}" Tapped="OnHostnameTapped" Margin="0,14">
+                    <TextBlock Text="URL :" Margin="12,14" />
+                    <TextBlock Text="{x:Bind Url.Text, Mode=OneWay}" Tapped="OnUrlTapped" Margin="0,14">
                         <FlyoutBase.AttachedFlyout>
                             <Flyout>
-                                <TextBox x:Name="Hostname" Text="10.100.5.100"/>
-                            </Flyout>
-                        </FlyoutBase.AttachedFlyout>
-                    </TextBlock>
-
-                    <TextBlock Text="Port:" Margin="12,14" />
-                    <TextBlock Text="{x:Bind Port.Text, Mode=OneWay}" Tapped="OnHostnameTapped" Margin="0,14">
-                        <FlyoutBase.AttachedFlyout>
-                            <Flyout>
-                                <TextBox x:Name="Port" Text="22"/>
+                                <TextBox x:Name="Url" Text="ssh://10.100.5.100"/>
                             </Flyout>
                         </FlyoutBase.AttachedFlyout>
                     </TextBlock>
 
                     <TextBlock Text="Username:" Margin="12,14" />
-                    <TextBlock Text="{x:Bind Username.Text, Mode=OneWay}" Tapped="OnHostnameTapped" Margin="0,14">
+                    <TextBlock Text="{x:Bind Username.Text, Mode=OneWay}" Tapped="OnUrlTapped" Margin="0,14">
                         <FlyoutBase.AttachedFlyout>
                             <Flyout>
                                 <TextBox x:Name="Username" Text="admin"/>
@@ -42,7 +33,7 @@
                     </TextBlock>
 
                     <TextBlock Text="Password:" Margin="12,14" />
-                    <TextBlock Text="******" Tapped="OnHostnameTapped" Margin="0,14">
+                    <TextBlock Text="******" Tapped="OnUrlTapped" Margin="0,14">
                         <FlyoutBase.AttachedFlyout>
                             <Flyout>
                                 <PasswordBox x:Name="Password" Password="Minions12345"/>
