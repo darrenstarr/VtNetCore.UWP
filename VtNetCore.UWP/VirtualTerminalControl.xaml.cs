@@ -188,7 +188,9 @@
                             CharacterHeight + 0.9
                         );
 
-                        var textLayout = new CanvasTextLayout(drawingSession, character.Char.ToString(), format, 0.0f, 0.0f);
+                        var toDisplay = character.Char.ToString() + character.CombiningCharacters;
+
+                        var textLayout = new CanvasTextLayout(drawingSession, toDisplay, format, 0.0f, 0.0f);
                         var backgroundColor = GetBackgroundColor(character.Attributes, selected);
                         var foregroundColor = GetForegroundColor(character.Attributes, selected);
                         drawingSession.FillRectangle(rect, backgroundColor);
