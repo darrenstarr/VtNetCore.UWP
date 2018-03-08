@@ -59,8 +59,20 @@
         {
             if (!Connected)
                 return;
-
+        
             var ch = char.ConvertFromUtf32((int)args.KeyCode);
+            switch (ch)
+            {
+                case "\b":
+                case "\t":
+                case "\n":
+                case "\r":
+                    return;
+
+                default:
+                    break;
+
+            }
 
             var toSend = Encoding.UTF8.GetBytes(ch.ToString());
 
@@ -399,7 +411,7 @@
                 canvas.Invalidate();
             }
 
-            var code = Terminal.GetKeySequence((controlPressed ? "Ctrl+" : "") + (shiftPressed ? "Shift+" : "") + e.Key.ToString());
+            var code = Terminal.GetKeySequence(e.Key.ToString(), controlPressed, shiftPressed);
             if (code != null && VtConnection != null)
             {
                 Task.Run(async () =>
