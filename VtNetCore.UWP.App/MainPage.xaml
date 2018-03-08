@@ -10,7 +10,8 @@
     <Page.TopAppBar>
         <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right" Margin="0,0,9,0" IsTabStop="False">
             <CommandBar.SecondaryCommands>
-                <AppBarButton Icon="MapDrive" Label="Connect" Tapped="ConnectTapped"/>
+                <AppBarButton Icon="MapDrive" Label="Connect" Tapped="ConnectTapped" />
+                <AppBarButton Icon="MapDrive" Label="Disconnect" Tapped="DisconnectTapped" />
             </CommandBar.SecondaryCommands>
             <CommandBar.Content>
                 <StackPanel Orientation="Horizontal">
@@ -18,7 +19,8 @@
                     <TextBlock Text="{x:Bind Url.Text, Mode=OneWay}" Tapped="OnUrlTapped" Margin="0,14">
                         <FlyoutBase.AttachedFlyout>
                             <Flyout>
-                                <TextBox x:Name="Url" Text="ssh://10.100.5.100"/>
+                                <!--<TextBox x:Name="Url" Text="ssh://10.100.5.100"/>-->
+                                <TextBox x:Name="Url" Text="telnet://10.100.5.100"/>
                             </Flyout>
                         </FlyoutBase.AttachedFlyout>
                     </TextBlock>

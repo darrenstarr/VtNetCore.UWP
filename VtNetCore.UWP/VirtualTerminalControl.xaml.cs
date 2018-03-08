@@ -105,6 +105,16 @@
 
         string InputBuffer { get; set; } = "";
 
+        public void Disconnect()
+        {
+            if (!Connected)
+                return;
+
+            VtConnection.Disconnect();
+            VtConnection.DataReceived -= OnDataReceived;
+            VtConnection = null;
+        }
+
         public async Task<bool> ConnectTo(string uri, string username, string password)
         {
             if(Connected)
@@ -400,15 +410,22 @@
             }
 
             if (controlPressed && e.Key == Windows.System.VirtualKey.F12)
+            {
                 Terminal.Debugging = !Terminal.Debugging;
+                return;
+            }
 
             if (controlPressed && e.Key == Windows.System.VirtualKey.F10)
+            {
                 Consumer.SequenceDebugging = !Consumer.SequenceDebugging;
+                return;
+            }
 
             if (controlPressed && e.Key == Windows.System.VirtualKey.F11)
             {
                 ViewDebugging = !ViewDebugging;
                 canvas.Invalidate();
+                return;
             }
 
             var code = Terminal.GetKeySequence(e.Key.ToString(), controlPressed, shiftPressed);

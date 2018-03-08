@@ -27,6 +27,12 @@
         private void ConnectTapped(object sender, TappedRoutedEventArgs e)
         {
             terminal.ConnectTo(Url.Text, Username.Text, Password.Password);
+            terminal.Focus(FocusState.Programmatic);
+        }
+
+        private void DisconnectTapped(object sender, TappedRoutedEventArgs e)
+        {
+            terminal.Disconnect();
         }
     }
 }
