@@ -19,8 +19,8 @@
                     <TextBlock Text="{x:Bind Url.Text, Mode=OneWay}" Tapped="OnUrlTapped" Margin="0,14">
                         <FlyoutBase.AttachedFlyout>
                             <Flyout>
-                                <!--<TextBox x:Name="Url" Text="ssh://10.100.5.100"/>-->
-                                <TextBox x:Name="Url" Text="telnet://10.100.5.100"/>
+                                <TextBox x:Name="Url" Text="ssh://10.100.5.100"/>
+                                <!--<TextBox x:Name="Url" Text="telnet://10.100.5.100"/>-->
                             </Flyout>
                         </FlyoutBase.AttachedFlyout>
                     </TextBlock>
@@ -47,7 +47,52 @@
         </CommandBar>
     </Page.TopAppBar>
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <my:VirtualTerminalControl  x:Name="terminal" />
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="5*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="Black" Offset="1"/>
+                    <GradientStop Color="White" Offset="0.23"/>
+                </LinearGradientBrush>
+            </Grid.Background>
+            <my:VirtualTerminalControl  x:Name="terminal" Grid.Row="0" Width="1024" Height="800">
+                <my:VirtualTerminalControl.Projection>
+                    <PlaneProjection RotationY="-12" CenterOfRotationX="0.5" GlobalOffsetZ="-200" GlobalOffsetX="-530" />
+                </my:VirtualTerminalControl.Projection>
+            </my:VirtualTerminalControl>
+            <TextBox 
+            x:Name="rawView"
+            IsTabStop="False"
+            Foreground="White"
+            Background="DarkBlue"
+            TextWrapping="Wrap"
+            AcceptsReturn="True"
+            Width="1024"
+            Height="800"
+            FontFamily="Consolas"
+            FontSize="13" AllowFocusOnInteraction="False"
+            >
+                <TextBox.Projection>
+                    <PlaneProjection RotationY="12" CenterOfRotationX="0.5" GlobalOffsetZ="-200" GlobalOffsetX="530" />
+                </TextBox.Projection>
+            </TextBox>
+        </Grid>
+        <Border Grid.Row="1">
+            <Border.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="Black" Offset="0"/>
+                    <GradientStop Color="White" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <StackPanel Orientation="Vertical">
+                <TextBlock Foreground="#FFFDFDFD">Active sessions</TextBlock>
+                <StackPanel Orientation="Horizontal">
+                </StackPanel>
+            </StackPanel>
+        </Border>
     </Grid>
 </Page>

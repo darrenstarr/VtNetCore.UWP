@@ -4,6 +4,7 @@
     using Microsoft.Graphics.Canvas.Text;
     using Microsoft.Graphics.Canvas.UI.Xaml;
     using System;
+    using System.ComponentModel;
     using System.Numerics;
     using System.Text;
     using System.Threading.Tasks;
@@ -27,8 +28,12 @@
         public int ViewTop { get; set; } = 0;
         public string WindowTitle { get; set; } = "Session";
 
+        public bool ViewDebugging { get; set; }
         public bool DebugMouse { get; set; }
         public bool DebugSelect { get; set; }
+
+        public string RawText { get; set; }
+        //public string LogText { get; set; } = string.Empty;
 
         public VirtualTerminalControl()
         {
@@ -38,6 +43,18 @@
 
             Terminal.SendData += OnSendData;
             Terminal.WindowTitleChanged += OnWindowTitleChanged;
+            Terminal.OnRawText += OnRawText;
+            Terminal.OnLog += OnLog;
+        }
+
+        private void OnLog(object sender, TextEventArgs e)
+        {
+            //LogText += (e.Text.Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t") + "\n");
+        }
+
+        private void OnRawText(object sender, TextEventArgs e)
+        {
+            RawText += (e.Text.Replace("\r", ""));
         }
 
         private void OnWindowTitleChanged(object sender, TextEventArgs e)
@@ -49,40 +66,10 @@
         {
             if(!Connected)
                 return;
-            Task.Run(async () =>
+            Task.Run(() =>
             {   
-                await VtConnection.SendData(e.Data);             
+                VtConnection.SendData(e.Data);
             });
-        }
-
-        private void CoreWindow_CharacterReceived(CoreWindow sender, CharacterReceivedEventArgs args)
-        {
-            if (!Connected)
-                return;
-        
-            var ch = char.ConvertFromUtf32((int)args.KeyCode);
-            switch (ch)
-            {
-                case "\b":
-                case "\t":
-                case "\n":
-                case "\r":
-                    return;
-
-                default:
-                    break;
-
-            }
-
-            var toSend = Encoding.UTF8.GetBytes(ch.ToString());
-
-            Task.Run(async () =>
-            {
-                await VtConnection.SendData(toSend);
-            });
-
-            //System.Diagnostics.Debug.WriteLine(ch.ToString());
-            args.Handled = true;
         }
 
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
@@ -115,7 +102,7 @@
             VtConnection = null;
         }
 
-        public async Task<bool> ConnectTo(string uri, string username, string password)
+        public bool ConnectTo(string uri, string username, string password)
         {
             if(Connected)
                 return false;       // Already connected
@@ -133,7 +120,7 @@
 
             VtConnection.DataReceived += OnDataReceived;
 
-            var result = await VtConnection.Connect(destination, credentials);
+            var result = VtConnection.Connect(destination, credentials);
 
             return result;
         }
@@ -158,7 +145,6 @@
             }
         }
 
-        bool ViewDebugging = false;
         private void OnCanvasDraw(CanvasControl sender, CanvasDrawEventArgs args)
         {
             CanvasDrawingSession drawingSession = args.DrawingSession;
@@ -391,6 +377,36 @@
             Terminal.ResizeView(Columns, Rows);
         }
 
+        private void CoreWindow_CharacterReceived(CoreWindow sender, CharacterReceivedEventArgs args)
+        {
+            if (!Connected)
+                return;
+
+            var ch = char.ConvertFromUtf32((int)args.KeyCode);
+            switch (ch)
+            {
+                case "\b":
+                case "\t":
+                case "\n":
+                    return;
+
+                case "\r":
+                    //LogText = "";
+                    RawText = "";
+                    return;
+
+                default:
+                    break;
+
+            }
+
+            // Since I get the same key twice in TerminalKeyDown and in CoreWindow_CharacterReceived
+            // I lookup whether KeyPressed should handle the key here or there.
+            var code = Terminal.GetKeySequence(ch, false, false);
+            if(code == null)
+                args.Handled = Terminal.KeyPressed(ch, false, false);
+        }
+
         private void TerminalKeyDown(object sender, KeyRoutedEventArgs e)
         {
             if (!Connected)
@@ -399,50 +415,35 @@
             var controlPressed = (Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down));
             var shiftPressed = (Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
 
-            switch (e.Key)
+            if (controlPressed)
             {
-                case Windows.System.VirtualKey.Shift:
-                case Windows.System.VirtualKey.Control:
-                    return;
-
-                default:
-                    break;
-            }
-
-            if (controlPressed && e.Key == Windows.System.VirtualKey.F12)
-            {
-                Terminal.Debugging = !Terminal.Debugging;
-                return;
-            }
-
-            if (controlPressed && e.Key == Windows.System.VirtualKey.F10)
-            {
-                Consumer.SequenceDebugging = !Consumer.SequenceDebugging;
-                return;
-            }
-
-            if (controlPressed && e.Key == Windows.System.VirtualKey.F11)
-            {
-                ViewDebugging = !ViewDebugging;
-                canvas.Invalidate();
-                return;
-            }
-
-            var code = Terminal.GetKeySequence(e.Key.ToString(), controlPressed, shiftPressed);
-            if (code != null && VtConnection != null)
-            {
-                Task.Run(async () =>
+                switch(e.Key)
                 {
-                    await VtConnection.SendData(code);
-                });
+                    case Windows.System.VirtualKey.F10:
+                        Consumer.SequenceDebugging = !Consumer.SequenceDebugging;
+                        return;
 
-                e.Handled = true;
+                    case Windows.System.VirtualKey.F11:
+                        ViewDebugging = !ViewDebugging;
+                        canvas.Invalidate();
+                        return;
 
-                if (ViewTop != Terminal.ViewPort.TopRow)
-                {
-                    Terminal.ViewPort.SetTopLine(ViewTop);
-                    canvas.Invalidate();
+                    case Windows.System.VirtualKey.F12:
+                        Terminal.Debugging = !Terminal.Debugging;
+                        return;
                 }
+            }
+
+            // Since I get the same key twice in TerminalKeyDown and in CoreWindow_CharacterReceived
+            // I lookup whether KeyPressed should handle the key here or there.
+            var code = Terminal.GetKeySequence(e.Key.ToString(), controlPressed, shiftPressed);
+            if(code != null)
+                e.Handled = Terminal.KeyPressed(e.Key.ToString(), controlPressed, shiftPressed);
+
+            if (ViewTop != Terminal.ViewPort.TopRow)
+            {
+                Terminal.ViewPort.SetTopLine(ViewTop);
+                canvas.Invalidate();
             }
 
             //System.Diagnostics.Debug.WriteLine(e.Key.ToString() + ",S" + (shiftPressed ? "1" : "0") + ",C" + (controlPressed ? "1" : "0"));
@@ -470,6 +471,7 @@
             int oldViewTop = ViewTop;
 
             ViewTop -= pointer.Properties.MouseWheelDelta / 40;
+
             if (ViewTop < 0)
                 ViewTop = 0;
             else if (ViewTop > Terminal.ViewPort.TopRow)
@@ -530,6 +532,7 @@
                             End = MousePressedAt
                         };
                     }
+
                     Selecting = true;
 
                     if (TextSelection != newSelection)
@@ -607,9 +610,9 @@
             Task.Run(() =>
             {
                 var buffer = Encoding.UTF8.GetBytes(text);
-                Task.Run(async () =>
+                Task.Run(() =>
                 {
-                    await VtConnection.SendData(buffer);
+                    VtConnection.SendData(buffer);
                 });
             });
         }
