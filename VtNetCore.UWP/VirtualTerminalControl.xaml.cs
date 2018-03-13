@@ -47,6 +47,7 @@
                 {
                     lock(_rawText)
                     {
+
                         _rawTextString = new string(_rawText, 0, _rawTextLength);
                         _rawTextChanged = false;
                     }
@@ -179,24 +180,6 @@
 
                 _rawTextChanged = true;
             }
-
-            //var textLines = Terminal.RawText.Replace("\r", "").Split("\n");
-
-            //lock (_rawTextLines)
-            //{
-            //    if (_rawTextLines.Count == 0)
-            //    {
-            //        _rawTextLines.AddRange(textLines);
-            //    }
-            //    else
-            //    {
-            //        _rawTextLines[_rawTextLines.Count - 1] += textLines[0];
-
-            //        for (var i = 1; i < textLines.Length; i++)
-            //            _rawTextLines.Add(textLines[i]);
-            //    }
-            //}
-            //_rawTextChanged = true;
         }
 
         private void OnCanvasDraw(CanvasControl sender, CanvasDrawEventArgs args)
@@ -239,23 +222,79 @@
                         (float)(line.DoubleHeightBottom | line.DoubleHeightTop ? 2.0 : 1.0)
                     );
 
-                    foreach (var character in line)
+                    var spanStart = 0;
+                    while (column < line.Count)
                     {
                         bool selected = TextSelection == null ? false : TextSelection.Within(column, row);
+                        var backgroundColor = GetBackgroundColor(line[column].Attributes, selected);
+
+                        if (column < (line.Count - 1) && GetBackgroundColor(line[column + 1].Attributes, TextSelection == null ? false : TextSelection.Within(column + 1, row)) == backgroundColor)
+                        {
+                            column++;
+                            continue;
+                        }
 
                         var rect = new Rect(
-                            column * CharacterWidth,
+                            spanStart * CharacterWidth,
                             ((row - (line.DoubleHeightBottom ? 1 : 0)) * CharacterHeight + verticalOffset) * (line.DoubleHeightBottom | line.DoubleHeightTop ? 0.5 : 1.0),
-                            CharacterWidth + 0.9,
+                            ((column - spanStart + 1) * CharacterWidth) + 0.9,
                             CharacterHeight + 0.9
                         );
 
-                        var toDisplay = character.Char.ToString() + character.CombiningCharacters;
+                        drawingSession.FillRectangle(rect, backgroundColor);
+
+                        column++;
+                        spanStart = column;
+                    }
+
+                    row++;
+                }
+                drawingSession.Transform = defaultTransform;
+
+                row = ViewTop;
+                foreach (var line in lines)
+                {
+                    if (line == null)
+                    {
+                        row++;
+                        continue;
+                    }
+
+                    int column = 0;
+
+                    drawingSession.Transform = Matrix3x2.CreateScale(
+                        (float)(line.DoubleWidth ? 2.0 : 1.0),
+                        (float)(line.DoubleHeightBottom | line.DoubleHeightTop ? 2.0 : 1.0)
+                    );
+
+                    var spanStart = 0;
+                    string toDisplay = string.Empty;
+                    while (column < line.Count)
+                    {
+                        bool selected = TextSelection == null ? false : TextSelection.Within(column, row);
+                        var foregroundColor = GetForegroundColor(line[column].Attributes, selected);
+
+                        toDisplay += line[column].Char.ToString() + line[column].CombiningCharacters;
+                        if (
+                            column < (line.Count - 1) && 
+                            GetForegroundColor(line[column + 1].Attributes, TextSelection == null ? false : TextSelection.Within(column + 1, row)) == foregroundColor &&
+                            line[column + 1].Attributes.Underscore == line[column].Attributes.Underscore &&
+                            line[column + 1].Attributes.Reverse == line[column].Attributes.Reverse &&
+                            line[column + 1].Attributes.Bright == line[column].Attributes.Bright
+                            )
+                        {
+                            column++;
+                            continue;
+                        }
+
+                        var rect = new Rect(
+                            spanStart * CharacterWidth,
+                            ((row - (line.DoubleHeightBottom ? 1 : 0)) * CharacterHeight + verticalOffset) * (line.DoubleHeightBottom | line.DoubleHeightTop ? 0.5 : 1.0),
+                            ((column - spanStart + 1) * CharacterWidth) + 0.9,
+                            CharacterHeight + 0.9
+                        );
 
                         var textLayout = new CanvasTextLayout(drawingSession, toDisplay, format, 0.0f, 0.0f);
-                        var backgroundColor = GetBackgroundColor(character.Attributes, selected);
-                        var foregroundColor = GetForegroundColor(character.Attributes, selected);
-                        drawingSession.FillRectangle(rect, backgroundColor);
 
                         drawingSession.DrawTextLayout(
                             textLayout,
@@ -264,7 +303,7 @@
                             foregroundColor
                         );
 
-                        if (character.Attributes.Underscore)
+                        if (line[column].Attributes.Underscore)
                         {
                             drawingSession.DrawLine(
                                 new Vector2(
@@ -280,7 +319,50 @@
                         }
 
                         column++;
+                        spanStart = column;
+                        toDisplay = "";
                     }
+
+                    //foreach (var character in line)
+                    //{
+                    //    bool selected = TextSelection == null ? false : TextSelection.Within(column, row);
+
+                    //    var rect = new Rect(
+                    //        column * CharacterWidth,
+                    //        ((row - (line.DoubleHeightBottom ? 1 : 0)) * CharacterHeight + verticalOffset) * (line.DoubleHeightBottom | line.DoubleHeightTop ? 0.5 : 1.0),
+                    //        CharacterWidth + 0.9,
+                    //        CharacterHeight + 0.9
+                    //    );
+
+                    //    var toDisplay = character.Char.ToString() + character.CombiningCharacters;
+
+                    //    var textLayout = new CanvasTextLayout(drawingSession, toDisplay, format, 0.0f, 0.0f);
+                    //    var foregroundColor = GetForegroundColor(character.Attributes, selected);
+
+                    //    drawingSession.DrawTextLayout(
+                    //        textLayout,
+                    //        (float)rect.Left,
+                    //        (float)rect.Top,
+                    //        foregroundColor
+                    //    );
+
+                    //    if (character.Attributes.Underscore)
+                    //    {
+                    //        drawingSession.DrawLine(
+                    //            new Vector2(
+                    //                (float)rect.Left,
+                    //                (float)rect.Bottom
+                    //            ),
+                    //            new Vector2(
+                    //                (float)rect.Right,
+                    //                (float)rect.Bottom
+                    //            ),
+                    //            foregroundColor
+                    //        );
+                    //    }
+
+                    //    column++;
+                    //}
                     row++;
                 }
                 drawingSession.Transform = defaultTransform;
@@ -596,8 +678,8 @@
             if (pointer.Properties.IsLeftButtonPressed)
             {
                 TextRange newSelection;
-
                 var textPosition = position.OffsetBy(0, ViewTop);
+
                 if (MousePressedAt != textPosition)
                 {
                     if (MousePressedAt <= textPosition)
@@ -631,7 +713,7 @@
                 }
             }
 
-            if(DebugMouse)
+            if (DebugMouse)
                 System.Diagnostics.Debug.WriteLine("Pointer Moved " + position.ToString());
         }
 
@@ -652,15 +734,32 @@
             var pointer = e.GetCurrentPoint(canvas);
             var position = ToPosition(pointer.Position);
 
+            var textPosition = position.OffsetBy(0, ViewTop);
             if (pointer.Properties.IsLeftButtonPressed)
-                MousePressedAt = position.OffsetBy(0, ViewTop);
+                MousePressedAt = textPosition;
             else if (pointer.Properties.IsRightButtonPressed)
                 PasteClipboard();
+
+            if (Connected && position.Column >= 0 && position.Row >= 0 && position.Column < Columns && position.Row < Rows)
+            {
+                var controlPressed = (Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down));
+                var shiftPressed = (Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
+
+                var button =
+                    pointer.Properties.IsLeftButtonPressed ? 0 :
+                        pointer.Properties.IsRightButtonPressed ? 1 :
+                            2;  // Middle button
+
+                Terminal.MousePress(position.Column, position.Row, button, controlPressed, shiftPressed);
+            }
         }
 
         private void TerminalPointerReleased(object sender, PointerRoutedEventArgs e)
         {
             var pointer = e.GetCurrentPoint(canvas);
+            var position = ToPosition(pointer.Position);
+            var textPosition = position.OffsetBy(0, ViewTop);
+
             if (!pointer.Properties.IsLeftButtonPressed)
             {
                 if (Selecting)
@@ -683,6 +782,14 @@
                     TextSelection = null;
                     canvas.Invalidate();
                 }
+            }
+
+            if (Connected && position.Column >= 0 && position.Row >= 0 && position.Column < Columns && position.Row < Rows)
+            {
+                var controlPressed = (Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down));
+                var shiftPressed = (Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
+
+                Terminal.MouseRelease(position.Column, position.Row, controlPressed, shiftPressed);
             }
         }
 

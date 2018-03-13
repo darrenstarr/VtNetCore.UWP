@@ -16,10 +16,17 @@
     public sealed partial class MainPage : Page
     {
         DispatcherTimer tickTock;
+        ScriptTool.ScriptTool scriptTool = new ScriptTool.ScriptTool();
 
         public MainPage()
         {
             this.InitializeComponent();
+
+            Task.Run(async () =>
+                {
+                    await scriptTool.LoadConnectionProfiles();
+                }
+            );
         }
 
         private void OnUrlTapped(object sender, TappedRoutedEventArgs e)
