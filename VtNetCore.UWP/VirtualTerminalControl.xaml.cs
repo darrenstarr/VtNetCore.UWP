@@ -4,7 +4,9 @@
     using Microsoft.Graphics.Canvas.Text;
     using Microsoft.Graphics.Canvas.UI.Xaml;
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Linq;
     using System.Numerics;
     using System.Text;
     using System.Threading.Tasks;
@@ -32,7 +34,27 @@
         public bool DebugMouse { get; set; }
         public bool DebugSelect { get; set; }
 
-        public string RawText { get; set; }
+        private char [] _rawText = new char[0];
+        private int _rawTextLength = 0;
+        private string _rawTextString = "";
+        private bool _rawTextChanged = false;
+        public DateTime TerminalIdleSince = DateTime.Now;
+        public string RawText
+        {
+            get
+            {
+                if (_rawTextChanged)
+                {
+                    lock(_rawText)
+                    {
+                        _rawTextString = new string(_rawText, 0, _rawTextLength);
+                        _rawTextChanged = false;
+                    }
+                }
+                return _rawTextString;
+            }
+        }
+
         //public string LogText { get; set; } = string.Empty;
 
         public VirtualTerminalControl()
@@ -43,18 +65,13 @@
 
             Terminal.SendData += OnSendData;
             Terminal.WindowTitleChanged += OnWindowTitleChanged;
-            Terminal.OnRawText += OnRawText;
             Terminal.OnLog += OnLog;
+            Terminal.StoreRawText = true;
         }
 
         private void OnLog(object sender, TextEventArgs e)
         {
             //LogText += (e.Text.Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t") + "\n");
-        }
-
-        private void OnRawText(object sender, TextEventArgs e)
-        {
-            RawText += (e.Text.Replace("\r", ""));
         }
 
         private void OnWindowTitleChanged(object sender, TextEventArgs e)
@@ -135,6 +152,7 @@
 
                 if (Terminal.Changed)
                 {
+                    ProcessRawText();
                     Terminal.ClearChanges();
 
                     if (oldTopRow != Terminal.ViewPort.TopRow && oldTopRow >= ViewTop)
@@ -142,7 +160,43 @@
 
                     canvas.Invalidate();
                 }
+
+                TerminalIdleSince = DateTime.Now;
             }
+        }
+
+        private void ProcessRawText()
+        {
+            var incoming = Terminal.RawText;
+
+            lock (_rawText)
+            {
+                if ((_rawTextLength + incoming.Length) > _rawText.Length)
+                    Array.Resize(ref _rawText, _rawText.Length + 1000000);
+
+                for (var i = 0; i < incoming.Length; i++)
+                    _rawText[_rawTextLength++] = incoming[i];
+
+                _rawTextChanged = true;
+            }
+
+            //var textLines = Terminal.RawText.Replace("\r", "").Split("\n");
+
+            //lock (_rawTextLines)
+            //{
+            //    if (_rawTextLines.Count == 0)
+            //    {
+            //        _rawTextLines.AddRange(textLines);
+            //    }
+            //    else
+            //    {
+            //        _rawTextLines[_rawTextLines.Count - 1] += textLines[0];
+
+            //        for (var i = 1; i < textLines.Length; i++)
+            //            _rawTextLines.Add(textLines[i]);
+            //    }
+            //}
+            //_rawTextChanged = true;
         }
 
         private void OnCanvasDraw(CanvasControl sender, CanvasDrawEventArgs args)
@@ -392,7 +446,11 @@
 
                 case "\r":
                     //LogText = "";
-                    RawText = "";
+                    lock(_rawText)
+                    {
+                        _rawTextLength = 0;
+                        _rawTextChanged = true;
+                    }
                     return;
 
                 default:
@@ -468,17 +526,43 @@
         {
             var pointer = e.GetCurrentPoint(canvas);
 
-            int oldViewTop = ViewTop;
+            var controlPressed = (Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down));
 
-            ViewTop -= pointer.Properties.MouseWheelDelta / 40;
+            if (controlPressed)
+            {
+                double scale = 0.9 * (pointer.Properties.MouseWheelDelta / 120);
 
-            if (ViewTop < 0)
-                ViewTop = 0;
-            else if (ViewTop > Terminal.ViewPort.TopRow)
-                ViewTop = Terminal.ViewPort.TopRow;
+                var newFontSize = FontSize;
+                if (scale < 0)
+                    newFontSize *= Math.Abs(scale);
+                else
+                    newFontSize /= scale;
 
-            if (oldViewTop != ViewTop)
-                canvas.Invalidate();
+                if (newFontSize < 2)
+                    newFontSize = 2;
+                if (newFontSize > 20)
+                    newFontSize = 20;
+
+                if (newFontSize != FontSize)
+                {
+                    FontSize = newFontSize;
+                    canvas.Invalidate();
+                }
+            }
+            else
+            {
+                int oldViewTop = ViewTop;
+
+                ViewTop -= pointer.Properties.MouseWheelDelta / 40;
+
+                if (ViewTop < 0)
+                    ViewTop = 0;
+                else if (ViewTop > Terminal.ViewPort.TopRow)
+                    ViewTop = Terminal.ViewPort.TopRow;
+
+                if (oldViewTop != ViewTop)
+                    canvas.Invalidate();
+            }
         }
 
         TextPosition MouseOver { get; set; } = new TextPosition();

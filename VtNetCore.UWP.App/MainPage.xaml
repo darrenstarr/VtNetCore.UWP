@@ -5,13 +5,15 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
+      KeyDown="Page_KeyDown"
       >
-
+    
     <Page.TopAppBar>
         <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right" Margin="0,0,9,0" IsTabStop="False">
             <CommandBar.SecondaryCommands>
                 <AppBarButton Icon="MapDrive" Label="Connect" Tapped="ConnectTapped" />
                 <AppBarButton Icon="MapDrive" Label="Disconnect" Tapped="DisconnectTapped" />
+                <AppBarButton Icon="MapDrive" Label="Show/Hide Raw" Tapped="ToggleRawText" />
             </CommandBar.SecondaryCommands>
             <CommandBar.Content>
                 <StackPanel Orientation="Horizontal">
@@ -19,7 +21,8 @@
                     <TextBlock Text="{x:Bind Url.Text, Mode=OneWay}" Tapped="OnUrlTapped" Margin="0,14">
                         <FlyoutBase.AttachedFlyout>
                             <Flyout>
-                                <TextBox x:Name="Url" Text="ssh://10.100.5.100"/>
+                                <TextBox x:Name="Url" Text="ssh://10.100.5.2"/>
+                                <!--<TextBox x:Name="Url" Text="ssh://10.100.5.100"/>-->
                                 <!--<TextBox x:Name="Url" Text="telnet://10.100.5.100"/>-->
                             </Flyout>
                         </FlyoutBase.AttachedFlyout>
@@ -47,52 +50,197 @@
         </CommandBar>
     </Page.TopAppBar>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="5*" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
-            <Grid.Background>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="Black" Offset="1"/>
-                    <GradientStop Color="White" Offset="0.23"/>
-                </LinearGradientBrush>
-            </Grid.Background>
-            <my:VirtualTerminalControl  x:Name="terminal" Grid.Row="0" Width="1024" Height="800">
-                <my:VirtualTerminalControl.Projection>
-                    <PlaneProjection RotationY="-12" CenterOfRotationX="0.5" GlobalOffsetZ="-200" GlobalOffsetX="-530" />
-                </my:VirtualTerminalControl.Projection>
-            </my:VirtualTerminalControl>
-            <TextBox 
-            x:Name="rawView"
-            IsTabStop="False"
-            Foreground="White"
-            Background="DarkBlue"
-            TextWrapping="Wrap"
-            AcceptsReturn="True"
-            Width="1024"
-            Height="800"
-            FontFamily="Consolas"
-            FontSize="13" AllowFocusOnInteraction="False"
-            >
-                <TextBox.Projection>
-                    <PlaneProjection RotationY="12" CenterOfRotationX="0.5" GlobalOffsetZ="-200" GlobalOffsetX="530" />
-                </TextBox.Projection>
-            </TextBox>
-        </Grid>
-        <Border Grid.Row="1">
-            <Border.Background>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="Black" Offset="0"/>
-                    <GradientStop Color="White" Offset="1"/>
-                </LinearGradientBrush>
-            </Border.Background>
-            <StackPanel Orientation="Vertical">
-                <TextBlock Foreground="#FFFDFDFD">Active sessions</TextBlock>
-                <StackPanel Orientation="Horizontal">
-                </StackPanel>
-            </StackPanel>
-        </Border>
-    </Grid>
+
+    <Page.Resources>
+        <Storyboard x:Name="HideRawView">
+            <DoubleAnimationUsingKeyFrames EnableDependentAnimation="True" Storyboard.TargetProperty="(FrameworkElement.Width)" Storyboard.TargetName="terminal">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="1280"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="1900"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames EnableDependentAnimation="True" Storyboard.TargetProperty="(FrameworkElement.Height)" Storyboard.TargetName="terminal">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="800"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="860"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Projection).(PlaneProjection.RotationY)" Storyboard.TargetName="terminal">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="-7"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Projection).(PlaneProjection.RotationZ)" Storyboard.TargetName="terminal">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Canvas.Top)" Storyboard.TargetName="terminal">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="-27"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="2"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="terminal">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="10"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)" Storyboard.TargetName="terminal">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="8"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleX)" Storyboard.TargetName="terminal">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0.74"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)" Storyboard.TargetName="terminal">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0.74"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Canvas.Left)" Storyboard.TargetName="terminal">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="-116"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="2"/>
+            </DoubleAnimationUsingKeyFrames>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(Canvas.ZIndex)" Storyboard.TargetName="terminal">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.1">
+                    <DiscreteObjectKeyFrame.Value>
+                        <x:Int32>0</x:Int32>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.6">
+                    <DiscreteObjectKeyFrame.Value>
+                        <x:Int32>1</x:Int32>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleX)" Storyboard.TargetName="rawView">
+                <EasingDoubleKeyFrame KeyTime="0" Value="0.74"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0.01"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)" Storyboard.TargetName="rawView">
+                <EasingDoubleKeyFrame KeyTime="0" Value="0.74"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0.01"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)" Storyboard.TargetName="rawView">
+                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="636"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="rawView">
+                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="548"/>
+            </DoubleAnimationUsingKeyFrames>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="rawView">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Visible</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Collapsed</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
+        <Storyboard x:Name="ShowRawView">
+            <DoubleAnimationUsingKeyFrames EnableDependentAnimation="True" Storyboard.TargetProperty="(FrameworkElement.Width)" Storyboard.TargetName="terminal">
+                <EasingDoubleKeyFrame KeyTime="0" Value="1900"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="1280"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames EnableDependentAnimation="True" Storyboard.TargetProperty="(FrameworkElement.Height)" Storyboard.TargetName="terminal">
+                <EasingDoubleKeyFrame KeyTime="0" Value="860"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="800"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Projection).(PlaneProjection.RotationY)" Storyboard.TargetName="terminal">
+                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="-7"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="terminal">
+                <EasingDoubleKeyFrame KeyTime="0" Value="10"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)" Storyboard.TargetName="terminal">
+                <EasingDoubleKeyFrame KeyTime="0" Value="8"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleX)" Storyboard.TargetName="terminal">
+                <EasingDoubleKeyFrame KeyTime="0" Value="1"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="0.74"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)" Storyboard.TargetName="terminal">
+                <EasingDoubleKeyFrame KeyTime="0" Value="1"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="0.74"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Canvas.Left)" Storyboard.TargetName="terminal">
+                <EasingDoubleKeyFrame KeyTime="0" Value="2"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="-116"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Canvas.Top)" Storyboard.TargetName="terminal">
+                <EasingDoubleKeyFrame KeyTime="0" Value="8"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="-27"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Projection).(PlaneProjection.RotationY)" Storyboard.TargetName="rawView">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="-7"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.7" Value="7"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="rawView">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="-878"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.7" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)" Storyboard.TargetName="rawView">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.7" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="rawView">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Collapsed</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.4">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Visible</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="rawView">
+                <EasingDoubleKeyFrame KeyTime="0" Value="1"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.7" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimation Duration="0" To="0.74" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleX)" Storyboard.TargetName="rawView" d:IsOptimized="True"/>
+            <DoubleAnimation Duration="0" To="0.74" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)" Storyboard.TargetName="rawView" d:IsOptimized="True"/>
+        </Storyboard>
+    </Page.Resources>
+
+    <Canvas>
+        <Canvas.Background>
+            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <GradientStop Color="Black" Offset="1"/>
+                <GradientStop Color="White" Offset="0.23"/>
+            </LinearGradientBrush>
+        </Canvas.Background>
+
+        <my:VirtualTerminalControl  x:Name="terminal" Width="1280" Height="800" Canvas.Left="-116" Canvas.Top="-27" RenderTransformOrigin="0.5,0.5">
+            <my:VirtualTerminalControl.RenderTransform>
+                <CompositeTransform ScaleX="0.74" ScaleY="0.74"/>
+            </my:VirtualTerminalControl.RenderTransform>
+            <my:VirtualTerminalControl.Projection>
+                <PlaneProjection RotationY="-7"/>
+            </my:VirtualTerminalControl.Projection>
+        </my:VirtualTerminalControl>
+        
+        <TextBox 
+        x:Name="rawView"
+        IsTabStop="False"
+        Foreground="White"
+        Background="DarkRed"
+        TextWrapping="Wrap"
+        AcceptsReturn="True"
+        Width="1280"
+        Height="800"
+        FontFamily="Consolas"
+        FontSize="13" AllowFocusOnInteraction="False"
+        Canvas.Left="763" Canvas.Top="-27" RenderTransformOrigin="0.5,0.5"
+        >
+            <TextBox.RenderTransform>
+                <CompositeTransform ScaleX="0.74" ScaleY="0.74"/>
+            </TextBox.RenderTransform>
+            <TextBox.Projection>
+                <PlaneProjection RotationY="7"/>
+            </TextBox.Projection>
+        </TextBox>
+    </Canvas>
 </Page>

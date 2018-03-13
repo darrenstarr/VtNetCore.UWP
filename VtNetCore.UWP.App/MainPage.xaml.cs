@@ -3,10 +3,12 @@
     using System;
     using System.Threading.Tasks;
     using Windows.ApplicationModel.Core;
+    using Windows.UI.Core;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Controls.Primitives;
     using Windows.UI.Xaml.Input;
+    using Windows.UI.Xaml.Media.Animation;
 
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -44,18 +46,22 @@
         int OldRawLength = 0;
         private void TickTock_Tick(object sender, object e)
         {
-            if (OldRawLength != terminal.RawText.Length)
+            if (DateTime.Now.Subtract(terminal.TerminalIdleSince).TotalSeconds > 0.25)
             {
-                rawView.Text = terminal.RawText.ToString();
-                OldRawLength = rawView.Text.Length;
-
-                var grid = (Grid)Windows.UI.Xaml.Media.VisualTreeHelper.GetChild(rawView, 0);
-                for (var i = 0; i <= Windows.UI.Xaml.Media.VisualTreeHelper.GetChildrenCount(grid) - 1; i++)
+                var text = terminal.RawText;
+                if (OldRawLength != text.Length)
                 {
-                    object obj = Windows.UI.Xaml.Media.VisualTreeHelper.GetChild(grid, i);
-                    if (!(obj is ScrollViewer)) continue;
-                    ((ScrollViewer)obj).ChangeView(0.0f, ((ScrollViewer)obj).ExtentHeight, 1.0f);
-                    break;
+                    rawView.Text = text;
+                    OldRawLength = text.Length;
+
+                    var grid = (Grid)Windows.UI.Xaml.Media.VisualTreeHelper.GetChild(rawView, 0);
+                    for (var i = 0; i <= Windows.UI.Xaml.Media.VisualTreeHelper.GetChildrenCount(grid) - 1; i++)
+                    {
+                        object obj = Windows.UI.Xaml.Media.VisualTreeHelper.GetChild(grid, i);
+                        if (!(obj is ScrollViewer)) continue;
+                        ((ScrollViewer)obj).ChangeView(0.0f, ((ScrollViewer)obj).ExtentHeight, 1.0f);
+                        break;
+                    }
                 }
             }
         }
@@ -63,6 +69,32 @@
         private void DisconnectTapped(object sender, TappedRoutedEventArgs e)
         {
             terminal.Disconnect();
+        }
+
+        private void ToggleRawText(object sender, TappedRoutedEventArgs e)
+        {
+            if (HideRawView.GetCurrentState() == ClockState.Active || ShowRawView.GetCurrentState() == ClockState.Active)
+                return;
+
+            if (rawView.Visibility == Visibility.Visible)
+                HideRawView.Begin();
+            else
+                ShowRawView.Begin();
+        }
+
+        private void Page_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            var controlPressed = (Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down));
+            if (e.Key == Windows.System.VirtualKey.F9 && controlPressed)
+            {
+                if (HideRawView.GetCurrentState() == ClockState.Active || ShowRawView.GetCurrentState() == ClockState.Active)
+                    return;
+
+                if (rawView.Visibility == Visibility.Visible)
+                    HideRawView.Begin();
+                else
+                    ShowRawView.Begin();
+            }
         }
     }
 }
