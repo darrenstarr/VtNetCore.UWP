@@ -10,3 +10,6 @@
 [submodule "modules/SerialPortStream"]
 	path = modules/SerialPortStream
 	url = https://github.com/darrenstarr/SerialPortStream.git
+[submodule "modules/SshNetCryptography"]
+	path = modules/SshNetCryptography
+	url = https://github.com/darrenstarr/Cryptography.git
