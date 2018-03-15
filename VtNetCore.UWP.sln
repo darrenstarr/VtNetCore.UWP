@@ -26,6 +26,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VtConnect.Tests", "modules\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerialPortStream-netstandard15", "modules\SerialPortStream\code\SerialPortStream-netstandard15.csproj", "{174DC88F-D87D-4596-B16E-9D42E2450D9C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SshNet.Security.Cryptography.NETStandard", "modules\SshNetCryptography\src\SshNet.Security.Cryptography.NETStandard\SshNet.Security.Cryptography.NETStandard.csproj", "{F471DB67-C138-4535-BBE7-BCEBFBC33626}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -170,6 +172,22 @@ Global
 		{174DC88F-D87D-4596-B16E-9D42E2450D9C}.Release|x64.Build.0 = Release|Any CPU
 		{174DC88F-D87D-4596-B16E-9D42E2450D9C}.Release|x86.ActiveCfg = Release|Any CPU
 		{174DC88F-D87D-4596-B16E-9D42E2450D9C}.Release|x86.Build.0 = Release|Any CPU
+		{F471DB67-C138-4535-BBE7-BCEBFBC33626}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F471DB67-C138-4535-BBE7-BCEBFBC33626}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F471DB67-C138-4535-BBE7-BCEBFBC33626}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{F471DB67-C138-4535-BBE7-BCEBFBC33626}.Debug|ARM.Build.0 = Debug|Any CPU
+		{F471DB67-C138-4535-BBE7-BCEBFBC33626}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F471DB67-C138-4535-BBE7-BCEBFBC33626}.Debug|x64.Build.0 = Debug|Any CPU
+		{F471DB67-C138-4535-BBE7-BCEBFBC33626}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F471DB67-C138-4535-BBE7-BCEBFBC33626}.Debug|x86.Build.0 = Debug|Any CPU
+		{F471DB67-C138-4535-BBE7-BCEBFBC33626}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F471DB67-C138-4535-BBE7-BCEBFBC33626}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F471DB67-C138-4535-BBE7-BCEBFBC33626}.Release|ARM.ActiveCfg = Release|Any CPU
+		{F471DB67-C138-4535-BBE7-BCEBFBC33626}.Release|ARM.Build.0 = Release|Any CPU
+		{F471DB67-C138-4535-BBE7-BCEBFBC33626}.Release|x64.ActiveCfg = Release|Any CPU
+		{F471DB67-C138-4535-BBE7-BCEBFBC33626}.Release|x64.Build.0 = Release|Any CPU
+		{F471DB67-C138-4535-BBE7-BCEBFBC33626}.Release|x86.ActiveCfg = Release|Any CPU
+		{F471DB67-C138-4535-BBE7-BCEBFBC33626}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -181,6 +199,7 @@ Global
 		{6E786F2C-4EB7-4406-9274-392F13D492D6} = {F7315C17-4F9E-4050-9EDB-FE818EFCAD49}
 		{8379BE4C-AA1B-49F9-834B-A934FBC3BCB5} = {F7315C17-4F9E-4050-9EDB-FE818EFCAD49}
 		{174DC88F-D87D-4596-B16E-9D42E2450D9C} = {F7315C17-4F9E-4050-9EDB-FE818EFCAD49}
+		{F471DB67-C138-4535-BBE7-BCEBFBC33626} = {F7315C17-4F9E-4050-9EDB-FE818EFCAD49}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CFE8AFBD-52FF-49C8-9323-B1F40DF92918}
