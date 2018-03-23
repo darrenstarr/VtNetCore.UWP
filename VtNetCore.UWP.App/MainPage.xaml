@@ -4,243 +4,163 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d"
-      KeyDown="Page_KeyDown"
+    xmlns:monaco="using:Monaco"
       >
-    
-    <Page.TopAppBar>
-        <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right" Margin="0,0,9,0" IsTabStop="False">
-            <CommandBar.SecondaryCommands>
-                <AppBarButton Icon="MapDrive" Label="Connect" Tapped="ConnectTapped" />
-                <AppBarButton Icon="MapDrive" Label="Disconnect" Tapped="DisconnectTapped" />
-                <AppBarButton Icon="MapDrive" Label="Show/Hide Raw" Tapped="ToggleRawText" />
-            </CommandBar.SecondaryCommands>
-            <CommandBar.Content>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="URL :" Margin="12,14" />
-                    <TextBlock Text="{x:Bind Url.Text, Mode=OneWay}" Tapped="OnUrlTapped" Margin="0,14">
-                        <FlyoutBase.AttachedFlyout>
-                            <Flyout>
-                                <TextBox x:Name="Url" Text="ssh://10.100.5.2"/>
-                                <!--<TextBox x:Name="Url" Text="ssh://10.100.5.100"/>-->
-                                <!--<TextBox x:Name="Url" Text="telnet://10.100.5.100"/>-->
-                            </Flyout>
-                        </FlyoutBase.AttachedFlyout>
-                    </TextBlock>
-
-                    <TextBlock Text="Username:" Margin="12,14" />
-                    <TextBlock Text="{x:Bind Username.Text, Mode=OneWay}" Tapped="OnUrlTapped" Margin="0,14">
-                        <FlyoutBase.AttachedFlyout>
-                            <Flyout>
-                                <TextBox x:Name="Username" Text="admin"/>
-                            </Flyout>
-                        </FlyoutBase.AttachedFlyout>
-                    </TextBlock>
-
-                    <TextBlock Text="Password:" Margin="12,14" />
-                    <TextBlock Text="******" Tapped="OnUrlTapped" Margin="0,14">
-                        <FlyoutBase.AttachedFlyout>
-                            <Flyout>
-                                <PasswordBox x:Name="Password" Password="Minions12345"/>
-                            </Flyout>
-                        </FlyoutBase.AttachedFlyout>
-                    </TextBlock>
-                </StackPanel>
-            </CommandBar.Content>
-        </CommandBar>
-    </Page.TopAppBar>
 
 
     <Page.Resources>
-        <Storyboard x:Name="HideRawView">
-            <DoubleAnimationUsingKeyFrames EnableDependentAnimation="True" Storyboard.TargetProperty="(FrameworkElement.Width)" Storyboard.TargetName="terminal">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="1280"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="1900"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames EnableDependentAnimation="True" Storyboard.TargetProperty="(FrameworkElement.Height)" Storyboard.TargetName="terminal">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="800"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="860"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Projection).(PlaneProjection.RotationY)" Storyboard.TargetName="terminal">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="-7"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="0"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Projection).(PlaneProjection.RotationZ)" Storyboard.TargetName="terminal">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="0"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Canvas.Top)" Storyboard.TargetName="terminal">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="-27"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="2"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="terminal">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="10"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)" Storyboard.TargetName="terminal">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="8"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleX)" Storyboard.TargetName="terminal">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0.74"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="1"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)" Storyboard.TargetName="terminal">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0.74"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="1"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Canvas.Left)" Storyboard.TargetName="terminal">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="-116"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="2"/>
-            </DoubleAnimationUsingKeyFrames>
-            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(Canvas.ZIndex)" Storyboard.TargetName="terminal">
-                <DiscreteObjectKeyFrame KeyTime="0:0:0.1">
-                    <DiscreteObjectKeyFrame.Value>
-                        <x:Int32>0</x:Int32>
-                    </DiscreteObjectKeyFrame.Value>
-                </DiscreteObjectKeyFrame>
-                <DiscreteObjectKeyFrame KeyTime="0:0:0.6">
-                    <DiscreteObjectKeyFrame.Value>
-                        <x:Int32>1</x:Int32>
-                    </DiscreteObjectKeyFrame.Value>
-                </DiscreteObjectKeyFrame>
-            </ObjectAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleX)" Storyboard.TargetName="rawView">
-                <EasingDoubleKeyFrame KeyTime="0" Value="0.74"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0.01"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)" Storyboard.TargetName="rawView">
-                <EasingDoubleKeyFrame KeyTime="0" Value="0.74"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0.01"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)" Storyboard.TargetName="rawView">
-                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="636"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="rawView">
-                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="548"/>
-            </DoubleAnimationUsingKeyFrames>
-            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="rawView">
-                <DiscreteObjectKeyFrame KeyTime="0">
-                    <DiscreteObjectKeyFrame.Value>
-                        <Visibility>Visible</Visibility>
-                    </DiscreteObjectKeyFrame.Value>
-                </DiscreteObjectKeyFrame>
-                <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
-                    <DiscreteObjectKeyFrame.Value>
-                        <Visibility>Collapsed</Visibility>
-                    </DiscreteObjectKeyFrame.Value>
-                </DiscreteObjectKeyFrame>
-            </ObjectAnimationUsingKeyFrames>
-        </Storyboard>
-        <Storyboard x:Name="ShowRawView">
-            <DoubleAnimationUsingKeyFrames EnableDependentAnimation="True" Storyboard.TargetProperty="(FrameworkElement.Width)" Storyboard.TargetName="terminal">
-                <EasingDoubleKeyFrame KeyTime="0" Value="1900"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="1280"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames EnableDependentAnimation="True" Storyboard.TargetProperty="(FrameworkElement.Height)" Storyboard.TargetName="terminal">
-                <EasingDoubleKeyFrame KeyTime="0" Value="860"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="800"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Projection).(PlaneProjection.RotationY)" Storyboard.TargetName="terminal">
-                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="-7"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="terminal">
-                <EasingDoubleKeyFrame KeyTime="0" Value="10"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="0"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)" Storyboard.TargetName="terminal">
-                <EasingDoubleKeyFrame KeyTime="0" Value="8"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="0"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleX)" Storyboard.TargetName="terminal">
-                <EasingDoubleKeyFrame KeyTime="0" Value="1"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="0.74"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)" Storyboard.TargetName="terminal">
-                <EasingDoubleKeyFrame KeyTime="0" Value="1"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="0.74"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Canvas.Left)" Storyboard.TargetName="terminal">
-                <EasingDoubleKeyFrame KeyTime="0" Value="2"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="-116"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Canvas.Top)" Storyboard.TargetName="terminal">
-                <EasingDoubleKeyFrame KeyTime="0" Value="8"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="-27"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Projection).(PlaneProjection.RotationY)" Storyboard.TargetName="rawView">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="-7"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.7" Value="7"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="rawView">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="-878"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.7" Value="0"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)" Storyboard.TargetName="rawView">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.7" Value="0"/>
-            </DoubleAnimationUsingKeyFrames>
-            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="rawView">
-                <DiscreteObjectKeyFrame KeyTime="0">
-                    <DiscreteObjectKeyFrame.Value>
-                        <Visibility>Collapsed</Visibility>
-                    </DiscreteObjectKeyFrame.Value>
-                </DiscreteObjectKeyFrame>
-                <DiscreteObjectKeyFrame KeyTime="0:0:0.4">
-                    <DiscreteObjectKeyFrame.Value>
-                        <Visibility>Visible</Visibility>
-                    </DiscreteObjectKeyFrame.Value>
-                </DiscreteObjectKeyFrame>
-            </ObjectAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="rawView">
-                <EasingDoubleKeyFrame KeyTime="0" Value="1"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.7" Value="1"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimation Duration="0" To="0.74" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleX)" Storyboard.TargetName="rawView" d:IsOptimized="True"/>
-            <DoubleAnimation Duration="0" To="0.74" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)" Storyboard.TargetName="rawView" d:IsOptimized="True"/>
-        </Storyboard>
+
     </Page.Resources>
 
-    <Canvas>
-        <Canvas.Background>
-            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                <GradientStop Color="Black" Offset="1"/>
-                <GradientStop Color="White" Offset="0.23"/>
-            </LinearGradientBrush>
-        </Canvas.Background>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="9"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*" />
+            <ColumnDefinition Width="9" />
+            <ColumnDefinition Width="4*" />
+        </Grid.ColumnDefinitions>
 
-        <my:VirtualTerminalControl  x:Name="terminal" Width="1280" Height="800" Canvas.Left="-116" Canvas.Top="-27" RenderTransformOrigin="0.5,0.5">
-            <my:VirtualTerminalControl.RenderTransform>
-                <CompositeTransform ScaleX="0.74" ScaleY="0.74"/>
-            </my:VirtualTerminalControl.RenderTransform>
-            <my:VirtualTerminalControl.Projection>
-                <PlaneProjection RotationY="-7"/>
-            </my:VirtualTerminalControl.Projection>
-        </my:VirtualTerminalControl>
+        <Pivot x:Name="terminals" Grid.Row="0" Grid.Column="2" FontFamily="Segoe UI">
+            <!--<PivotItem Header="{Binding ElementName=terminal, Path=WindowTitle, UpdateSourceTrigger=PropertyChanged}">
+                <my:VirtualTerminalControl x:Name="terminal" />
+            </PivotItem>-->
+        </Pivot>
         
-        <TextBox 
-        x:Name="rawView"
-        IsTabStop="False"
-        Foreground="White"
-        Background="DarkRed"
-        TextWrapping="Wrap"
-        AcceptsReturn="True"
-        Width="1280"
-        Height="800"
-        FontFamily="Consolas"
-        FontSize="13" AllowFocusOnInteraction="False"
-        Canvas.Left="763" Canvas.Top="-27" RenderTransformOrigin="0.5,0.5"
-        >
-            <TextBox.RenderTransform>
-                <CompositeTransform ScaleX="0.74" ScaleY="0.74"/>
-            </TextBox.RenderTransform>
-            <TextBox.Projection>
-                <PlaneProjection RotationY="7"/>
-            </TextBox.Projection>
-        </TextBox>
-    </Canvas>
+        <!--<Grid Grid.Column="2" Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right" Margin="0,0,9,0" IsTabStop="False">
+                <CommandBar.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="URL :" Margin="12,12" />
+                        <TextBox x:Name="Url" Text="ssh://10.100.5.2" Margin="12,8" />
+                        <TextBlock Text="Username:" Margin="12,12" />
+                        <TextBox x:Name="Username" Text="admin" Margin="12,8"/>
+                        <TextBlock Text="Password:" Margin="12,12" />
+                        <PasswordBox x:Name="Password" Password="Minions12345" Margin="12,8" FontFamily="Segoe UI" />
+
+                    </StackPanel>
+                </CommandBar.Content>
+                <AppBarButton Icon="MapDrive" Label="Connect" Tapped="ConnectTapped" />
+                <AppBarButton Icon="MapDrive" Label="Disconnect" Tapped="DisconnectTapped" />
+            </CommandBar>
+            <my:VirtualTerminalControl  x:Name="terminal" Grid.Row="1" />
+        </Grid>-->
+        <TextBox  x:Name="rawView" IsTabStop="False" TextWrapping="Wrap" AcceptsReturn="True" FontFamily="Consolas" FontSize="13" AllowFocusOnInteraction="False" Grid.Column="2" Grid.Row="2" />
+
+        <Grid Grid.Row="0" Grid.Column="0" Grid.RowSpan="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="5*" />
+                <RowDefinition Height="9" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Pivot x:Name="rootPivot" Grid.Row="0" Grid.Column="0" FontFamily="Segoe UI" Padding="0" Foreground="LightGray">
+                <PivotItem Header="New File.js">
+                    <!--Pivot content goes here-->
+                    <monaco:CodeEditor x:Name="Editor"
+                                TabIndex="0"
+                                HasGlyphMargin="True"
+                                CodeLanguage="javascript"
+                                KeyDown="Editor_KeyDown"
+                                Text="{x:Bind CodeContent, Mode=TwoWay}"
+                                FontFamily="Segoe UI"
+                                FontSize="12"
+                                Margin="0">
+                    </monaco:CodeEditor>
+                </PivotItem>
+                <PivotItem Header="Pivot Item 2">
+                    <!--Pivot content goes here-->
+                    <TextBlock Text="Content of pivot item 2."/>
+                </PivotItem>
+                <PivotItem Header="Pivot Item 3">
+                    <!--Pivot content goes here-->
+                    <TextBlock Text="Content of pivot item 3."/>
+                </PivotItem>
+            </Pivot>
+            <controls:GridSplitter
+            Foreground="White"
+            Grid.Row="1"
+            ResizeBehavior="BasedOnAlignment"
+            ResizeDirection="Auto"
+            Background="Gray" Height="9"
+            HorizontalAlignment="Stretch" 
+            FontSize="13">
+                <controls:GridSplitter.Element>
+                    <Grid>
+                        <TextBlock HorizontalAlignment="Center"     
+                        IsHitTestVisible="False"
+                        VerticalAlignment="Center"  
+                        Text="&#xE76F;"
+                        Foreground="Black" 
+                        FontFamily="Segoe MDL2 Assets">
+                        </TextBlock>
+                    </Grid>
+                </controls:GridSplitter.Element>
+            </controls:GridSplitter>
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right" Margin="0,0,9,0" IsTabStop="False">
+                    <AppBarButton Icon="MapDrive" Label="Run" Tapped="ScriptRunTapped" />
+                    <AppBarButton Icon="MapDrive" Label="Stop" Tapped="ScriptStopTapped" />
+                </CommandBar>
+                <my:VirtualTerminalControl  x:Name="javascriptConsole" Grid.Row="1" FontFamily="Segoe UI"/>
+            </Grid>
+        </Grid>
+
+        <controls:GridSplitter
+            Foreground="White"
+            Grid.Row="1"
+            Grid.Column="2"
+            ResizeBehavior="BasedOnAlignment"
+            ResizeDirection="Auto"
+            Background="Gray" Height="9"
+            HorizontalAlignment="Stretch" 
+            FontSize="13">
+            <controls:GridSplitter.Element>
+                <Grid>
+                    <TextBlock HorizontalAlignment="Center"     
+                        IsHitTestVisible="False"
+                        VerticalAlignment="Center"  
+                        Text="&#xE76F;"
+                        Foreground="Black" 
+                        FontFamily="Segoe MDL2 Assets">
+                    </TextBlock>
+                </Grid>
+            </controls:GridSplitter.Element>
+        </controls:GridSplitter>
+
+        <controls:GridSplitter 
+            Grid.Column="1"
+            Grid.RowSpan="3"
+                Width="9"
+                ResizeBehavior="BasedOnAlignment"
+                ResizeDirection="Auto"
+                Background="Gray"
+                Foreground="White" 
+                FontSize="13" FontFamily="Segoe MDL2 Assets">
+            <controls:GridSplitter.Element>
+                <Grid>
+                    <TextBlock HorizontalAlignment="Center" 
+                        IsHitTestVisible="False"
+                        VerticalAlignment="Center"  
+                        Text="&#xE784;"
+                        Foreground="Black" 
+                        FontFamily="Segoe MDL2 Assets">
+                    </TextBlock>
+                </Grid>
+            </controls:GridSplitter.Element>
+        </controls:GridSplitter>
+    </Grid>
+
 </Page>

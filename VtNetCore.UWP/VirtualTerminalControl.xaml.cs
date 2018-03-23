@@ -4,9 +4,7 @@
     using Microsoft.Graphics.Canvas.Text;
     using Microsoft.Graphics.Canvas.UI.Xaml;
     using System;
-    using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Linq;
     using System.Numerics;
     using System.Text;
     using System.Threading.Tasks;
@@ -23,12 +21,35 @@
     using Windows.UI.Xaml.Input;
     using Windows.UI.Xaml.Media;
 
-    public sealed partial class VirtualTerminalControl : UserControl
+    public sealed partial class VirtualTerminalControl : 
+        UserControl,
+        INotifyPropertyChanged
     {
         public VirtualTerminalController Terminal { get; set; } = new VirtualTerminalController();
         public DataConsumer Consumer { get; set; }
         public int ViewTop { get; set; } = 0;
-        public string WindowTitle { get; set; } = "Session";
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private string _windowTitle = "Session";
+        public string WindowTitle {
+            get
+            {
+                return _windowTitle;
+            }
+            private set
+            {
+                _windowTitle = (VtConnection == null ? "" : VtConnection.Destination.ToString() + " - ") +  value;
+                if (PropertyChanged != null)
+                {
+                    Task.Factory.StartNew(() =>
+                        Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                        {
+                            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("WindowTitle"));
+                        })
+                    );
+                }
+            }
+        }
 
         public bool ViewDebugging { get; set; }
         public bool DebugMouse { get; set; }
@@ -90,6 +111,16 @@
             });
         }
 
+        public void SendData(byte [] data)
+        {
+            if (!Connected)
+                return;
+            Task.Run(() =>
+            {
+                VtConnection.SendData(data);
+            });
+        }
+
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
         {
             canvas.RemoveFromVisualTree();
@@ -140,7 +171,32 @@
 
             var result = VtConnection.Connect(destination, credentials);
 
+            WindowTitle = "";
+
             return result;
+        }
+
+        public void PushText(string text)
+        {
+            lock(Terminal)
+            {
+                int oldTopRow = Terminal.ViewPort.TopRow;
+
+                Consumer.Push(Encoding.UTF8.GetBytes(text));
+
+                if (Terminal.Changed)
+                {
+                    ProcessRawText();
+                    Terminal.ClearChanges();
+
+                    if (oldTopRow != Terminal.ViewPort.TopRow && oldTopRow >= ViewTop)
+                        ViewTop = Terminal.ViewPort.TopRow;
+
+                    canvas.Invalidate();
+                }
+
+                TerminalIdleSince = DateTime.Now;
+            }
         }
 
         private void OnDataReceived(object sender, DataReceivedEventArgs e)
@@ -323,46 +379,6 @@
                         toDisplay = "";
                     }
 
-                    //foreach (var character in line)
-                    //{
-                    //    bool selected = TextSelection == null ? false : TextSelection.Within(column, row);
-
-                    //    var rect = new Rect(
-                    //        column * CharacterWidth,
-                    //        ((row - (line.DoubleHeightBottom ? 1 : 0)) * CharacterHeight + verticalOffset) * (line.DoubleHeightBottom | line.DoubleHeightTop ? 0.5 : 1.0),
-                    //        CharacterWidth + 0.9,
-                    //        CharacterHeight + 0.9
-                    //    );
-
-                    //    var toDisplay = character.Char.ToString() + character.CombiningCharacters;
-
-                    //    var textLayout = new CanvasTextLayout(drawingSession, toDisplay, format, 0.0f, 0.0f);
-                    //    var foregroundColor = GetForegroundColor(character.Attributes, selected);
-
-                    //    drawingSession.DrawTextLayout(
-                    //        textLayout,
-                    //        (float)rect.Left,
-                    //        (float)rect.Top,
-                    //        foregroundColor
-                    //    );
-
-                    //    if (character.Attributes.Underscore)
-                    //    {
-                    //        drawingSession.DrawLine(
-                    //            new Vector2(
-                    //                (float)rect.Left,
-                    //                (float)rect.Bottom
-                    //            ),
-                    //            new Vector2(
-                    //                (float)rect.Right,
-                    //                (float)rect.Bottom
-                    //            ),
-                    //            foregroundColor
-                    //        );
-                    //    }
-
-                    //    column++;
-                    //}
                     row++;
                 }
                 drawingSession.Transform = defaultTransform;
@@ -460,13 +476,23 @@
 
             if (flip)
             {
-                if (attribute.Bright)
-                    return AttributeColors[(int)attribute.ForegroundColor + 8];
+                if (attribute.ForegroundRgb == null)
+                {
+                    if (attribute.Bright)
+                        return AttributeColors[(int)attribute.ForegroundColor + 8];
 
-                return AttributeColors[(int)attribute.ForegroundColor];
+                    return AttributeColors[(int)attribute.ForegroundColor];
+                }
+                else
+                    return Color.FromArgb(255, (byte)attribute.ForegroundRgb.Red, (byte)attribute.ForegroundRgb.Green, (byte)attribute.ForegroundRgb.Blue);
             }
-
-            return AttributeColors[(int)attribute.BackgroundColor];
+            else
+            {
+                if (attribute.BackgroundRgb == null)
+                    return AttributeColors[(int)attribute.BackgroundColor];
+                else
+                    return Color.FromArgb(255, (byte)attribute.BackgroundRgb.Red, (byte)attribute.BackgroundRgb.Green, (byte)attribute.BackgroundRgb.Blue);
+            }
         }
 
         private Color GetForegroundColor(TerminalAttribute attribute, bool invert)
@@ -474,12 +500,24 @@
             var flip = Terminal.CursorState.ReverseVideoMode ^ attribute.Reverse ^ invert;
 
             if (flip)
-                return AttributeColors[(int)attribute.BackgroundColor];
+            {
+                if (attribute.BackgroundRgb == null)
+                    return AttributeColors[(int)attribute.BackgroundColor];
+                else
+                    return Color.FromArgb(255, (byte)attribute.BackgroundRgb.Red, (byte)attribute.BackgroundRgb.Green, (byte)attribute.BackgroundRgb.Blue);
+            }
+            else
+            {
+                if(attribute.ForegroundRgb == null)
+                {
+                    if (attribute.Bright)
+                        return AttributeColors[(int)attribute.ForegroundColor + 8];
 
-            if (attribute.Bright)
-                return AttributeColors[(int)attribute.ForegroundColor + 8];
-
-            return AttributeColors[(int)attribute.ForegroundColor];
+                    return AttributeColors[(int)attribute.ForegroundColor];
+                }
+                else
+                    return Color.FromArgb(255, (byte)attribute.ForegroundRgb.Red, (byte)attribute.ForegroundRgb.Green, (byte)attribute.ForegroundRgb.Blue);
+            }
         }
 
         private void ProcessTextFormat(CanvasDrawingSession drawingSession, CanvasTextFormat format)
@@ -511,6 +549,15 @@
             //System.Diagnostics.Debug.WriteLine("  Terminal size " + Columns.ToString() + "," + Rows.ToString());
 
             Terminal.ResizeView(Columns, Rows);
+        }
+
+        public void ClearRawText()
+        {
+            lock (_rawText)
+            {
+                _rawTextLength = 0;
+                _rawTextChanged = true;
+            }
         }
 
         private void CoreWindow_CharacterReceived(CoreWindow sender, CharacterReceivedEventArgs args)
@@ -675,7 +722,7 @@
 
             MouseOver = position;
 
-            if (pointer.Properties.IsLeftButtonPressed)
+            if (pointer.Properties.IsLeftButtonPressed && MousePressedAt != null)
             {
                 TextRange newSelection;
                 var textPosition = position.OffsetBy(0, ViewTop);
@@ -775,7 +822,14 @@
                     var dataPackage = new DataPackage();
                     dataPackage.SetText(captured);
                     dataPackage.Properties.EnterpriseId = "Terminal";
-                    Clipboard.SetContent(dataPackage);
+                    try
+                    {
+                        Clipboard.SetContent(dataPackage);
+                    }
+                    catch(Exception clipException)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Failed to post to clipboard: " + clipException.Message);
+                    }
                 }
                 else
                 {

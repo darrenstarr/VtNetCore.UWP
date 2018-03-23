@@ -18,6 +18,7 @@
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <PackageCertificateKeyFile>VtNetCore.UWP.App_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <BuildForLiveUnitTesting>false</BuildForLiveUnitTesting>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -99,7 +100,9 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScriptTool\ScriptTool.cs" />
+    <Compile Include="ScriptTool\DispatcherTaskExtensions.cs" />
+    <Compile Include="ScriptTool\VtNetTerminal.cs" />
+    <Compile Include="ScriptTool\VtNetTerminals.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -134,11 +137,21 @@
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.0.8</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Controls">
+      <Version>2.2.0</Version>
+    </PackageReference>
+    <PackageReference Include="Monaco.Editor">
+      <Version>0.5.0-alpha</Version>
+    </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>11.0.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\modules\NiL.JS\NiL.JS.NetCore\NiL.JS.NetCore.csproj">
+      <Project>{1ff46d05-7979-4239-b440-1d804767d256}</Project>
+      <Name>NiL.JS.NetCore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\modules\VtConnect\VtConnect\VtConnect.csproj">
       <Project>{6e786f2c-4eb7-4406-9274-392f13d492d6}</Project>
       <Name>VtConnect</Name>
