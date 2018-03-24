@@ -16,6 +16,7 @@
     using Windows.Foundation;
     using Windows.UI;
     using Windows.UI.Core;
+    using Windows.UI.Text;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Input;
@@ -29,6 +30,10 @@
         public DataConsumer Consumer { get; set; }
         public int ViewTop { get; set; } = 0;
         public event PropertyChangedEventHandler PropertyChanged;
+
+        private int BlinkShowMs { get; set; } = 600;
+        private int BlinkHideMs { get; set; } = 300;
+
 
         private string _windowTitle = "Session";
         public string WindowTitle {
@@ -79,9 +84,33 @@
 
         //public string LogText { get; set; } = string.Empty;
 
+        DispatcherTimer blinkDispatcher;
+
+        // Use Euclid's algorithm to calculate the
+        // greatest common divisor (GCD) of two numbers.
+        private long GCD(long a, long b)
+        {
+            a = Math.Abs(a);
+            b = Math.Abs(b);
+
+            // Pull out remainders.
+            for (; ; )
+            {
+                long remainder = a % b;
+                if (remainder == 0) return b;
+                a = b;
+                b = remainder;
+            };
+        }
+
         public VirtualTerminalControl()
         {
             InitializeComponent();
+
+            blinkDispatcher = new DispatcherTimer();
+            blinkDispatcher.Tick += BlinkTimerHandler;
+            blinkDispatcher.Interval = TimeSpan.FromMilliseconds(Math.Min(150, GCD(BlinkShowMs, BlinkHideMs)));
+            blinkDispatcher.Start();
 
             Consumer = new DataConsumer(Terminal);
 
@@ -89,6 +118,11 @@
             Terminal.WindowTitleChanged += OnWindowTitleChanged;
             Terminal.OnLog += OnLog;
             Terminal.StoreRawText = true;
+        }
+
+        void BlinkTimerHandler(object sender, object e)
+        {
+            canvas.Invalidate();
         }
 
         private void OnLog(object sender, TextEventArgs e)
@@ -238,6 +272,13 @@
             }
         }
 
+        private bool BlinkVisible()
+        {
+            var blinkCycle = BlinkShowMs + BlinkHideMs;
+
+            return (DateTime.Now.Subtract(DateTime.MinValue).Milliseconds % blinkCycle) < BlinkHideMs;
+        }
+
         private void OnCanvasDraw(CanvasControl sender, CanvasDrawEventArgs args)
         {
             CanvasDrawingSession drawingSession = args.DrawingSession;
@@ -253,10 +294,12 @@
 
             ProcessTextFormat(drawingSession, format);
 
-            drawingSession.FillRectangle(new Rect(0, 0, canvas.RenderSize.Width, canvas.RenderSize.Height), GetBackgroundColor(Terminal.CursorState.Attributes, false));
+            var showBlink = BlinkVisible();
 
             lock (Terminal)
             {
+                drawingSession.FillRectangle(new Rect(0, 0, canvas.RenderSize.Width, canvas.RenderSize.Height), GetBackgroundColor(Terminal.CursorState.Attributes, false));
+
                 int row = ViewTop;
                 float verticalOffset = -row * (float)CharacterHeight;
 
@@ -336,7 +379,8 @@
                             GetForegroundColor(line[column + 1].Attributes, TextSelection == null ? false : TextSelection.Within(column + 1, row)) == foregroundColor &&
                             line[column + 1].Attributes.Underscore == line[column].Attributes.Underscore &&
                             line[column + 1].Attributes.Reverse == line[column].Attributes.Reverse &&
-                            line[column + 1].Attributes.Bright == line[column].Attributes.Bright
+                            line[column + 1].Attributes.Bright == line[column].Attributes.Bright &&
+                            line[column + 1].Attributes.Blink == line[column].Attributes.Blink
                             )
                         {
                             column++;
@@ -350,28 +394,33 @@
                             CharacterHeight + 0.9
                         );
 
-                        var textLayout = new CanvasTextLayout(drawingSession, toDisplay, format, 0.0f, 0.0f);
-
-                        drawingSession.DrawTextLayout(
-                            textLayout,
-                            (float)rect.Left,
-                            (float)rect.Top,
-                            foregroundColor
-                        );
-
-                        if (line[column].Attributes.Underscore)
+                        if (!line[column].Attributes.Blink || (line[column].Attributes.Blink && showBlink))
                         {
-                            drawingSession.DrawLine(
-                                new Vector2(
-                                    (float)rect.Left,
-                                    (float)rect.Bottom
-                                ),
-                                new Vector2(
-                                    (float)rect.Right,
-                                    (float)rect.Bottom
-                                ),
+                            format.FontWeight = line[column].Attributes.Bright ? FontWeights.ExtraBold : FontWeights.Normal;
+
+                            var textLayout = new CanvasTextLayout(drawingSession, toDisplay, format, 0.0f, 0.0f);
+
+                            drawingSession.DrawTextLayout(
+                                textLayout,
+                                (float)rect.Left,
+                                (float)rect.Top,
                                 foregroundColor
                             );
+
+                            if (line[column].Attributes.Underscore)
+                            {
+                                drawingSession.DrawLine(
+                                    new Vector2(
+                                        (float)rect.Left,
+                                        (float)rect.Bottom
+                                    ),
+                                    new Vector2(
+                                        (float)rect.Right,
+                                        (float)rect.Bottom
+                                    ),
+                                    foregroundColor
+                                );
+                            }
                         }
 
                         column++;
@@ -478,8 +527,8 @@
             {
                 if (attribute.ForegroundRgb == null)
                 {
-                    if (attribute.Bright)
-                        return AttributeColors[(int)attribute.ForegroundColor + 8];
+                    //if (attribute.Bright)
+                    //    return AttributeColors[(int)attribute.ForegroundColor + 8];
 
                     return AttributeColors[(int)attribute.ForegroundColor];
                 }
@@ -510,8 +559,8 @@
             {
                 if(attribute.ForegroundRgb == null)
                 {
-                    if (attribute.Bright)
-                        return AttributeColors[(int)attribute.ForegroundColor + 8];
+                    //if (attribute.Bright)
+                    //    return AttributeColors[(int)attribute.ForegroundColor + 8];
 
                     return AttributeColors[(int)attribute.ForegroundColor];
                 }
