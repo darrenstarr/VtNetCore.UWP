@@ -298,7 +298,7 @@
 
             lock (Terminal)
             {
-                drawingSession.FillRectangle(new Rect(0, 0, canvas.RenderSize.Width, canvas.RenderSize.Height), GetBackgroundColor(Terminal.CursorState.Attributes, false));
+                drawingSession.FillRectangle(new Rect(0, 0, canvas.RenderSize.Width, canvas.RenderSize.Height), GetBackgroundColor(Terminal.NullAttribute, false));
 
                 int row = ViewTop;
                 float verticalOffset = -row * (float)CharacterHeight;
@@ -394,7 +394,7 @@
                             CharacterHeight + 0.9
                         );
 
-                        if (!line[column].Attributes.Blink || (line[column].Attributes.Blink && showBlink))
+                        if (!line[column].Attributes.Blink || (line[column].Attributes.Blink && showBlink) && !line[column].Attributes.Hidden)
                         {
                             format.FontWeight = line[column].Attributes.Bright ? FontWeights.ExtraBold : FontWeights.Normal;
 
@@ -554,7 +554,12 @@
             if (flip)
             {
                 if (attribute.BackgroundRgb == null)
+                {
+                    if (attribute.Bright)
+                        return AttributeColors[(int)attribute.BackgroundColor + 8];
+
                     return AttributeColors[(int)attribute.BackgroundColor];
+                }
                 else
                     return Color.FromArgb(255, (byte)attribute.BackgroundRgb.Red, (byte)attribute.BackgroundRgb.Green, (byte)attribute.BackgroundRgb.Blue);
             }
@@ -562,8 +567,8 @@
             {
                 if(attribute.ForegroundRgb == null)
                 {
-                    //if (attribute.Bright)
-                    //    return AttributeColors[(int)attribute.ForegroundColor + 8];
+                    if (attribute.Bright)
+                        return AttributeColors[(int)attribute.ForegroundColor + 8];
 
                     return AttributeColors[(int)attribute.ForegroundColor];
                 }
