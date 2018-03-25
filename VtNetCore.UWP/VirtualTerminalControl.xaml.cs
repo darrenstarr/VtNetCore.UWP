@@ -380,7 +380,8 @@
                             line[column + 1].Attributes.Underscore == line[column].Attributes.Underscore &&
                             line[column + 1].Attributes.Reverse == line[column].Attributes.Reverse &&
                             line[column + 1].Attributes.Bright == line[column].Attributes.Bright &&
-                            line[column + 1].Attributes.Blink == line[column].Attributes.Blink
+                            line[column + 1].Attributes.Blink == line[column].Attributes.Blink &&
+                            line[column + 1].Attributes.Hidden == line[column].Attributes.Hidden
                             )
                         {
                             column++;
@@ -394,7 +395,7 @@
                             CharacterHeight + 0.9
                         );
 
-                        if (!line[column].Attributes.Blink || (line[column].Attributes.Blink && showBlink) && !line[column].Attributes.Hidden)
+                        if ((!line[column].Attributes.Blink || (line[column].Attributes.Blink && showBlink)) && !line[column].Attributes.Hidden)
                         {
                             format.FontWeight = line[column].Attributes.Bright ? FontWeights.ExtraBold : FontWeights.Normal;
 
