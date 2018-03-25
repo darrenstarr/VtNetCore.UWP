@@ -479,26 +479,6 @@
             drawingSession.DrawTextLayout(bigTextLayout, (float)(canvas.RenderSize.Width - bigTextLayout.DrawBounds.Width - 100), 0, Colors.Yellow);
         }
 
-        //private static Color[] PuttyAttributeColors =
-        //{
-        //    Color.FromArgb(255,0,0,0),        // Black
-        //    Color.FromArgb(255,187,0,0),      // Red
-        //    Color.FromArgb(255,0,187,0),      // Green
-        //    Color.FromArgb(255,187,187,0),    // Yellow
-        //    Color.FromArgb(255,0,0,187),      // Blue
-        //    Color.FromArgb(255,187,0,187),    // Magenta
-        //    Color.FromArgb(255,0,187,187),    // Cyan
-        //    Color.FromArgb(255,187,187,187),  // White
-        //    Color.FromArgb(255,85,85,85),     // Bright black
-        //    Color.FromArgb(255,255,85,85),    // Bright red
-        //    Color.FromArgb(255,85,255,85),    // Bright green
-        //    Color.FromArgb(255,255,255,85),   // Bright yellow
-        //    Color.FromArgb(255,85,85,255),    // Bright blue
-        //    Color.FromArgb(255,255,85,255),   // Bright Magenta
-        //    Color.FromArgb(255,85,255,255),   // Bright cyan
-        //    Color.FromArgb(255,255,255,255),  // Bright white
-        //};
-
         /// <summary>
         /// Borrowed the values from xterm
         /// </summary>
