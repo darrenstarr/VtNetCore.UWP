@@ -702,11 +702,17 @@
         private void TerminalGotFocus(object sender, RoutedEventArgs e)
         {
             Window.Current.CoreWindow.CharacterReceived += CoreWindow_CharacterReceived;
+
+            if (Terminal != null)
+                Terminal.FocusIn();
         }
 
         private void TerminalLostFocus(object sender, RoutedEventArgs e)
         {
             Window.Current.CoreWindow.CharacterReceived -= CoreWindow_CharacterReceived;
+
+            if (Terminal != null)
+                Terminal.FocusOut();
         }
 
         private void TerminalWheelChanged(object sender, PointerRoutedEventArgs e)
@@ -775,6 +781,25 @@
             var pointer = e.GetCurrentPoint(canvas);
             var position = ToPosition(pointer.Position);
 
+            var textPosition = position.OffsetBy(0, ViewTop);
+
+            if (Connected && (Terminal.UseAllMouseTracking || Terminal.CellMotionMouseTracking) && position.Column >= 0 && position.Row >= 0 && position.Column < Columns && position.Row < Rows)
+            {
+                var controlPressed = (Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down));
+                var shiftPressed = (Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
+
+                var button =
+                    pointer.Properties.IsLeftButtonPressed ? 0 :
+                        pointer.Properties.IsRightButtonPressed ? 1 :
+                            pointer.Properties.IsMiddleButtonPressed ? 2 : 
+                            3;  // No button
+
+                Terminal.MouseMove(position.Column, position.Row, button, controlPressed, shiftPressed);
+
+                if(button == 3 && !Terminal.UseAllMouseTracking)
+                    return;
+            }
+
             if (MouseOver != null && MouseOver == position)
                 return;
 
@@ -783,7 +808,6 @@
             if (pointer.Properties.IsLeftButtonPressed && MousePressedAt != null)
             {
                 TextRange newSelection;
-                var textPosition = position.OffsetBy(0, ViewTop);
 
                 if (MousePressedAt != textPosition)
                 {
@@ -840,10 +864,14 @@
             var position = ToPosition(pointer.Position);
 
             var textPosition = position.OffsetBy(0, ViewTop);
-            if (pointer.Properties.IsLeftButtonPressed)
-                MousePressedAt = textPosition;
-            else if (pointer.Properties.IsRightButtonPressed)
-                PasteClipboard();
+
+            if (!Connected || (Connected && !Terminal.X10SendMouseXYOnButton && !Terminal.X11SendMouseXYOnButton && !Terminal.SgrMouseMode && !Terminal.CellMotionMouseTracking && !Terminal.UseAllMouseTracking))
+            {
+                if (pointer.Properties.IsLeftButtonPressed)
+                    MousePressedAt = textPosition;
+                else if (pointer.Properties.IsRightButtonPressed)
+                    PasteClipboard();
+            }
 
             if (Connected && position.Column >= 0 && position.Row >= 0 && position.Column < Columns && position.Row < Rows)
             {
