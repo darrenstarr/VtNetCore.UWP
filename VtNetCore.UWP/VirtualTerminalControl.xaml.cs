@@ -935,17 +935,10 @@
 
         private void PasteText(string text)
         {
-            if (VtConnection == null)
+            if (!Connected)
                 return;
 
-            Task.Run(() =>
-            {
-                var buffer = Encoding.UTF8.GetBytes(text);
-                Task.Run(() =>
-                {
-                    VtConnection.SendData(buffer);
-                });
-            });
+            Terminal.Paste(Encoding.UTF8.GetBytes(text));
         }
 
         private void PasteClipboard()

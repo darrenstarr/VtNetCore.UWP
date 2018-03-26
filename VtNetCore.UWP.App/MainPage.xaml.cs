@@ -19,7 +19,7 @@
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        DispatcherTimer tickTock;
+        //DispatcherTimer tickTock;
 
         public string CodeContent
         {
@@ -57,7 +57,7 @@
             //}
         }
 
-        int OldRawLength = 0;
+        //int OldRawLength = 0;
         private void TickTock_Tick(object sender, object e)
         {
             //if (DateTime.Now.Subtract(terminal.TerminalIdleSince).TotalSeconds > 0.25)
