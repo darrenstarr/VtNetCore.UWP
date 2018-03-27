@@ -4,13 +4,13 @@
     using Microsoft.Graphics.Canvas.Text;
     using Microsoft.Graphics.Canvas.UI.Xaml;
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Numerics;
     using System.Text;
     using System.Threading.Tasks;
     using VtConnect;
     using VtNetCore.VirtualTerminal;
-    using VtNetCore.VirtualTerminal.Model;
     using VtNetCore.XTermParser;
     using Windows.ApplicationModel.DataTransfer;
     using Windows.Foundation;
@@ -20,7 +20,6 @@
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Input;
-    using Windows.UI.Xaml.Media;
 
     public sealed partial class VirtualTerminalControl : 
         UserControl,
@@ -34,13 +33,9 @@
         private int BlinkShowMs { get; set; } = 600;
         private int BlinkHideMs { get; set; } = 300;
 
-
         private string _windowTitle = "Session";
         public string WindowTitle {
-            get
-            {
-                return _windowTitle;
-            }
+            get { return _windowTitle; }
             private set
             {
                 _windowTitle = (VtConnection == null ? "" : VtConnection.Destination.ToString() + " - ") +  value;
@@ -149,6 +144,8 @@
         {
             if (!Connected)
                 return;
+
+            // TODO : Dispatcher from main thread?
             Task.Run(() =>
             {
                 VtConnection.SendData(data);
@@ -162,8 +159,11 @@
         }
 
         public double CharacterWidth = -1;
+
         public double CharacterHeight = -1;
+
         public int Columns = -1;
+
         public int Rows = -1;
 
         public Connection VtConnection { get; set; }
@@ -279,11 +279,148 @@
             return (DateTime.Now.Subtract(DateTime.MinValue).Milliseconds % blinkCycle) < BlinkHideMs;
         }
 
+        public Color GetSolidColorBrush(string hex)
+        {
+            byte a = 255; // (byte)(Convert.ToUInt32(hex.Substring(0, 2), 16));
+            byte r = (byte)(Convert.ToUInt32(hex.Substring(1, 2), 16));
+            byte g = (byte)(Convert.ToUInt32(hex.Substring(3, 2), 16));
+            byte b = (byte)(Convert.ToUInt32(hex.Substring(5, 2), 16));
+            return Color.FromArgb(a, r, g, b);
+        }
+
+        private void PaintBackgroundLayer(CanvasDrawingSession drawingSession, List<VirtualTerminal.Layout.LayoutRow> spans)
+        {
+            double lineY = 0;
+            foreach (var textRow in spans)
+            {
+                drawingSession.Transform =
+                    Matrix3x2.CreateScale(
+                        (float)(textRow.DoubleWidth ? 2.0 : 1.0),  // Scale double width
+                        (float)(textRow.DoubleHeightBottom | textRow.DoubleHeightTop ? 2.0 : 1.0) // Scale double high
+                    );
+
+                var drawY =
+                    (lineY - (textRow.DoubleHeightBottom ? CharacterHeight : 0)) *      // Offset position upwards for bottom of double high char
+                    ((textRow.DoubleHeightBottom | textRow.DoubleHeightTop) ? 0.5 : 1.0); // Scale position for double height
+
+                double drawX = 0;
+                foreach (var textSpan in textRow.Spans)
+                {
+                    var bounds =
+                        new Rect(
+                            drawX,
+                            drawY,
+                            CharacterWidth * (textSpan.Text.Length) + 0.9,
+                            CharacterHeight + 0.9
+                        );
+
+                    drawingSession.FillRectangle(bounds, GetSolidColorBrush(textSpan.BackgroundColor));
+
+                    drawX += CharacterWidth * (textSpan.Text.Length);
+                }
+
+                lineY += CharacterHeight;
+            }
+        }
+
+        private void PaintTextLayer(CanvasDrawingSession drawingSession, List<VirtualTerminal.Layout.LayoutRow> spans, CanvasTextFormat textFormat, bool showBlink)
+        {
+            var dipToDpiRatio = Windows.Graphics.Display.DisplayInformation.GetForCurrentView().LogicalDpi / 96;
+
+            double lineY = 0;
+            foreach (var textRow in spans)
+            {
+                drawingSession.Transform =
+                    Matrix3x2.CreateScale(
+                        (float)(textRow.DoubleWidth ? 2.0 : 1.0),  // Scale double width
+                        (float)(textRow.DoubleHeightBottom | textRow.DoubleHeightTop ? 2.0 : 1.0) // Scale double high
+                    );
+
+                var drawY =
+                    (lineY - (textRow.DoubleHeightBottom ? CharacterHeight : 0)) *      // Offset position upwards for bottom of double high char
+                    ((textRow.DoubleHeightBottom | textRow.DoubleHeightTop) ? 0.5 : 1.0); // Scale position for double height
+
+                double drawX = 0;
+                foreach (var textSpan in textRow.Spans)
+                {
+                    var runWidth = CharacterWidth * (textSpan.Text.Length);
+
+                    if (textSpan.Hidden || (textSpan.Blink && !showBlink))
+                    {
+                        drawX += runWidth;
+                        continue;
+                    }
+
+                    var color = GetSolidColorBrush(textSpan.ForgroundColor);
+                    textFormat.FontWeight = textSpan.Bold ? FontWeights.Bold : FontWeights.Light;
+
+                    var textLayout = new CanvasTextLayout(drawingSession, textSpan.Text, textFormat, 0.0f, 0.0f);
+                    drawingSession.DrawTextLayout(
+                        textLayout,
+                        (float)drawX,
+                        (float)drawY,
+                        color
+                    );
+
+                    // TODO : Come up with a better means of identifying line weight and offset
+                    double underlineOffset = textLayout.LineMetrics[0].Baseline * dipToDpiRatio * 1.07;
+
+                    if (textSpan.Underline)
+                    {
+                        drawingSession.DrawLine(
+                            new Vector2(
+                                (float)drawX,
+                                (float)(drawY + underlineOffset)
+                            ),
+                            new Vector2(
+                                (float)(drawX + runWidth),
+                                (float)(drawY + underlineOffset)
+                            ),
+                            color
+                        );
+                    }
+
+                    drawX += CharacterWidth * (textSpan.Text.Length);
+                }
+
+                lineY += CharacterHeight;
+            }
+        }
+
+        private void PaintCursor(CanvasDrawingSession drawingSession, List<VirtualTerminal.Layout.LayoutRow> spans, CanvasTextFormat textFormat, TextPosition cursorPosition, Color cursorColor)
+        {
+            var cursorY = cursorPosition.Row;
+
+            var textRow = spans[cursorY];
+
+            drawingSession.Transform =
+                Matrix3x2.CreateTranslation(
+                    1.0f,
+                    (float)(textRow.DoubleHeightBottom ? -CharacterHeight : 0)
+                ) *
+                Matrix3x2.CreateScale(
+                    (float)(textRow.DoubleWidth ? 2.0 : 1.0),
+                    (float)(textRow.DoubleHeightBottom | textRow.DoubleHeightTop ? 2.0 : 1.0)
+                );
+
+            var drawX = cursorPosition.Column * CharacterWidth;
+            var drawY = (cursorY * CharacterHeight) * ((textRow.DoubleHeightBottom | textRow.DoubleHeightTop) ? 0.5 : 1.0);
+
+            var cursorRect = new Rect(
+                drawX,
+                drawY,
+                CharacterWidth,
+                CharacterHeight + 0.9
+            );
+
+            drawingSession.DrawRectangle(cursorRect, cursorColor);
+        }
+
         private void OnCanvasDraw(CanvasControl sender, CanvasDrawEventArgs args)
         {
             CanvasDrawingSession drawingSession = args.DrawingSession;
 
-            CanvasTextFormat format =
+            CanvasTextFormat textFormat =
                 new CanvasTextFormat
                 {
                     FontSize = Convert.ToSingle(canvas.FontSize),
@@ -292,160 +429,33 @@
                     WordWrapping = CanvasWordWrapping.NoWrap
                 };
 
-            ProcessTextFormat(drawingSession, format);
+            ProcessTextFormat(drawingSession, textFormat);
 
             var showBlink = BlinkVisible();
 
+            List<VirtualTerminal.Layout.LayoutRow> spans = null;
+            TextPosition cursorPosition = null;
+            bool showCursor = false;
+            Color cursorColor = Colors.Green;
+
             lock (Terminal)
             {
-                drawingSession.FillRectangle(new Rect(0, 0, canvas.RenderSize.Width, canvas.RenderSize.Height), GetBackgroundColor(Terminal.NullAttribute, false));
-
-                int row = ViewTop;
-                float verticalOffset = -row * (float)CharacterHeight;
-
-                var lines = Terminal.ViewPort.GetLines(ViewTop, Rows);
-
-                var defaultTransform = drawingSession.Transform;
-                foreach (var line in lines)
-                {
-                    if (line == null)
-                    {
-                        row++;
-                        continue;
-                    }
-
-                    int column = 0;
-
-                    drawingSession.Transform = Matrix3x2.CreateScale(
-                        (float)(line.DoubleWidth ? 2.0 : 1.0),
-                        (float)(line.DoubleHeightBottom | line.DoubleHeightTop ? 2.0 : 1.0)
-                    );
-
-                    var spanStart = 0;
-                    while (column < line.Count)
-                    {
-                        bool selected = TextSelection == null ? false : TextSelection.Within(column, row);
-                        var backgroundColor = GetBackgroundColor(line[column].Attributes, selected);
-
-                        if (column < (line.Count - 1) && GetBackgroundColor(line[column + 1].Attributes, TextSelection == null ? false : TextSelection.Within(column + 1, row)) == backgroundColor)
-                        {
-                            column++;
-                            continue;
-                        }
-
-                        var rect = new Rect(
-                            spanStart * CharacterWidth,
-                            ((row - (line.DoubleHeightBottom ? 1 : 0)) * CharacterHeight + verticalOffset) * (line.DoubleHeightBottom | line.DoubleHeightTop ? 0.5 : 1.0),
-                            ((column - spanStart + 1) * CharacterWidth) + 0.9,
-                            CharacterHeight + 0.9
-                        );
-
-                        drawingSession.FillRectangle(rect, backgroundColor);
-
-                        column++;
-                        spanStart = column;
-                    }
-
-                    row++;
-                }
-                drawingSession.Transform = defaultTransform;
-
-                row = ViewTop;
-                foreach (var line in lines)
-                {
-                    if (line == null)
-                    {
-                        row++;
-                        continue;
-                    }
-
-                    int column = 0;
-
-                    drawingSession.Transform = Matrix3x2.CreateScale(
-                        (float)(line.DoubleWidth ? 2.0 : 1.0),
-                        (float)(line.DoubleHeightBottom | line.DoubleHeightTop ? 2.0 : 1.0)
-                    );
-
-                    var spanStart = 0;
-                    string toDisplay = string.Empty;
-                    while (column < line.Count)
-                    {
-                        bool selected = TextSelection == null ? false : TextSelection.Within(column, row);
-                        var foregroundColor = GetForegroundColor(line[column].Attributes, selected);
-
-                        toDisplay += line[column].Char.ToString() + line[column].CombiningCharacters;
-                        if (
-                            column < (line.Count - 1) && 
-                            GetForegroundColor(line[column + 1].Attributes, TextSelection == null ? false : TextSelection.Within(column + 1, row)) == foregroundColor &&
-                            line[column + 1].Attributes.Underscore == line[column].Attributes.Underscore &&
-                            line[column + 1].Attributes.Reverse == line[column].Attributes.Reverse &&
-                            line[column + 1].Attributes.Bright == line[column].Attributes.Bright &&
-                            line[column + 1].Attributes.Blink == line[column].Attributes.Blink &&
-                            line[column + 1].Attributes.Hidden == line[column].Attributes.Hidden
-                            )
-                        {
-                            column++;
-                            continue;
-                        }
-
-                        var rect = new Rect(
-                            spanStart * CharacterWidth,
-                            ((row - (line.DoubleHeightBottom ? 1 : 0)) * CharacterHeight + verticalOffset) * (line.DoubleHeightBottom | line.DoubleHeightTop ? 0.5 : 1.0),
-                            ((column - spanStart + 1) * CharacterWidth) + 0.9,
-                            CharacterHeight + 0.9
-                        );
-
-                        if ((!line[column].Attributes.Blink || (line[column].Attributes.Blink && showBlink)) && !line[column].Attributes.Hidden)
-                        {
-                            format.FontWeight = line[column].Attributes.Bright ? FontWeights.ExtraBold : FontWeights.Normal;
-
-                            var textLayout = new CanvasTextLayout(drawingSession, toDisplay, format, 0.0f, 0.0f);
-
-                            drawingSession.DrawTextLayout(
-                                textLayout,
-                                (float)rect.Left,
-                                (float)rect.Top,
-                                foregroundColor
-                            );
-
-                            if (line[column].Attributes.Underscore)
-                            {
-                                drawingSession.DrawLine(
-                                    new Vector2(
-                                        (float)rect.Left,
-                                        (float)rect.Bottom
-                                    ),
-                                    new Vector2(
-                                        (float)rect.Right,
-                                        (float)rect.Bottom
-                                    ),
-                                    foregroundColor
-                                );
-                            }
-                        }
-
-                        column++;
-                        spanStart = column;
-                        toDisplay = "";
-                    }
-
-                    row++;
-                }
-                drawingSession.Transform = defaultTransform;
-
-                if (Terminal.CursorState.ShowCursor)
-                {
-                    var cursorY = Terminal.ViewPort.TopRow - ViewTop + Terminal.CursorState.CurrentRow;
-                    var cursorRect = new Rect(
-                        Terminal.CursorState.CurrentColumn * CharacterWidth,
-                        cursorY * CharacterHeight,
-                        CharacterWidth + 0.9,
-                        CharacterHeight + 0.9
-                    );
-
-                    drawingSession.DrawRectangle(cursorRect, GetForegroundColor(Terminal.CursorState.Attributes, false));
-                }
+                spans = Terminal.ViewPort.GetPageSpans(ViewTop, Rows, Columns, TextSelection);
+                showCursor = Terminal.CursorState.ShowCursor;
+                cursorPosition = Terminal.ViewPort.CursorPosition.Clone();
+                cursorColor = GetSolidColorBrush(Terminal.CursorState.Attributes.WebColor);
             }
+
+            var defaultTransform = drawingSession.Transform;
+
+            PaintBackgroundLayer(drawingSession, spans);
+
+            PaintTextLayer(drawingSession, spans, textFormat, showBlink);
+
+            if (showCursor)
+                PaintCursor(drawingSession, spans, textFormat, cursorPosition, cursorColor);
+            
+            drawingSession.Transform = defaultTransform;
 
             if (ViewDebugging)
                 AnnotateView(drawingSession);
@@ -480,107 +490,9 @@
             drawingSession.DrawTextLayout(bigTextLayout, (float)(canvas.RenderSize.Width - bigTextLayout.DrawBounds.Width - 100), 0, Colors.Yellow);
         }
 
-        /// <summary>
-        /// Borrowed the values from xterm
-        /// </summary>
-        private static Color[] AttributeColors =
-        {
-            Color.FromArgb(255,0,0,0),        // Black
-            Color.FromArgb(255,205,0,0),      // Red
-            Color.FromArgb(255,0,205,0),      // Green
-            Color.FromArgb(255,205,205,0),    // Yellow
-            Color.FromArgb(255,0,0,205),      // Blue
-            Color.FromArgb(255,205,0,205),    // Magenta
-            Color.FromArgb(255,0,205,205),    // Cyan
-            Color.FromArgb(255,205,205,205),  // White
-            Color.FromArgb(255,127,127,127),     // Bright black
-            Color.FromArgb(255,255,0,0),    // Bright red
-            Color.FromArgb(255,0,255,0),    // Bright green
-            Color.FromArgb(255,255,255,0),   // Bright yellow
-            Color.FromArgb(255,92,92,255),    // Bright blue
-            Color.FromArgb(255,255,0,255),   // Bright Magenta
-            Color.FromArgb(255,0,255,255),   // Bright cyan
-            Color.FromArgb(255,255,255,255),  // Bright white
-        };
-
-        private static SolidColorBrush[] AttributeBrushes =
-        {
-            new SolidColorBrush(AttributeColors[0]),
-            new SolidColorBrush(AttributeColors[1]),
-            new SolidColorBrush(AttributeColors[2]),
-            new SolidColorBrush(AttributeColors[3]),
-            new SolidColorBrush(AttributeColors[4]),
-            new SolidColorBrush(AttributeColors[5]),
-            new SolidColorBrush(AttributeColors[6]),
-            new SolidColorBrush(AttributeColors[7]),
-            new SolidColorBrush(AttributeColors[8]),
-            new SolidColorBrush(AttributeColors[9]),
-            new SolidColorBrush(AttributeColors[10]),
-            new SolidColorBrush(AttributeColors[11]),
-            new SolidColorBrush(AttributeColors[12]),
-            new SolidColorBrush(AttributeColors[13]),
-            new SolidColorBrush(AttributeColors[14]),
-            new SolidColorBrush(AttributeColors[15]),
-        };
-
-        private Color GetBackgroundColor(TerminalAttribute attribute, bool invert)
-        {
-            var flip = Terminal.CursorState.ReverseVideoMode ^ attribute.Reverse ^ invert;
-
-            if (flip)
-            {
-                if (attribute.ForegroundRgb == null)
-                {
-                    //if (attribute.Bright)
-                    //    return AttributeColors[(int)attribute.ForegroundColor + 8];
-
-                    return AttributeColors[(int)attribute.ForegroundColor];
-                }
-                else
-                    return Color.FromArgb(255, (byte)attribute.ForegroundRgb.Red, (byte)attribute.ForegroundRgb.Green, (byte)attribute.ForegroundRgb.Blue);
-            }
-            else
-            {
-                if (attribute.BackgroundRgb == null)
-                    return AttributeColors[(int)attribute.BackgroundColor];
-                else
-                    return Color.FromArgb(255, (byte)attribute.BackgroundRgb.Red, (byte)attribute.BackgroundRgb.Green, (byte)attribute.BackgroundRgb.Blue);
-            }
-        }
-
-        private Color GetForegroundColor(TerminalAttribute attribute, bool invert)
-        {
-            var flip = Terminal.CursorState.ReverseVideoMode ^ attribute.Reverse ^ invert;
-
-            if (flip)
-            {
-                if (attribute.BackgroundRgb == null)
-                {
-                    if (attribute.Bright)
-                        return AttributeColors[(int)attribute.BackgroundColor + 8];
-
-                    return AttributeColors[(int)attribute.BackgroundColor];
-                }
-                else
-                    return Color.FromArgb(255, (byte)attribute.BackgroundRgb.Red, (byte)attribute.BackgroundRgb.Green, (byte)attribute.BackgroundRgb.Blue);
-            }
-            else
-            {
-                if(attribute.ForegroundRgb == null)
-                {
-                    if (attribute.Bright)
-                        return AttributeColors[(int)attribute.ForegroundColor + 8];
-
-                    return AttributeColors[(int)attribute.ForegroundColor];
-                }
-                else
-                    return Color.FromArgb(255, (byte)attribute.ForegroundRgb.Red, (byte)attribute.ForegroundRgb.Green, (byte)attribute.ForegroundRgb.Blue);
-            }
-        }
-
         private void ProcessTextFormat(CanvasDrawingSession drawingSession, CanvasTextFormat format)
         {
-            CanvasTextLayout textLayout = new CanvasTextLayout(drawingSession, "Q", format, 0.0f, 0.0f);
+            CanvasTextLayout textLayout = new CanvasTextLayout(drawingSession, "\u2560", format, 0.0f, 0.0f);
             if (CharacterWidth != textLayout.DrawBounds.Width || CharacterHeight != textLayout.DrawBounds.Height)
             {
                 CharacterWidth = textLayout.DrawBounds.Right;
@@ -687,7 +599,7 @@
 
             if (ViewTop != Terminal.ViewPort.TopRow)
             {
-                Terminal.ViewPort.SetTopLine(ViewTop);
+                ViewTop = Terminal.ViewPort.TopRow;
                 canvas.Invalidate();
             }
 
@@ -733,8 +645,9 @@
 
                 if (newFontSize < 2)
                     newFontSize = 2;
-                if (newFontSize > 20)
-                    newFontSize = 20;
+
+                if (newFontSize > 24)
+                    newFontSize = 24;
 
                 if (newFontSize != FontSize)
                 {

@@ -43,8 +43,8 @@
 
         private void ConnectTapped(object sender, TappedRoutedEventArgs e)
         {
-            //terminal.ConnectTo(Url.Text, Username.Text, Password.Password);
-            //terminal.Focus(FocusState.Programmatic);
+            terminal.ConnectTo(Url.Text, Username.Text, Password.Password);
+            terminal.Focus(FocusState.Programmatic);
 
             //if (tickTock == null)
             //{
@@ -82,7 +82,7 @@
 
         private void DisconnectTapped(object sender, TappedRoutedEventArgs e)
         {
-            //terminal.Disconnect();
+            terminal.Disconnect();
         }
 
         private void Editor_KeyDown(Monaco.CodeEditor sender, Monaco.Helpers.WebKeyEventArgs args)
@@ -136,48 +136,48 @@
             }
         }
 
-        private Logger nilJsLogger;
+        //private Logger nilJsLogger;
 
-        private void ScriptRunTapped(object sender, TappedRoutedEventArgs e)
-        {
-            if (nilJsLogger == null)
-                nilJsLogger = new Logger(javascriptConsole);
+        //private void ScriptRunTapped(object sender, TappedRoutedEventArgs e)
+        //{
+        //    if (nilJsLogger == null)
+        //        nilJsLogger = new Logger(javascriptConsole);
 
-            if (ScriptTool.VtNetTerminals.Instance == null)
-                ScriptTool.VtNetTerminals.Instance = new ScriptTool.VtNetTerminals(terminals);
+        //    if (ScriptTool.VtNetTerminals.Instance == null)
+        //        ScriptTool.VtNetTerminals.Instance = new ScriptTool.VtNetTerminals(terminals);
 
-            var scriptText = CodeContent;
+        //    var scriptText = CodeContent;
 
-            Task.Factory.StartNew(() =>
-                {
-                    try
-                    {
+        //    Task.Factory.StartNew(() =>
+        //        {
+        //            try
+        //            {
 
-                        var context = new NiL.JS.Core.Context();
-                        context.DefineConstructor(typeof(ScriptTool.VtNetTerminal), "vtNetTerminal");
-                        context.DefineVariable("terminals").Assign(NiL.JS.Core.JSValue.Wrap(ScriptTool.VtNetTerminals.Instance));
-                        //context.DefineVariable("terminalZero").Assign(NiL.JS.Core.JSValue.Wrap(new ScriptTool.VtNetTerminal(terminal)));
-                        context.DefineVariable("console").Assign(NiL.JS.Core.JSValue.Wrap(nilJsLogger));
+        //                var context = new NiL.JS.Core.Context();
+        //                context.DefineConstructor(typeof(ScriptTool.VtNetTerminal), "vtNetTerminal");
+        //                context.DefineVariable("terminals").Assign(NiL.JS.Core.JSValue.Wrap(ScriptTool.VtNetTerminals.Instance));
+        //                //context.DefineVariable("terminalZero").Assign(NiL.JS.Core.JSValue.Wrap(new ScriptTool.VtNetTerminal(terminal)));
+        //                context.DefineVariable("console").Assign(NiL.JS.Core.JSValue.Wrap(nilJsLogger));
 
-                        context.DefineVariable("$").Assign(NiL.JS.Core.JSValue.Wrap(
-                        new
-                        {
-                            sleep = new Action<int>(time => System.Threading.Thread.Sleep(time)),
-                            threadId = new Func<int>(() => System.Threading.Thread.CurrentThread.ManagedThreadId),
-                            delay = new Func<int, Task>((x) => Task.Delay(x))
-                        }));
+        //                context.DefineVariable("$").Assign(NiL.JS.Core.JSValue.Wrap(
+        //                new
+        //                {
+        //                    sleep = new Action<int>(time => System.Threading.Thread.Sleep(time)),
+        //                    threadId = new Func<int>(() => System.Threading.Thread.CurrentThread.ManagedThreadId),
+        //                    delay = new Func<int, Task>((x) => Task.Delay(x))
+        //                }));
 
-                        context.Eval(scriptText);
-                    }
-                    catch (Exception exc)
-                    {
-                        System.Diagnostics.Debug.WriteLine(exc.Message);
-                    }
-                }
-                ,
-                TaskCreationOptions.LongRunning
-            );
-        }
+        //                context.Eval(scriptText);
+        //            }
+        //            catch (Exception exc)
+        //            {
+        //                System.Diagnostics.Debug.WriteLine(exc.Message);
+        //            }
+        //        }
+        //        ,
+        //        TaskCreationOptions.LongRunning
+        //    );
+        //}
 
         private void Context_DebuggerCallback(NiL.JS.Core.Context sender, NiL.JS.Core.DebuggerCallbackEventArgs e)
         {

@@ -21,7 +21,7 @@
     Tapped="TerminalTapped"
     >
 
-    <Grid>
+    <Grid Background="Black">
         <canvas:CanvasControl x:Name="canvas" Draw="OnCanvasDraw" FontFamily="Consolas" Background="Black" />
     </Grid>
 </UserControl>

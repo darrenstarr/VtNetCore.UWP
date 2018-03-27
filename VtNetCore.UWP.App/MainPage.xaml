@@ -14,7 +14,29 @@
 
     </Page.Resources>
 
+    <Page.TopAppBar>
+        <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right" Margin="0,0,9,0" IsTabStop="False">
+            <CommandBar.Content>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="URL :" Margin="12,12" />
+                    <TextBox x:Name="Url" Text="ssh://10.100.5.2" Margin="12,8" />
+                    <TextBlock Text="Username:" Margin="12,12" />
+                    <TextBox x:Name="Username" Text="admin" Margin="12,8"/>
+                    <TextBlock Text="Password:" Margin="12,12" />
+                    <PasswordBox x:Name="Password" Password="Minions12345" Margin="12,8" FontFamily="Segoe UI" />
+
+                </StackPanel>
+            </CommandBar.Content>
+            <AppBarButton Icon="MapDrive" Label="Connect" Tapped="ConnectTapped" />
+            <AppBarButton Icon="MapDrive" Label="Disconnect" Tapped="DisconnectTapped" />
+        </CommandBar>
+    </Page.TopAppBar>
+
     <Grid>
+        <my:VirtualTerminalControl x:Name="terminal" />
+    </Grid>
+    
+    <!--<Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="2*"/>
             <RowDefinition Height="9"/>
@@ -27,12 +49,12 @@
         </Grid.ColumnDefinitions>
 
         <Pivot x:Name="terminals" Grid.Row="0" Grid.Column="2" FontFamily="Segoe UI">
-            <!--<PivotItem Header="{Binding ElementName=terminal, Path=WindowTitle, UpdateSourceTrigger=PropertyChanged}">
+            --><!--<PivotItem Header="{Binding ElementName=terminal, Path=WindowTitle, UpdateSourceTrigger=PropertyChanged}">
                 <my:VirtualTerminalControl x:Name="terminal" />
-            </PivotItem>-->
+            </PivotItem>--><!--
         </Pivot>
         
-        <!--<Grid Grid.Column="2" Grid.Row="0">
+        --><!--<Grid Grid.Column="2" Grid.Row="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="*" />
@@ -53,7 +75,7 @@
                 <AppBarButton Icon="MapDrive" Label="Disconnect" Tapped="DisconnectTapped" />
             </CommandBar>
             <my:VirtualTerminalControl  x:Name="terminal" Grid.Row="1" />
-        </Grid>-->
+        </Grid>--><!--
         <TextBox  x:Name="rawView" IsTabStop="False" TextWrapping="Wrap" AcceptsReturn="True" FontFamily="Consolas" FontSize="13" AllowFocusOnInteraction="False" Grid.Column="2" Grid.Row="2" />
 
         <Grid Grid.Row="0" Grid.Column="0" Grid.RowSpan="3">
@@ -64,7 +86,7 @@
             </Grid.RowDefinitions>
             <Pivot x:Name="rootPivot" Grid.Row="0" Grid.Column="0" FontFamily="Segoe UI" Padding="0" Foreground="LightGray">
                 <PivotItem Header="New File.js">
-                    <!--Pivot content goes here-->
+                    --><!--Pivot content goes here--><!--
                     <monaco:CodeEditor x:Name="Editor"
                                 TabIndex="0"
                                 HasGlyphMargin="True"
@@ -77,11 +99,11 @@
                     </monaco:CodeEditor>
                 </PivotItem>
                 <PivotItem Header="Pivot Item 2">
-                    <!--Pivot content goes here-->
+                    --><!--Pivot content goes here--><!--
                     <TextBlock Text="Content of pivot item 2."/>
                 </PivotItem>
                 <PivotItem Header="Pivot Item 3">
-                    <!--Pivot content goes here-->
+                    --><!--Pivot content goes here--><!--
                     <TextBlock Text="Content of pivot item 3."/>
                 </PivotItem>
             </Pivot>
@@ -161,6 +183,6 @@
                 </Grid>
             </controls:GridSplitter.Element>
         </controls:GridSplitter>
-    </Grid>
+    </Grid>-->
 
 </Page>
