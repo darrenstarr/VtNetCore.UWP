@@ -13,6 +13,3 @@
 [submodule "modules/SshNetCryptography"]
 	path = modules/SshNetCryptography
 	url = https://github.com/darrenstarr/Cryptography.git
-[submodule "modules/NiL.JS"]
-	path = modules/NiL.JS
-	url = https://github.com/nilproject/NiL.JS.git
