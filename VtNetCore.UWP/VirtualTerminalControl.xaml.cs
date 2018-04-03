@@ -25,8 +25,49 @@
         UserControl,
         INotifyPropertyChanged
     {
-        public VirtualTerminalController Terminal { get; set; } = new VirtualTerminalController();
-        public DataConsumer Consumer { get; set; }
+        private VirtualTerminalController _terminal;
+        public VirtualTerminalController Terminal
+        {
+            get
+            {
+                return _terminal;
+            }
+            set
+            {
+                if(value == null)
+                {
+                    if(_terminal != null)
+                    {
+                        lock (_terminal)
+                        {
+                            _terminal.WindowTitleChanged -= OnWindowTitleChanged;
+                        }
+                    }
+                }
+
+                _terminal = value;
+
+                if (_terminal != null)
+                {
+                    WindowTitle = _terminal.WindowTitle;
+                    _terminal.WindowTitleChanged += OnWindowTitleChanged;
+                    ViewTop = _terminal.ViewPort.TopRow;
+                }
+            }
+        }
+
+        public DataConsumer _consumer;
+        public DataConsumer Consumer
+        {
+            get
+            {
+                return _consumer;
+            }
+            set
+            {
+                _consumer = value;
+            }
+        }
         public int ViewTop { get; set; } = 0;
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -38,7 +79,7 @@
             get { return _windowTitle; }
             private set
             {
-                _windowTitle = (VtConnection == null ? "" : VtConnection.Destination.ToString() + " - ") +  value;
+                _windowTitle = value;
                 if (PropertyChanged != null)
                 {
                     Task.Factory.StartNew(() =>
@@ -55,29 +96,24 @@
         public bool DebugMouse { get; set; }
         public bool DebugSelect { get; set; }
 
-        private char [] _rawText = new char[0];
-        private int _rawTextLength = 0;
-        private string _rawTextString = "";
-        private bool _rawTextChanged = false;
-        public DateTime TerminalIdleSince = DateTime.Now;
-        public string RawText
+        private bool Scrolling { get; set; }
+        public int ScrollValue
         {
-            get
+            get { return ViewTop; }
+            set
             {
-                if (_rawTextChanged)
-                {
-                    lock(_rawText)
-                    {
-
-                        _rawTextString = new string(_rawText, 0, _rawTextLength);
-                        _rawTextChanged = false;
-                    }
-                }
-                return _rawTextString;
+                Scrolling = true;
+                ViewTop = value;
+                canvas.Invalidate();
             }
         }
 
-        //public string LogText { get; set; } = string.Empty;
+        public int MaxScrollValue
+        {
+            get { return Terminal.ViewPort.TopRow; }
+        }
+
+        public string LogText { get; set; } = string.Empty;
 
         DispatcherTimer blinkDispatcher;
 
@@ -106,13 +142,6 @@
             blinkDispatcher.Tick += BlinkTimerHandler;
             blinkDispatcher.Interval = TimeSpan.FromMilliseconds(Math.Min(150, GCD(BlinkShowMs, BlinkHideMs)));
             blinkDispatcher.Start();
-
-            Consumer = new DataConsumer(Terminal);
-
-            Terminal.SendData += OnSendData;
-            Terminal.WindowTitleChanged += OnWindowTitleChanged;
-            Terminal.OnLog += OnLog;
-            Terminal.StoreRawText = true;
         }
 
         void BlinkTimerHandler(object sender, object e)
@@ -122,7 +151,7 @@
 
         private void OnLog(object sender, TextEventArgs e)
         {
-            //LogText += (e.Text.Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t") + "\n");
+            LogText += (e.Text.Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t") + "\n");
         }
 
         private void OnWindowTitleChanged(object sender, TextEventArgs e)
@@ -130,30 +159,12 @@
             WindowTitle = e.Text;
         }
 
-        private void OnSendData(object sender, SendDataEventArgs e)
-        {
-            if(!Connected)
-                return;
-            Task.Run(() =>
-            {   
-                VtConnection.SendData(e.Data);
-            });
-        }
-
-        public void SendData(byte [] data)
-        {
-            if (!Connected)
-                return;
-
-            // TODO : Dispatcher from main thread?
-            Task.Run(() =>
-            {
-                VtConnection.SendData(data);
-            });
-        }
-
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
         {
+            blinkDispatcher.Stop();
+            blinkDispatcher.Tick -= BlinkTimerHandler;
+            blinkDispatcher = null;
+
             canvas.RemoveFromVisualTree();
             canvas = null;
         }
@@ -166,49 +177,7 @@
 
         public int Rows = -1;
 
-        public Connection VtConnection { get; set; }
-
-        public bool Connected
-        {
-            get { return VtConnection != null && VtConnection.IsConnected; }
-        }
-
         string InputBuffer { get; set; } = "";
-
-        public void Disconnect()
-        {
-            if (!Connected)
-                return;
-
-            VtConnection.Disconnect();
-            VtConnection.DataReceived -= OnDataReceived;
-            VtConnection = null;
-        }
-
-        public bool ConnectTo(string uri, string username, string password)
-        {
-            if(Connected)
-                return false;       // Already connected
-
-            var credentials = new UsernamePasswordCredentials
-            {
-                Username = username,
-                Password = password
-            };
-
-            var destination = new Uri(uri);
-
-            VtConnection = Connection.CreateConnection(destination);
-            VtConnection.SetTerminalWindowSize(Columns, Rows, 800, 600);
-
-            VtConnection.DataReceived += OnDataReceived;
-
-            var result = VtConnection.Connect(destination, credentials);
-
-            WindowTitle = "";
-
-            return result;
-        }
 
         public void PushText(string text)
         {
@@ -220,55 +189,29 @@
 
                 if (Terminal.Changed)
                 {
-                    ProcessRawText();
                     Terminal.ClearChanges();
 
                     if (oldTopRow != Terminal.ViewPort.TopRow && oldTopRow >= ViewTop)
+                    {
                         ViewTop = Terminal.ViewPort.TopRow;
+                        Task.Factory.StartNew(() =>
+                            Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            {
+                                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ScrollValue"));
+                            })
+                        );
+                    }
 
                     canvas.Invalidate();
                 }
-
-                TerminalIdleSince = DateTime.Now;
             }
         }
 
-        private void OnDataReceived(object sender, DataReceivedEventArgs e)
+        public int BottomRow
         {
-            lock (Terminal)
+            get
             {
-                int oldTopRow = Terminal.ViewPort.TopRow;
-
-                Consumer.Push(e.Data);
-
-                if (Terminal.Changed)
-                {
-                    ProcessRawText();
-                    Terminal.ClearChanges();
-
-                    if (oldTopRow != Terminal.ViewPort.TopRow && oldTopRow >= ViewTop)
-                        ViewTop = Terminal.ViewPort.TopRow;
-
-                    canvas.Invalidate();
-                }
-
-                TerminalIdleSince = DateTime.Now;
-            }
-        }
-
-        private void ProcessRawText()
-        {
-            var incoming = Terminal.RawText;
-
-            lock (_rawText)
-            {
-                if ((_rawTextLength + incoming.Length) > _rawText.Length)
-                    Array.Resize(ref _rawText, _rawText.Length + 1000000);
-
-                for (var i = 0; i < incoming.Length; i++)
-                    _rawText[_rawTextLength++] = incoming[i];
-
-                _rawTextChanged = true;
+                return ViewTop + Rows - 1;
             }
         }
 
@@ -390,21 +333,29 @@
         private void PaintCursor(CanvasDrawingSession drawingSession, List<VirtualTerminal.Layout.LayoutRow> spans, CanvasTextFormat textFormat, TextPosition cursorPosition, Color cursorColor)
         {
             var cursorY = cursorPosition.Row;
-
-            var textRow = spans[cursorY];
-
-            drawingSession.Transform =
-                Matrix3x2.CreateTranslation(
-                    1.0f,
-                    (float)(textRow.DoubleHeightBottom ? -CharacterHeight : 0)
-                ) *
-                Matrix3x2.CreateScale(
-                    (float)(textRow.DoubleWidth ? 2.0 : 1.0),
-                    (float)(textRow.DoubleHeightBottom | textRow.DoubleHeightTop ? 2.0 : 1.0)
-                );
+            if (cursorY < 0 || cursorY >= Rows)
+                return;
 
             var drawX = cursorPosition.Column * CharacterWidth;
-            var drawY = (cursorY * CharacterHeight) * ((textRow.DoubleHeightBottom | textRow.DoubleHeightTop) ? 0.5 : 1.0);
+            var drawY = (cursorY * CharacterHeight);
+
+            if (cursorY < spans.Count)
+            {
+                var textRow = spans[cursorY];
+
+                drawingSession.Transform =
+                    Matrix3x2.CreateTranslation(
+                        1.0f,
+                        (float)(textRow.DoubleHeightBottom ? -CharacterHeight : 0)
+                    ) *
+                    Matrix3x2.CreateScale(
+                        (float)(textRow.DoubleWidth ? 2.0 : 1.0),
+                        (float)(textRow.DoubleHeightBottom | textRow.DoubleHeightTop ? 2.0 : 1.0)
+                    );
+
+                drawY *= (textRow.DoubleHeightBottom | textRow.DoubleHeightTop) ? 0.5 : 1.0;
+            }
+
 
             var cursorRect = new Rect(
                 drawX,
@@ -437,14 +388,23 @@
             TextPosition cursorPosition = null;
             bool showCursor = false;
             Color cursorColor = Colors.Green;
+            int TerminalTop = -1;
 
             lock (Terminal)
             {
+                TerminalTop = Terminal.ViewPort.TopRow;
+
+                if (Terminal.ViewPort.CursorPosition.Row > Rows)
+                    throw new Exception("We should never be here");
+
                 spans = Terminal.ViewPort.GetPageSpans(ViewTop, Rows, Columns, TextSelection);
                 showCursor = Terminal.CursorState.ShowCursor;
                 cursorPosition = Terminal.ViewPort.CursorPosition.Clone();
                 cursorColor = GetSolidColorBrush(Terminal.CursorState.Attributes.WebColor);
             }
+
+            if (!Scrolling && ViewTop != TerminalTop)
+                ViewTop = TerminalTop;
 
             var defaultTransform = drawingSession.Transform;
 
@@ -453,7 +413,13 @@
             PaintTextLayer(drawingSession, spans, textFormat, showBlink);
 
             if (showCursor)
-                PaintCursor(drawingSession, spans, textFormat, cursorPosition, cursorColor);
+                PaintCursor(
+                    drawingSession,
+                    spans,
+                    textFormat,
+                    cursorPosition.OffsetBy(0, TerminalTop - ViewTop),
+                    cursorColor
+                    );
             
             drawingSession.Transform = defaultTransform;
 
@@ -507,8 +473,11 @@
                 Rows = rows;
                 ResizeTerminal();
 
-                if (VtConnection != null)
-                    VtConnection.SetTerminalWindowSize(columns, rows, 800, 600);
+
+
+                //if (VtConnection != null)
+                //    VtConnection.SetTerminalWindowSize(columns, rows, 800, 600);
+
             }
         }
 
@@ -521,19 +490,19 @@
             Terminal.ResizeView(Columns, Rows);
         }
 
-        public void ClearRawText()
-        {
-            lock (_rawText)
-            {
-                _rawTextLength = 0;
-                _rawTextChanged = true;
-            }
-        }
+        //public void ClearRawText()
+        //{
+        //    lock (_rawText)
+        //    {
+        //        _rawTextLength = 0;
+        //        _rawTextChanged = true;
+        //    }
+        //}
 
         private void CoreWindow_CharacterReceived(CoreWindow sender, CharacterReceivedEventArgs args)
         {
-            if (!Connected)
-                return;
+            //if (!Connected)
+            //    return;
 
             var ch = char.ConvertFromUtf32((int)args.KeyCode);
             switch (ch)
@@ -544,12 +513,12 @@
                     return;
 
                 case "\r":
-                    //LogText = "";
-                    lock(_rawText)
-                    {
-                        _rawTextLength = 0;
-                        _rawTextChanged = true;
-                    }
+                    ////LogText = "";
+                    //lock(_rawText)
+                    //{
+                    //    _rawTextLength = 0;
+                    //    _rawTextChanged = true;
+                    //}
                     return;
 
                 default:
@@ -566,8 +535,8 @@
 
         private void TerminalKeyDown(object sender, KeyRoutedEventArgs e)
         {
-            if (!Connected)
-                return;
+            //if (!Connected)
+            //    return;
 
             var controlPressed = (Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down));
             var shiftPressed = (Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
@@ -590,6 +559,8 @@
                         return;
                 }
             }
+
+            Scrolling = false;
 
             // Since I get the same key twice in TerminalKeyDown and in CoreWindow_CharacterReceived
             // I lookup whether KeyPressed should handle the key here or there.
@@ -660,6 +631,7 @@
                 int oldViewTop = ViewTop;
 
                 ViewTop -= pointer.Properties.MouseWheelDelta / 40;
+                Scrolling = true;
 
                 if (ViewTop < 0)
                     ViewTop = 0;
@@ -696,7 +668,7 @@
 
             var textPosition = position.OffsetBy(0, ViewTop);
 
-            if (Connected && (Terminal.UseAllMouseTracking || Terminal.CellMotionMouseTracking) && position.Column >= 0 && position.Row >= 0 && position.Column < Columns && position.Row < Rows)
+            if (/*Connected &&*/ (Terminal.UseAllMouseTracking || Terminal.CellMotionMouseTracking) && position.Column >= 0 && position.Row >= 0 && position.Column < Columns && position.Row < Rows)
             {
                 var controlPressed = (Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down));
                 var shiftPressed = (Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
@@ -778,7 +750,7 @@
 
             var textPosition = position.OffsetBy(0, ViewTop);
 
-            if (!Connected || (Connected && !Terminal.X10SendMouseXYOnButton && !Terminal.X11SendMouseXYOnButton && !Terminal.SgrMouseMode && !Terminal.CellMotionMouseTracking && !Terminal.UseAllMouseTracking))
+            if (/*!Connected || (Connected && */!Terminal.MouseTrackingEnabled) //)
             {
                 if (pointer.Properties.IsLeftButtonPressed)
                     MousePressedAt = textPosition;
@@ -786,7 +758,7 @@
                     PasteClipboard();
             }
 
-            if (Connected && position.Column >= 0 && position.Row >= 0 && position.Column < Columns && position.Row < Rows)
+            if (/*Connected && */position.Column >= 0 && position.Row >= 0 && position.Column < Columns && position.Row < Rows)
             {
                 var controlPressed = (Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down));
                 var shiftPressed = (Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
@@ -794,7 +766,8 @@
                 var button =
                     pointer.Properties.IsLeftButtonPressed ? 0 :
                         pointer.Properties.IsRightButtonPressed ? 1 :
-                            2;  // Middle button
+                            pointer.Properties.IsMiddleButtonPressed ? 2 :
+                                3;  // No button
 
                 Terminal.MousePress(position.Column, position.Row, button, controlPressed, shiftPressed);
             }
@@ -837,7 +810,7 @@
                 }
             }
 
-            if (Connected && position.Column >= 0 && position.Row >= 0 && position.Column < Columns && position.Row < Rows)
+            if (/*Connected && */position.Column >= 0 && position.Row >= 0 && position.Column < Columns && position.Row < Rows)
             {
                 var controlPressed = (Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down));
                 var shiftPressed = (Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
@@ -848,8 +821,8 @@
 
         private void PasteText(string text)
         {
-            if (!Connected)
-                return;
+            //if (!Connected)
+            //    return;
 
             Terminal.Paste(Encoding.UTF8.GetBytes(text));
         }
@@ -864,6 +837,10 @@
                 if (!string.IsNullOrEmpty(text))
                     PasteText(text);
             });
+        }
+        public void ContentChanged()
+        {
+            canvas.Invalidate();
         }
     }
 }

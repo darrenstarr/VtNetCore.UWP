@@ -1,0 +1,71 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:VtNetCore.UWP.App.Assets.Style">
+
+    <Style x:Key="TabControlStyle" TargetType="Pivot">
+        <Setter Property="Margin" Value="0,0,0,0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Foreground" Value="{ThemeResource ApplicationForegroundThemeBrush}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="#FF1F1F1F"/>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <Grid/>
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Pivot">
+                    <Grid x:Name="RootElement" 
+                        Background="{TemplateBinding Background}" 
+                        HorizontalAlignment="{TemplateBinding HorizontalAlignment}" 
+                        VerticalAlignment="{TemplateBinding VerticalAlignment}">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="Orientation">
+                                <VisualState x:Name="Portrait">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Margin" Storyboard.TargetName="TitleContentControl">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource PivotPortraitThemePadding}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <ContentControl x:Name="TitleContentControl" ContentTemplate="{TemplateBinding TitleTemplate}" Content="{TemplateBinding Title}" Style="{StaticResource PivotTitleContentControlStyle}"/>
+                        <ScrollViewer x:Name="ScrollViewer" HorizontalSnapPointsAlignment="Center" HorizontalSnapPointsType="MandatorySingle" HorizontalScrollBarVisibility="Hidden" Margin="{TemplateBinding Padding}" Grid.Row="1" Template="{StaticResource ScrollViewerScrollBarlessTemplate}" VerticalSnapPointsType="None" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled" VerticalContentAlignment="Center" ZoomMode="Disabled">
+                            <PivotPanel x:Name="Panel" VerticalAlignment="Stretch">
+                                <PivotHeaderPanel x:Name="Header" 
+                                    Background="{TemplateBinding BorderBrush}">
+                                    <PivotHeaderPanel.RenderTransform>
+                                        <CompositeTransform x:Name="HeaderTranslateTransform" TranslateX="0"/>
+                                    </PivotHeaderPanel.RenderTransform>
+                                </PivotHeaderPanel>
+                                <ItemsPresenter x:Name="PivotItemPresenter">
+                                    <ItemsPresenter.RenderTransform>
+                                        <TranslateTransform x:Name="ItemsPresenterTranslateTransform" X="0"/>
+                                    </ItemsPresenter.RenderTransform>
+                                </ItemsPresenter>
+                            </PivotPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="TextBlock"
+       x:Key="TabControlHeader">
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="Margin" Value="10,10,0,0"/>
+        <Setter Property="VerticalAlignment" Value="Bottom"/>
+    </Style>
+</ResourceDictionary>

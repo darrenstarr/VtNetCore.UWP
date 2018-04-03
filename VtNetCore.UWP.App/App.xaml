@@ -2,7 +2,20 @@
     x:Class="VtNetCore.UWP.App.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:VtNetCore.UWP.App"
-    RequestedTheme="Light">
+    xmlns:local="using:VtNetCore.UWP.App"    
+    RequestedTheme="Dark">
 
+    <Application.Resources>
+        <ResourceDictionary>
+            <AcrylicBrush x:Key="NavigationViewDefaultPaneBackground" BackgroundSource="HostBackdrop" TintColor="#0c1026" TintOpacity=".8"/>
+            <AcrylicBrush x:Key="NavigationViewExpandedPaneBackground" BackgroundSource="HostBackdrop" TintColor="#0c1026" TintOpacity=".8"/>
+            <AcrylicBrush x:Key="FlyoutBackgroundThemeBrush" BackgroundSource="HostBackdrop" TintColor="#FF1F1F1F" TintOpacity=".8"/>
+            <AcrylicBrush x:Key="ApplicationPageBackgroundThemeBrush" BackgroundSource="HostBackdrop" TintColor="#0c1026" TintOpacity=".9" />
+
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Assets/Style/TabControlStyle.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+    
 </Application>

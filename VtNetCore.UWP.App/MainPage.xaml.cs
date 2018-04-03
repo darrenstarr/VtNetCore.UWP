@@ -3,16 +3,20 @@
     using NiL.JS;
     using NiL.JS.BaseLibrary;
     using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using Windows.ApplicationModel.Core;
+    using Windows.System;
     using Windows.UI.Core;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Controls.Primitives;
     using Windows.UI.Xaml.Input;
     using Windows.UI.Xaml.Media.Animation;
+    using Windows.UI.Xaml.Navigation;
 
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -20,6 +24,8 @@
     public sealed partial class MainPage : Page
     {
         //DispatcherTimer tickTock;
+
+        TerminalPage terminalPage = new TerminalPage();
 
         public string CodeContent
         {
@@ -34,61 +40,85 @@
         public MainPage()
         {
             this.InitializeComponent();
+            CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
         }
 
-        private void OnUrlTapped(object sender, TappedRoutedEventArgs e)
+        private void NavView_Loaded(object sender, RoutedEventArgs e)
         {
-            FlyoutBase.ShowAttachedFlyout((FrameworkElement)sender);
+            // set the initial SelectedItem 
+            foreach (NavigationViewItemBase item in NavView.MenuItems)
+            {
+                if (item is NavigationViewItem && item.Tag.ToString() == "home")
+                {
+                    NavView.SelectedItem = item;
+                    break;
+                }
+            }
+
+            ContentFrame.Navigated += On_Navigated;
         }
 
-        private void ConnectTapped(object sender, TappedRoutedEventArgs e)
+        private void On_Navigated(object sender, NavigationEventArgs e)
         {
-            terminal.ConnectTo(Url.Text, Username.Text, Password.Password);
-            terminal.Focus(FocusState.Programmatic);
+            if (ContentFrame.SourcePageType == typeof(SettingsPage))
+            {
+                NavView.SelectedItem = NavView.SettingsItem as NavigationViewItem;
+            }
+            else
+            {
+                Dictionary<Type, string> lookup = new Dictionary<Type, string>()
+                {
+                    {typeof(HomePage), "home"},
+                    {typeof(TerminalPage), "terminals"},
+                    {typeof(SettingsPage), "settings"}
+                };
 
-            //if (tickTock == null)
-            //{
-            //    tickTock = new DispatcherTimer
-            //    {
-            //        Interval = TimeSpan.FromMilliseconds(250)
-            //    };
-            //    tickTock.Tick += TickTock_Tick;
-            //    tickTock.Start();
-            //}
+                string stringTag = lookup[ContentFrame.SourcePageType];
+
+                // set the new SelectedItem  
+                foreach (NavigationViewItemBase item in NavView.MenuItems)
+                {
+                    if (item is NavigationViewItem && item.Tag.Equals(stringTag))
+                    {
+                        item.IsSelected = true;
+                        break;
+                    }
+                }
+            }
         }
 
-        //int OldRawLength = 0;
-        private void TickTock_Tick(object sender, object e)
+        private void NavView_Navigate(NavigationViewItem item)
         {
-            //if (DateTime.Now.Subtract(terminal.TerminalIdleSince).TotalSeconds > 0.25)
-            //{
-            //    var text = terminal.RawText;
-            //    if (OldRawLength != text.Length)
-            //    {
-            //        rawView.Text = text;
-            //        OldRawLength = text.Length;
+            switch (item.Tag)
+            {
+                case "home":
+                    ContentFrame.Navigate(typeof(HomePage));
+                    break;
 
-            //        var grid = (Grid)Windows.UI.Xaml.Media.VisualTreeHelper.GetChild(rawView, 0);
-            //        for (var i = 0; i <= Windows.UI.Xaml.Media.VisualTreeHelper.GetChildrenCount(grid) - 1; i++)
-            //        {
-            //            object obj = Windows.UI.Xaml.Media.VisualTreeHelper.GetChild(grid, i);
-            //            if (!(obj is ScrollViewer)) continue;
-            //            ((ScrollViewer)obj).ChangeView(0.0f, ((ScrollViewer)obj).ExtentHeight, 1.0f);
-            //            break;
-            //        }
-            //    }
-            //}
+                case "terminals":
+                    ContentFrame.Navigate(typeof(TerminalPage));
+                    break;
+
+                case "settings":
+                    ContentFrame.Navigate(typeof(SettingsPage));
+                    break;
+            }
         }
 
-        private void DisconnectTapped(object sender, TappedRoutedEventArgs e)
+        private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
-            terminal.Disconnect();
+            if (args.IsSettingsInvoked)
+            {
+                ContentFrame.Navigate(typeof(SettingsPage));
+            }
+            else
+            {
+                // find NavigationViewItem with Content that equals InvokedItem
+                var item = sender.MenuItems.OfType<NavigationViewItem>().First(x => (string)x.Content == (string)args.InvokedItem);
+                NavView_Navigate(item as NavigationViewItem);
+            }
         }
 
-        private void Editor_KeyDown(Monaco.CodeEditor sender, Monaco.Helpers.WebKeyEventArgs args)
-        {
-
-        }
 
         private class Logger : NiL.JS.BaseLibrary.JSConsole
         {

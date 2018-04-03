@@ -23,26 +23,29 @@
             Terminal = terminal;
         }
 
-        public bool connected { get { return Terminal.Connected; } }
+        public bool connected { get { return false; } } // return Terminal.Connected; } }
 
         public bool connect(Arguments arguments)
         {
-            if (arguments.Length > 0)
-                return Terminal.ConnectTo(arguments[0].Value.ToString(), "admin", "Minions12345");
+            //if (arguments.Length > 0)
+            //    return Terminal.ConnectTo(arguments[0].Value.ToString(), "admin", "Minions12345");
 
-            return Terminal.ConnectTo("ssh://10.100.5.100", "admin", "Minions12345");
+            //return Terminal.ConnectTo("ssh://10.100.5.100", "admin", "Minions12345");
+
+            return false;
         }
 
         public void disconnect(Arguments arguments)
         {
-            Terminal.Disconnect();
+            //Terminal.Disconnect();
         }
 
         public string rawText
         {
             get
             {
-                return Terminal.RawText;
+                return string.Empty;
+                //return Terminal.RawText;
             }
         }
 
@@ -76,8 +79,8 @@
         {
             try
             {
-                Terminal.ClearRawText();
-                Terminal.SendData(Encoding.UTF8.GetBytes(text));
+                //Terminal.ClearRawText();
+                //Terminal.SendData(Encoding.UTF8.GetBytes(text));
             }
             catch
             {
@@ -88,7 +91,7 @@
 
         public void clearRaw()
         {
-            Terminal.ClearRawText();
+            //Terminal.ClearRawText();
         }
     }
 }

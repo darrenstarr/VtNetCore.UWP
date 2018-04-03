@@ -14,175 +14,62 @@
 
     </Page.Resources>
 
-    <Page.TopAppBar>
-        <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right" Margin="0,0,9,0" IsTabStop="False">
-            <CommandBar.Content>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="URL :" Margin="12,12" />
-                    <TextBox x:Name="Url" Text="ssh://10.100.5.2" Margin="12,8" />
-                    <TextBlock Text="Username:" Margin="12,12" />
-                    <TextBox x:Name="Username" Text="admin" Margin="12,8"/>
-                    <TextBlock Text="Password:" Margin="12,12" />
-                    <PasswordBox x:Name="Password" Password="Minions12345" Margin="12,8" FontFamily="Segoe UI" />
-
-                </StackPanel>
-            </CommandBar.Content>
-            <AppBarButton Icon="MapDrive" Label="Connect" Tapped="ConnectTapped" />
-            <AppBarButton Icon="MapDrive" Label="Disconnect" Tapped="DisconnectTapped" />
-        </CommandBar>
-    </Page.TopAppBar>
-
-    <Grid>
-        <my:VirtualTerminalControl x:Name="terminal" />
-    </Grid>
-    
-    <!--<Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="2*"/>
-            <RowDefinition Height="9"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="5*" />
-            <ColumnDefinition Width="9" />
-            <ColumnDefinition Width="4*" />
-        </Grid.ColumnDefinitions>
-
-        <Pivot x:Name="terminals" Grid.Row="0" Grid.Column="2" FontFamily="Segoe UI">
-            --><!--<PivotItem Header="{Binding ElementName=terminal, Path=WindowTitle, UpdateSourceTrigger=PropertyChanged}">
-                <my:VirtualTerminalControl x:Name="terminal" />
-            </PivotItem>--><!--
-        </Pivot>
+    <NavigationView
+        x:Name="NavView"
+        ItemInvoked="NavView_ItemInvoked"
+        Loaded="NavView_Loaded"
+        OpenPaneLength="280"
+        CompactModeThresholdWidth="560"
+        ExpandedModeThresholdWidth="560"
+        >
         
-        --><!--<Grid Grid.Column="2" Grid.Row="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right" Margin="0,0,9,0" IsTabStop="False">
-                <CommandBar.Content>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="URL :" Margin="12,12" />
-                        <TextBox x:Name="Url" Text="ssh://10.100.5.2" Margin="12,8" />
-                        <TextBlock Text="Username:" Margin="12,12" />
-                        <TextBox x:Name="Username" Text="admin" Margin="12,8"/>
-                        <TextBlock Text="Password:" Margin="12,12" />
-                        <PasswordBox x:Name="Password" Password="Minions12345" Margin="12,8" FontFamily="Segoe UI" />
+        <NavigationView.MenuItems>
+            <NavigationViewItem Content="Connections" Tag="home" Icon="Phone" />
 
-                    </StackPanel>
-                </CommandBar.Content>
-                <AppBarButton Icon="MapDrive" Label="Connect" Tapped="ConnectTapped" />
-                <AppBarButton Icon="MapDrive" Label="Disconnect" Tapped="DisconnectTapped" />
-            </CommandBar>
-            <my:VirtualTerminalControl  x:Name="terminal" Grid.Row="1" />
-        </Grid>--><!--
-        <TextBox  x:Name="rawView" IsTabStop="False" TextWrapping="Wrap" AcceptsReturn="True" FontFamily="Consolas" FontSize="13" AllowFocusOnInteraction="False" Grid.Column="2" Grid.Row="2" />
+            <NavigationViewItemSeparator/>
+            <NavigationViewItemHeader Content="Main pages" Margin="33,0,0,0" />
+            <NavigationViewItem x:Uid="Terminals" Icon="XboxOneConsole" Content="Terminal" Tag="terminals" />
+        </NavigationView.MenuItems>
 
-        <Grid Grid.Row="0" Grid.Column="0" Grid.RowSpan="3">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="5*" />
-                <RowDefinition Height="9" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <Pivot x:Name="rootPivot" Grid.Row="0" Grid.Column="0" FontFamily="Segoe UI" Padding="0" Foreground="LightGray">
-                <PivotItem Header="New File.js">
-                    --><!--Pivot content goes here--><!--
-                    <monaco:CodeEditor x:Name="Editor"
-                                TabIndex="0"
-                                HasGlyphMargin="True"
-                                CodeLanguage="javascript"
-                                KeyDown="Editor_KeyDown"
-                                Text="{x:Bind CodeContent, Mode=TwoWay}"
-                                FontFamily="Segoe UI"
-                                FontSize="12"
-                                Margin="0">
-                    </monaco:CodeEditor>
-                </PivotItem>
-                <PivotItem Header="Pivot Item 2">
-                    --><!--Pivot content goes here--><!--
-                    <TextBlock Text="Content of pivot item 2."/>
-                </PivotItem>
-                <PivotItem Header="Pivot Item 3">
-                    --><!--Pivot content goes here--><!--
-                    <TextBlock Text="Content of pivot item 3."/>
-                </PivotItem>
-            </Pivot>
-            <controls:GridSplitter
-            Foreground="White"
-            Grid.Row="1"
-            ResizeBehavior="BasedOnAlignment"
-            ResizeDirection="Auto"
-            Background="Gray" Height="9"
-            HorizontalAlignment="Stretch" 
-            FontSize="13">
-                <controls:GridSplitter.Element>
-                    <Grid>
-                        <TextBlock HorizontalAlignment="Center"     
-                        IsHitTestVisible="False"
-                        VerticalAlignment="Center"  
-                        Text="&#xE76F;"
-                        Foreground="Black" 
-                        FontFamily="Segoe MDL2 Assets">
-                        </TextBlock>
-                    </Grid>
-                </controls:GridSplitter.Element>
-            </controls:GridSplitter>
-            <Grid Grid.Row="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-                <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right" Margin="0,0,9,0" IsTabStop="False">
-                    <AppBarButton Icon="MapDrive" Label="Run" Tapped="ScriptRunTapped" />
-                    <AppBarButton Icon="MapDrive" Label="Stop" Tapped="ScriptStopTapped" />
-                </CommandBar>
-                <my:VirtualTerminalControl  x:Name="javascriptConsole" Grid.Row="1" FontFamily="Segoe UI"/>
-            </Grid>
-        </Grid>
+        <NavigationView.AutoSuggestBox>
+            <AutoSuggestBox x:Name="ASB" QueryIcon="Find"/>
+        </NavigationView.AutoSuggestBox>
 
-        <controls:GridSplitter
-            Foreground="White"
-            Grid.Row="1"
-            Grid.Column="2"
-            ResizeBehavior="BasedOnAlignment"
-            ResizeDirection="Auto"
-            Background="Gray" Height="9"
-            HorizontalAlignment="Stretch" 
-            FontSize="13">
-            <controls:GridSplitter.Element>
-                <Grid>
-                    <TextBlock HorizontalAlignment="Center"     
-                        IsHitTestVisible="False"
-                        VerticalAlignment="Center"  
-                        Text="&#xE76F;"
-                        Foreground="Black" 
-                        FontFamily="Segoe MDL2 Assets">
-                    </TextBlock>
+        <NavigationView.HeaderTemplate>
+            <DataTemplate>
+                <Grid Margin="24,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Image Source="Assets/Inpli/telenor_symbol_blue_3adff15a.png" Grid.Column="0" Margin="12,12,0,12" />
+                    <Image Source="Assets/Inpli/telenor_inpli_negative_f1f90398.png" Grid.Column="1" Margin="12,12,0,12"/>
+                    <CommandBar Grid.Column="1"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
+                            DefaultLabelPosition="Right"
+                            Background="{ThemeResource SystemControlBackgroundAltHighBrush}" FontFamily="Segoe UI">
+                    </CommandBar>
                 </Grid>
-            </controls:GridSplitter.Element>
-        </controls:GridSplitter>
+            </DataTemplate>
+        </NavigationView.HeaderTemplate>
+        
+        <!--<NavigationView.PaneFooter>
+            <HyperlinkButton x:Name="MoreInfoBtn"
+                             Content="More info"
+                             Click="More_Click"
+                             Margin="12,0"/>
+        </NavigationView.PaneFooter>-->
 
-        <controls:GridSplitter 
-            Grid.Column="1"
-            Grid.RowSpan="3"
-                Width="9"
-                ResizeBehavior="BasedOnAlignment"
-                ResizeDirection="Auto"
-                Background="Gray"
-                Foreground="White" 
-                FontSize="13" FontFamily="Segoe MDL2 Assets">
-            <controls:GridSplitter.Element>
-                <Grid>
-                    <TextBlock HorizontalAlignment="Center" 
-                        IsHitTestVisible="False"
-                        VerticalAlignment="Center"  
-                        Text="&#xE784;"
-                        Foreground="Black" 
-                        FontFamily="Segoe MDL2 Assets">
-                    </TextBlock>
-                </Grid>
-            </controls:GridSplitter.Element>
-        </controls:GridSplitter>
-    </Grid>-->
+        <Frame x:Name="ContentFrame">
+            <Frame.ContentTransitions>
+                <TransitionCollection>
+                    <NavigationThemeTransition/>
+                </TransitionCollection>
+            </Frame.ContentTransitions>
+        </Frame>
+
+    </NavigationView>
 
 </Page>
