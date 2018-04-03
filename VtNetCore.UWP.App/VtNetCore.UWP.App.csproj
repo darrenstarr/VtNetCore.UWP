@@ -134,9 +134,6 @@
     <None Include="VtNetCore.UWP.App_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\DeviceIcons\BabyTuxAlpha.png" />
-    <Content Include="Assets\DeviceIcons\blue-switch.png" />
-    <Content Include="Assets\DeviceIcons\juanjo-Router.png" />
     <Content Include="Assets\DeviceIcons\view1\l2switch.png" />
     <Content Include="Assets\DeviceIcons\view1\mls.png" />
     <Content Include="Assets\DeviceIcons\view1\router.png" />
