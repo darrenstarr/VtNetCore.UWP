@@ -26,7 +26,7 @@
                             <!--<SymbolIcon Symbol="Cancel" Width="12" Height="12"/>-->
                             <TextBlock FontSize="12"    FontFamily="Segoe UI Symbol" Text="&#xE10A;" Foreground="White"/>
                         </Button>
-                        <Rectangle Grid.ColumnSpan="2" Stroke="{ThemeResource FlyoutBorderThemeBrush}" />
+                        <!--<Rectangle Grid.ColumnSpan="2" Stroke="{ThemeResource FlyoutBorderThemeBrush}" />-->
                     </Grid>
                 </DataTemplate>
             </Pivot.HeaderTemplate>

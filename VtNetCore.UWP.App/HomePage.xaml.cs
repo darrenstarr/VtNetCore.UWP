@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Linq;
     using Windows.UI.Xaml;
@@ -13,73 +14,7 @@
     /// </summary>
     public sealed partial class HomePage : Page, INotifyPropertyChanged
     {
-        private static List<Model.Tennant> MockTennants =
-            new List<Model.Tennant>
-            {
-                new Model.Tennant
-                {
-                    Id = Guid.Parse("d592a4d2-dc5b-4e83-b37a-ccf90dae1e0b"),
-                    Name = "{Local}",
-                    Notes = "Not a tennant, but simply locally stored profiles"
-                }
-            };
 
-        private static List<Model.Site> MockSites =
-            new List<Model.Site>
-            {
-                new Model.Site
-                {
-                    Id = Guid.Parse("d1df98b4-0bd6-4813-b115-1b2e63aae17b"),
-                    TennantId = Guid.Parse("d592a4d2-dc5b-4e83-b37a-ccf90dae1e0b"),
-                    Name = "{Local Site}",
-                    Location = "Local",
-                    Notes = "These are connections bound to the local user"
-                }
-            };
-
-        private static List<Model.AuthenticationProfile> MockAuthenticationProfiles =
-            new List<Model.AuthenticationProfile>
-            {
-                new Model.AuthenticationProfile
-                {
-                    Id = Guid.Parse("220ec5da-f4c1-4273-a3b6-c45aca443cd8"),
-                    Name = "MunchkinLAN Admin",
-                    Username = "admin",
-                    Password = "Minions12345",
-                    Notes = "Admin account in MunchkinLAN"
-                },
-            };
-
-        private static List<Model.Device> MockDevices =
-            new List<Model.Device> {
-                new Model.Device {
-                    Id = Guid.NewGuid(),
-                    SiteId = Guid.Parse("d1df98b4-0bd6-4813-b115-1b2e63aae17b"),
-                    Name = "Miner1.munchkinlan.local",
-                    Destination = "ssh://10.100.5.100",
-                    Notes = "Linux test system for using VtNetCore against multiple verification test",
-                    IconName = "Assets/DeviceIcons/view1/workstation.png",
-                    AuthenticationProfileId = Guid.Parse("220ec5da-f4c1-4273-a3b6-c45aca443cd8"),
-                },
-                new Model.Device {
-                    Id = Guid.NewGuid(),
-                    SiteId = Guid.Parse("d1df98b4-0bd6-4813-b115-1b2e63aae17b"),
-                    Name = "Console.munchkinlan.local",
-                    Destination = "ssh://10.100.5.3",
-                    Notes = "Terminal server for office rack",
-                    IconName = "Assets/DeviceIcons/view1/router.png",
-                    AuthenticationProfileId = Guid.Parse("220ec5da-f4c1-4273-a3b6-c45aca443cd8"),
-                },
-                new Model.Device {
-                    Id = Guid.NewGuid(),
-                    SiteId = Guid.Parse("d1df98b4-0bd6-4813-b115-1b2e63aae17b"),
-                    Name = "TORSW.munchkinlan.local",
-                    Destination = "ssh://10.100.5.2",
-                    Notes = "Top of rack switch for office rack",
-                    IconName = "Assets/DeviceIcons/view1/mls.png",
-                    AuthenticationProfileId = Guid.Parse("220ec5da-f4c1-4273-a3b6-c45aca443cd8"),
-                },
-            };
 
         public Model.Device NewConnection { get; set; } =
             new Model.Device
@@ -91,7 +26,7 @@
         {
             get
             {
-                return MockDevices;
+                return MockData.MockDevices;
             }
         }
 
@@ -99,7 +34,7 @@
         {
             get
             {
-                return MockAuthenticationProfiles;
+                return MockData.MockAuthenticationProfiles;
             }
         }
 
@@ -107,7 +42,7 @@
         {
             get
             {
-                return MockTennants;
+                return MockData.MockTennants;
             }
         }
 
@@ -115,9 +50,12 @@
         {
             get
             {
-                return MockSites;
+                return MockData.MockSites;
             }
         }
+
+        private ObservableCollection<Model.Site> SitesForSelectedTennant = new ObservableCollection<Model.Site>();
+        private ObservableCollection<Model.Device> DevicesForSelectedSite = new ObservableCollection<Model.Device>();
 
         public HomePage()
         {
@@ -126,6 +64,32 @@
 
         private void TennantsView_ItemClick(object sender, ItemClickEventArgs e)
         {
+            SitesForSelectedTennant.Clear();
+            DevicesForSelectedSite.Clear();
+
+            if ((e.ClickedItem as Model.Tennant) != null)
+            {
+                var sites = Sites.Where(x => x.TennantId == (e.ClickedItem as Model.Tennant).Id);
+                foreach (var site in sites)
+                    SitesForSelectedTennant.Add(site);
+            }
+        }
+
+        private void SitesView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            DevicesForSelectedSite.Clear();
+
+            if ((e.ClickedItem as Model.Site) != null)
+            {
+                var devices = Devices.Where(x => x.SiteId == (e.ClickedItem as Model.Site).Id);
+                foreach (var device in devices)
+                    DevicesForSelectedSite.Add(device);
+            }
+        }
+
+
+        private void DevicesView_ItemClick(object sender, ItemClickEventArgs e)
+        {
             var item = (Model.Device)e.ClickedItem;
 
             var t = Terminals.Instance;
@@ -133,15 +97,27 @@
             var terminalInstance = t.Where(x => x.Connection.Destination.ToString() == item.Destination).SingleOrDefault();
             if(terminalInstance == null)
             {
-                var authenticationProfile = AuthenticationProfiles.Where(x => x.Id == item.AuthenticationProfileId).SingleOrDefault();
-                if(authenticationProfile == null)
+                var username = string.Empty;
+                var password = string.Empty;
+
+                if (item.AuthenticationMethod == Model.EAuthenticationMethod.NoAuthentication)
                 {
-                    System.Diagnostics.Debug.WriteLine("Failed to find an authentication profile");
-                    return;
+
+                }
+                else
+                {
+                    var authenticationProfile = AuthenticationProfiles.Where(x => x.Id == item.AuthenticationProfileId).SingleOrDefault();
+                    if (authenticationProfile == null)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Failed to find an authentication profile");
+                        return;
+                    }
+                    username = authenticationProfile.Username;
+                    password = authenticationProfile.Password;
                 }
 
                 terminalInstance = new TerminalInstance();
-                if(!terminalInstance.ConnectTo(new Uri(item.Destination), authenticationProfile.Username, authenticationProfile.Password))
+                if(!terminalInstance.ConnectTo(new Uri(item.Destination), username, password))
                 {
                     System.Diagnostics.Debug.WriteLine("Failed to connect to destination");
                     return;
@@ -167,6 +143,5 @@
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
     }
 }

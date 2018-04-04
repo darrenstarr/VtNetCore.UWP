@@ -1,7 +1,7 @@
 ﻿namespace VtNetCore.UWP.App
 {
-    using NiL.JS;
-    using NiL.JS.BaseLibrary;
+    //using NiL.JS;
+    //using NiL.JS.BaseLibrary;
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -120,51 +120,51 @@
         }
 
 
-        private class Logger : NiL.JS.BaseLibrary.JSConsole
-        {
-            private VirtualTerminalControl Terminal { get; set; }
+        //private class Logger : NiL.JS.BaseLibrary.JSConsole
+        //{
+        //    private VirtualTerminalControl Terminal { get; set; }
 
-            public class LoggerWriter : TextWriter
-            {
-                private Logger Parent { get; set; }
+        //    public class LoggerWriter : TextWriter
+        //    {
+        //        private Logger Parent { get; set; }
 
-                public LoggerWriter(Logger parent)
-                {
-                    Parent = parent;
-                }
+        //        public LoggerWriter(Logger parent)
+        //        {
+        //            Parent = parent;
+        //        }
 
-                public override Encoding Encoding
-                {
-                    get
-                    {
-                        return Encoding.UTF8;
-                    }
-                }
+        //        public override Encoding Encoding
+        //        {
+        //            get
+        //            {
+        //                return Encoding.UTF8;
+        //            }
+        //        }
 
-                public override void Write(char value)
-                {
-                    Parent.Write(value);
-                }
-            }
+        //        public override void Write(char value)
+        //        {
+        //            Parent.Write(value);
+        //        }
+        //    }
 
-            public void Write(char ch)
-            {
-                Terminal.PushText(ch.ToString());
-            }
+        //    public void Write(char ch)
+        //    {
+        //        Terminal.PushText(ch.ToString());
+        //    }
 
-            public Logger(VirtualTerminalControl terminal)
-            {
-                Writer = new LoggerWriter(this);
-                Terminal = terminal;
-            }
+        //    public Logger(VirtualTerminalControl terminal)
+        //    {
+        //        Writer = new LoggerWriter(this);
+        //        Terminal = terminal;
+        //    }
 
-            LoggerWriter Writer { get; set; }
+        //    LoggerWriter Writer { get; set; }
 
-            public override TextWriter GetLogger(LogLevel ll)
-            {
-                return Writer;
-            }
-        }
+        //    public override TextWriter GetLogger(LogLevel ll)
+        //    {
+        //        return Writer;
+        //    }
+        //}
 
         //private Logger nilJsLogger;
 
@@ -209,10 +209,10 @@
         //    );
         //}
 
-        private void Context_DebuggerCallback(NiL.JS.Core.Context sender, NiL.JS.Core.DebuggerCallbackEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
+        //private void Context_DebuggerCallback(NiL.JS.Core.Context sender, NiL.JS.Core.DebuggerCallbackEventArgs e)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         //private void ScriptRunTapped(object sender, TappedRoutedEventArgs e)
         //{

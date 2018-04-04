@@ -98,21 +98,25 @@
     </Compile>
     <Compile Include="AuthenticationMethod.cs" />
     <Compile Include="AuthenticationMethodItemConverter.cs" />
+    <Compile Include="DeviceTypeIconConverter.cs" />
     <Compile Include="HomePage.xaml.cs">
       <DependentUpon>HomePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MockData.cs" />
     <Compile Include="Model\AuthenticationProfile.cs" />
     <Compile Include="Model\Device.cs" />
     <Compile Include="Model\EAuthenticationMethod.cs" />
     <Compile Include="Model\Site.cs" />
     <Compile Include="Model\Tennant.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScriptTool\DispatcherTaskExtensions.cs" />
-    <Compile Include="ScriptTool\VtNetTerminal.cs" />
-    <Compile Include="ScriptTool\VtNetTerminals.cs" />
+    <None Include="Assets\DeviceIcons\view2\QuestionMark.afphoto" />
+    <None Include="Assets\DeviceIcons\view2\QuestionMark.pdf" />
+    <None Include="ScriptTool\DispatcherTaskExtensions.cs" />
+    <None Include="ScriptTool\VtNetTerminal.cs" />
+    <None Include="ScriptTool\VtNetTerminals.cs" />
     <Compile Include="SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
@@ -131,6 +135,10 @@
     <None Include="Assets\DeviceIcons\view1\mls.pdf" />
     <None Include="Assets\DeviceIcons\view1\router.pdf" />
     <None Include="Assets\DeviceIcons\view1\workstation.pdf" />
+    <None Include="Assets\DeviceIcons\view2\Site.afphoto" />
+    <None Include="Assets\DeviceIcons\view2\Site.pdf" />
+    <None Include="Assets\DeviceIcons\view2\Tennant.afphoto" />
+    <None Include="Assets\DeviceIcons\view2\Tennant.pdf" />
     <None Include="VtNetCore.UWP.App_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -138,6 +146,9 @@
     <Content Include="Assets\DeviceIcons\view1\mls.png" />
     <Content Include="Assets\DeviceIcons\view1\router.png" />
     <Content Include="Assets\DeviceIcons\view1\workstation.png" />
+    <Content Include="Assets\DeviceIcons\view2\QuestionMark.png" />
+    <Content Include="Assets\DeviceIcons\view2\Site.png" />
+    <Content Include="Assets\DeviceIcons\view2\Tennant.png" />
     <Content Include="Assets\Inpli\telenor_inpli_negative_f1f90398.png" />
     <Content Include="Assets\Inpli\telenor_inpli_negative_f1f90398.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -197,9 +208,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\modules\NiL.JS\NiL.JS.NetCore\NiL.JS.NetCore.csproj">
-      <Project>{1ff46d05-7979-4239-b440-1d804767d256}</Project>
-      <Name>NiL.JS.NetCore</Name>
+    <ProjectReference Include="..\modules\VtConnect\VtConnect\VtConnect.csproj">
+      <Project>{6e786f2c-4eb7-4406-9274-392f13d492d6}</Project>
+      <Name>VtConnect</Name>
     </ProjectReference>
     <ProjectReference Include="..\modules\VtNetCore\VtNetCore\VtNetCore.csproj">
       <Project>{4480ad73-b513-4714-9eea-b5ae011c1b0e}</Project>

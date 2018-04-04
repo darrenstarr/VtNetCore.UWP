@@ -12,118 +12,159 @@
 
     <Page.Resources>
         <local:AuthenticationMethodItemConverter x:Key="AuthenticationMethodItemConverter" />
+        <local:DeviceTypeIconConverter x:Key="DeviceTypeIconConverter" />
     </Page.Resources>
-    
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <CommandBar Grid.Row="0">
-            <AppBarButton x:Name="NewConnectionButton" Icon="Add" Label="New" Tapped="NewConnectionButtonTapped" />
-            <CommandBar.Content>
-                <TextBlock Text="Connections" Margin="12,14" />
-            </CommandBar.Content>
-        </CommandBar>
 
-        <Grid Grid.Row="1" >
-            <GridView x:Name="TennantsView" ItemsSource="{x:Bind Devices}" ItemClick="TennantsView_ItemClick" IsItemClickEnabled="True">
-                <GridView.ItemTemplate>
-                    <DataTemplate x:Name="ImageTextDataTemplate" x:DataType="dataModel:Device" >
-                        <StackPanel Margin="12">
-                            <Grid>
-                                <Image Source="{x:Bind IconName}" Height="128" Width="128" />
-                                <TextBlock FontFamily="Segoe UI Symbol" HorizontalTextAlignment="Left" VerticalAlignment="Bottom" Foreground="Red">&#xE13A;</TextBlock>
-                            </Grid>
-                            <TextBlock Text="{x:Bind Name}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </GridView.ItemTemplate>
-            </GridView>
-            
-            <Grid x:Name="AddConnectionFlyout" VerticalAlignment="Stretch" HorizontalAlignment="Right" Visibility="Visible" Background="{ThemeResource FlyoutBackgroundThemeBrush}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <Grid Grid.Column="1" Padding="15">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Text="New connection" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Left" />
+    <Grid>
+        <ScrollViewer Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="1" Text="Tennant:" Margin="0,12,0,0" />
-                    <Grid Grid.Row="2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                            <RowDefinition />
-                            <RowDefinition />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
-                        <ComboBox Grid.Row="0" x:Name="TennantComboBox" HorizontalAlignment="Stretch" ItemsSource="{x:Bind Tennants}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Name}" />
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                        <Button Grid.Row="0" Grid.Column="1">
-                            <SymbolIcon Symbol="Add" />
-                        </Button>
-                        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Padding="5">
-                            <TextBlock  Text="New tennant" Width="250"/>
-                        </Border>
-                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Name:" Width="250"/>
-                        <TextBox Grid.Row="1" Grid.Column="2" />
-                    </Grid>
+                <CommandBar Grid.Row="0">
+                    <AppBarButton x:Name="NewTennantButton" Icon="Add" Label="New" Tapped="NewConnectionButtonTapped" />
+                    <CommandBar.Content>
+                        <TextBlock Text="Tennants" Margin="12,14" />
+                    </CommandBar.Content>
+                </CommandBar>
 
-                    <TextBlock Grid.Row="3" Text="Site name:" Margin="0,12,0,0" />
-                    <Grid Grid.Row="4">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <ComboBox x:Name="SiteNameComboBox" HorizontalAlignment="Stretch" ItemsSource="{x:Bind Sites}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Name}" />
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                        <Button Grid.Column="1">
-                            <SymbolIcon Symbol="Add" />
-                        </Button>
-                    </Grid>
+                <Grid Grid.Row="1" >
+                    <GridView x:Name="TennantsView" ItemsSource="{x:Bind Tennants}" IsItemClickEnabled="True" ItemClick="TennantsView_ItemClick">
+                        <GridView.ItemTemplate>
+                            <DataTemplate x:DataType="dataModel:Tennant" >
+                                <StackPanel Margin="12">
+                                    <Image Source="Assets/DeviceIcons/view2/Tennant.png" Height="128" Width="128" />
+                                    <TextBlock Text="{x:Bind Name}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridView.ItemTemplate>
+                    </GridView>
+                </Grid>
 
-                    <TextBlock Grid.Row="5" Text="Name:" Margin="0,12,0,0" />
-                    <TextBox Grid.Row="6" Text="New Connection" />
+                <CommandBar x:Name="SitesCommandBar" Grid.Row="2" Visibility="Collapsed">
+                    <AppBarButton x:Name="NewSiteButton" Icon="Add" Label="New" />
+                    <CommandBar.Content>
+                        <TextBlock Text="Sites" Margin="12,14" />
+                    </CommandBar.Content>
+                </CommandBar>
 
-                    <TextBlock Grid.Row="7" Text="Destination:" Margin="0,12,0,0" />
-                    <TextBox Grid.Row="8" Text="ssh://localhost" />
+                <Grid Grid.Row="3">
+                    <GridView x:Name="SitesView" ItemsSource="{x:Bind SitesForSelectedTennant}" IsItemClickEnabled="True" ItemClick="SitesView_ItemClick" Visibility="Collapsed">
+                        <GridView.ItemTemplate>
+                            <DataTemplate x:DataType="dataModel:Site" >
+                                <StackPanel Margin="12">
+                                    <Image Source="Assets/DeviceIcons/view2/Site.png" Height="128" Width="128" />
+                                    <TextBlock Text="{x:Bind Name}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridView.ItemTemplate>
+                    </GridView>
+                </Grid>
 
-                    <TextBlock Grid.Row="9" Text="Authentication method" Margin="0,12,0,0" />
-                    <ComboBox 
-                        Grid.Row="10"
+                <CommandBar x:Name="DevicesCommandBar" Grid.Row="4" Visibility="Collapsed">
+                    <AppBarButton x:Name="NewConnectionButton" Icon="Add" Label="New" />
+                    <CommandBar.Content>
+                        <TextBlock Text="Devices" Margin="12,14" />
+                    </CommandBar.Content>
+                </CommandBar>
+
+                <Grid Grid.Row="5" >
+                    <GridView x:Name="DevicesView" ItemsSource="{x:Bind DevicesForSelectedSite}" ItemClick="DevicesView_ItemClick" IsItemClickEnabled="True"  Visibility="Collapsed">
+                        <GridView.ItemTemplate>
+                            <DataTemplate x:Name="ImageTextDataTemplate" x:DataType="dataModel:Device" >
+                                <StackPanel Margin="12">
+                                    <Grid>
+                                        <Image Source="{x:Bind DeviceType, Converter={StaticResource DeviceTypeIconConverter}}" Height="128" Width="128" />
+                                        <TextBlock FontFamily="Segoe UI Symbol" HorizontalTextAlignment="Left" VerticalAlignment="Bottom" Foreground="Red">&#xE13A;</TextBlock>
+                                    </Grid>
+                                    <TextBlock Text="{x:Bind Name}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridView.ItemTemplate>
+                    </GridView>
+                </Grid>
+            </Grid>
+        </ScrollViewer>
+
+        <Grid x:Name="AddTennantFlyout" VerticalAlignment="Stretch" HorizontalAlignment="Right" Visibility="Collapsed" Background="{ThemeResource FlyoutBackgroundThemeBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="1" Padding="15">
+                <TextBlock Text="New Tennant" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="250" />
+
+                <TextBlock x:Name="TennantNameLabel" Text="Name:" Margin="0,12,0,0" />
+                <TextBox x:Name="TennantNameField" />
+
+                <TextBlock x:Name="TennantNotesLabel" Text="Notes:" Margin="0,12,0,0" />
+                <TextBox x:Name="TennantNotesField" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="80"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button x:Name="AddTennantDone" Content="Add" Grid.Column="1" Margin="6,24" />
+                    <Button x:Name="CancelAddTennant" Content="Cancel" Grid.Column="2" Margin="0,24" />
+                </Grid>
+            </StackPanel>
+        </Grid>
+
+        <Grid x:Name="AddSiteFlyout" VerticalAlignment="Stretch" HorizontalAlignment="Right" Visibility="Collapsed" Background="{ThemeResource FlyoutBackgroundThemeBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="1" Padding="15">
+                <TextBlock Text="New Site" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="250" />
+
+                <TextBlock x:Name="SiteNameLabel" Text="Name:" Margin="0,12,0,0" />
+                <TextBox x:Name="SiteNameField" />
+
+                <TextBlock x:Name="SiteLocationLabel" Text="Location:" Margin="0,12,0,0" />
+                <TextBox x:Name="SiteLocationField" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="80"/>
+
+                <TextBlock x:Name="SiteNotesLabel" Text="Notes:" Margin="0,12,0,0" />
+                <TextBox x:Name="SiteNotesField" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="80"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button x:Name="AddSiteDone" Content="Add" Grid.Column="1" Margin="6,24" />
+                    <Button x:Name="CancelAddSite" Content="Cancel" Grid.Column="2" Margin="0,24" />
+                </Grid>
+            </StackPanel>
+        </Grid>
+
+        <Grid x:Name="AddConnectionFlyout" VerticalAlignment="Stretch" HorizontalAlignment="Right" Visibility="Collapsed" Background="{ThemeResource FlyoutBackgroundThemeBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="1" Padding="15">
+                <TextBlock Text="New connection" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Left" />
+
+                <TextBlock Text="Name:" Margin="0,12,0,0" />
+                <TextBox Text="New Connection" />
+
+                <TextBlock Text="Destination:" Margin="0,12,0,0" />
+                <TextBox Text="ssh://localhost" />
+
+                <TextBlock Text="Authentication method" Margin="0,12,0,0" />
+                <ComboBox 
                         x:Name="AuthenticationMethodField"
                         SelectedValue="None"
                         HorizontalAlignment="Stretch"
@@ -131,35 +172,62 @@
                         SelectedItem="{x:Bind NewConnection.AuthenticationMethod, Mode=TwoWay, Converter={StaticResource AuthenticationMethodItemConverter} }" 
                         />
 
-                    <TextBlock Grid.Row="11" x:Name="ConnectionUsernameLabel" Text="Username" Visibility="Collapsed" Margin="0,12,0,0" />
-                    <TextBox Grid.Row="12" x:Name="ConnectionUsernameField" Visibility="Collapsed" />
-                    <TextBlock Grid.Row="13" x:Name="ConnectionPasswordLabel" Text="Password" Visibility="Collapsed" Margin="0,12,0,0" />
-                    <PasswordBox Grid.Row="14" x:Name="ConnectionPasswordField" Visibility="Collapsed" />
+                <TextBlock x:Name="ConnectionUsernameLabel" Text="Username" Visibility="Collapsed" Margin="0,12,0,0" />
+                <TextBox x:Name="ConnectionUsernameField" Visibility="Collapsed" />
+                <TextBlock x:Name="ConnectionPasswordLabel" Text="Password" Visibility="Collapsed" Margin="0,12,0,0" />
+                <PasswordBox x:Name="ConnectionPasswordField" Visibility="Collapsed" />
 
-                    <TextBlock Grid.Row="11" x:Name="AuthenticationProfileLabel" Text="Authentication profile:" Visibility="Collapsed" Margin="0,12,0,0" />
-                    <ComboBox Grid.Row="12" x:Name="AuthenticationProfileField" ItemsSource="{x:Bind AuthenticationProfiles}" HorizontalAlignment="Stretch" Visibility="Collapsed">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Name}" />
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                <TextBlock x:Name="AuthenticationProfileLabel" Text="Authentication profile:" Visibility="Collapsed" Margin="0,12,0,0" />
+                <ComboBox x:Name="AuthenticationProfileField" ItemsSource="{x:Bind AuthenticationProfiles}" HorizontalAlignment="Stretch" Visibility="Collapsed">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
 
-                    <Grid Grid.Row="15">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-                        <Button x:Name="AddConnectionDone" Content="Add" Grid.Column="1" Click="AddConnectionDoneClicked" Margin="6,24" />
-                        <Button x:Name="CancelAddConnection" Content="Cancel" Grid.Column="2" Margin="0,24" />
-                    </Grid>
+                    <Button x:Name="AddConnectionDone" Content="Add" Grid.Column="1" Click="AddConnectionDoneClicked" Margin="6,24" />
+                    <Button x:Name="CancelAddConnection" Content="Cancel" Grid.Column="2" Margin="0,24" />
                 </Grid>
-            </Grid>
+            </StackPanel>
         </Grid>
-        
+
         <Interactivity:Interaction.Behaviors>
+            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=NewTennantButton}" EventName="Tapped">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddTennantFlyout}" PropertyName="Visibility" Value="Visible" />
+            </Core:EventTriggerBehavior>
+
+            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=AddTennantDone}" EventName="Click">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddTennantFlyout}" PropertyName="Visibility" Value="Collapsed" />
+            </Core:EventTriggerBehavior>
+
+            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=CancelAddTennant}" EventName="Click">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddTennantFlyout}" PropertyName="Visibility" Value="Collapsed" />
+            </Core:EventTriggerBehavior>
+
+            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=NewSiteButton}" EventName="Tapped">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddSiteFlyout}" PropertyName="Visibility" Value="Visible" />
+            </Core:EventTriggerBehavior>
+
+            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=AddSiteDone}" EventName="Click">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddSiteFlyout}" PropertyName="Visibility" Value="Collapsed" />
+            </Core:EventTriggerBehavior>
+
+            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=CancelAddSite}" EventName="Click">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddSiteFlyout}" PropertyName="Visibility" Value="Collapsed" />
+            </Core:EventTriggerBehavior>
+
+            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=NewConnectionButton}" EventName="Tapped">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddConnectionFlyout}" PropertyName="Visibility" Value="Visible" />
+            </Core:EventTriggerBehavior>
+
             <Core:EventTriggerBehavior SourceObject="{Binding ElementName=AddConnectionDone}" EventName="Click">
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddConnectionFlyout}" PropertyName="Visibility" Value="Collapsed" />
             </Core:EventTriggerBehavior>
@@ -192,11 +260,26 @@
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=AuthenticationProfileField}" PropertyName="Visibility" Value="Collapsed" />
             </Core:DataTriggerBehavior>
 
-            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=NewConnectionButton}" EventName="Tapped">
-                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddConnectionFlyout}" PropertyName="Visibility" Value="Visible" />
-            </Core:EventTriggerBehavior>
+            <Core:DataTriggerBehavior Binding="{Binding ElementName=SitesView, Path=SelectedIndex}" Value="-1">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=DevicesCommandBar}" PropertyName="Visibility" Value="Collapsed" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=DevicesView}" PropertyName="Visibility" Value="Collapsed" />
+            </Core:DataTriggerBehavior>
+
+            <Core:DataTriggerBehavior Binding="{Binding ElementName=SitesView, Path=SelectedIndex}" ComparisonCondition="GreaterThanOrEqual" Value="0">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=DevicesCommandBar}" PropertyName="Visibility" Value="Visible" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=DevicesView}" PropertyName="Visibility" Value="Visible" />
+            </Core:DataTriggerBehavior>
+
+            <Core:DataTriggerBehavior Binding="{Binding ElementName=TennantsView, Path=SelectedIndex}" Value="-1">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=SitesCommandBar}" PropertyName="Visibility" Value="Collapsed" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=SitesView}" PropertyName="Visibility" Value="Collapsed" />
+            </Core:DataTriggerBehavior>
+
+            <Core:DataTriggerBehavior Binding="{Binding ElementName=TennantsView, Path=SelectedIndex}" ComparisonCondition="GreaterThanOrEqual" Value="0">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=SitesCommandBar}" PropertyName="Visibility" Value="Visible" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=SitesView}" PropertyName="Visibility" Value="Visible" />
+            </Core:DataTriggerBehavior>
         </Interactivity:Interaction.Behaviors>
     </Grid>
-    
     
 </Page>

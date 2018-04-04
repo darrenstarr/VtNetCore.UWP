@@ -12,7 +12,7 @@
         public string Username { get; set; }
         public string Password { get; set; }
         public Guid AuthenticationProfileId { get; set; }
-        public string Notes { get; set; }
-        public string IconName { get; set; }
+        public string Notes { get; set; } = string.Empty;
+        public string DeviceType { get; set; } = string.Empty;
     }
 }
