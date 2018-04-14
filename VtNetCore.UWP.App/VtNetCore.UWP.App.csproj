@@ -102,13 +102,18 @@
     <Compile Include="HomePage.xaml.cs">
       <DependentUpon>HomePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="JsonDatastore\ObjectStore.cs" />
+    <Compile Include="JsonDatastore\UwpObjectStore.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="MockData.cs" />
     <Compile Include="Model\AuthenticationProfile.cs" />
+    <Compile Include="Model\Context.cs" />
     <Compile Include="Model\Device.cs" />
     <Compile Include="Model\EAuthenticationMethod.cs" />
+    <Compile Include="Model\ObjectStoreContext.cs" />
+    <Compile Include="Model\PropertyHelpers.cs" />
     <Compile Include="Model\Site.cs" />
     <Compile Include="Model\Tennant.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -120,6 +125,7 @@
     <Compile Include="SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TerminalConnectedColorConverter.cs" />
     <Compile Include="TerminalPage.xaml.cs">
       <DependentUpon>TerminalPage.xaml</DependentUpon>
     </Compile>
@@ -220,6 +226,9 @@
       <Project>{1d4153d2-7653-47d1-8412-a2623052f6b9}</Project>
       <Name>VtNetCore.UWP</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Settings\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

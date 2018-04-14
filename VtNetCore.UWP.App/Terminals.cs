@@ -1,16 +1,14 @@
 ﻿namespace VtNetCore.UWP.App
 {
     using System;
-    using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Linq;
-    using System.Text;
+    using System.ComponentModel;
     using System.Threading.Tasks;
     using VtConnect;
     using VtNetCore.VirtualTerminal;
     using VtNetCore.XTermParser;
 
-    public class TerminalInstance
+    public class TerminalInstance : INotifyPropertyChanged
     {
         public VirtualTerminalController Terminal { get; private set; }
         public DataConsumer Consumer { get; set; }
@@ -18,10 +16,21 @@
 
         public EventHandler ContentChanged;
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public string Title
         {
             get;
             set;
+        }
+        public bool IsConnected
+        {
+            get
+            {
+                return
+                    Connection != null &&
+                    Connection.IsConnected;
+            }
         }
 
         public TerminalInstance()
@@ -34,10 +43,15 @@
             Terminal.SizeChanged += OnSizeChanged;
         }
 
+
+
         public bool ConnectTo(Uri uri, string userName, string password)
         {
             if (Connection != null)
+            {
                 Connection.Disconnect();
+                Connection.PropertyChanged -= Connection_PropertyChanged;
+            }
 
             var credentials = new UsernamePasswordCredentials
             {
@@ -47,8 +61,14 @@
 
             Connection = Connection.CreateConnection(uri);
             Connection.DataReceived += OnDataReceived;
+            Connection.PropertyChanged += Connection_PropertyChanged;
 
             return Connection.Connect(uri, credentials);
+        }
+
+        private void Connection_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Terminal"));
         }
 
         private void OnDataReceived(object sender, DataReceivedEventArgs e)

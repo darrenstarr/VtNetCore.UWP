@@ -8,11 +8,13 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:Core="using:Microsoft.Xaml.Interactions.Core" 
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    >
 
     <Page.Resources>
         <local:AuthenticationMethodItemConverter x:Key="AuthenticationMethodItemConverter" />
         <local:DeviceTypeIconConverter x:Key="DeviceTypeIconConverter" />
+        <local:TerminalConnectedColorConverter x:Key="TerminalConnectedColorConverter" />
     </Page.Resources>
 
     <Grid>
@@ -29,6 +31,7 @@
 
                 <CommandBar Grid.Row="0">
                     <AppBarButton x:Name="NewTennantButton" Icon="Add" Label="New" Tapped="NewConnectionButtonTapped" />
+                    <AppBarButton x:Name="RemoveTennantButton" Icon="Remove" Label="Remove" IsEnabled="False" Tapped="RemoveTennantButton_Tapped" FontFamily="Segoe UI" />
                     <CommandBar.Content>
                         <TextBlock Text="Tennants" Margin="12,14" />
                     </CommandBar.Content>
@@ -40,7 +43,7 @@
                             <DataTemplate x:DataType="dataModel:Tennant" >
                                 <StackPanel Margin="12">
                                     <Image Source="Assets/DeviceIcons/view2/Tennant.png" Height="128" Width="128" />
-                                    <TextBlock Text="{x:Bind Name}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}"/>
+                                    <TextBlock Text="{x:Bind Name}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" FontFamily="Segoe UI"/>
                                 </StackPanel>
                             </DataTemplate>
                         </GridView.ItemTemplate>
@@ -49,6 +52,7 @@
 
                 <CommandBar x:Name="SitesCommandBar" Grid.Row="2" Visibility="Collapsed">
                     <AppBarButton x:Name="NewSiteButton" Icon="Add" Label="New" />
+                    <AppBarButton x:Name="RemoveSiteButton" Icon="Remove" Label="Remove" IsEnabled="False" Tapped="RemoveSiteButton_Tapped" FontFamily="Segoe UI" />
                     <CommandBar.Content>
                         <TextBlock Text="Sites" Margin="12,14" />
                     </CommandBar.Content>
@@ -68,20 +72,35 @@
                 </Grid>
 
                 <CommandBar x:Name="DevicesCommandBar" Grid.Row="4" Visibility="Collapsed">
+                    <AppBarButton x:Name="ConnectToDeviceButton" Icon="Phone" Label="Connect" Tapped="ConnectToDeviceButton_Tapped" />
+                    <AppBarButton x:Name="DisconnectToDeviceButton" Icon="HangUp" Label="Disconnect" Tapped="DisconnectToDeviceButton_Tapped" />
                     <AppBarButton x:Name="NewConnectionButton" Icon="Add" Label="New" />
+                    <AppBarButton x:Name="RemoveDeviceButton" Icon="Remove" Label="Remove" IsEnabled="False" Tapped="RemoveDeviceButton_Tapped" FontFamily="Segoe UI" />
                     <CommandBar.Content>
                         <TextBlock Text="Devices" Margin="12,14" />
                     </CommandBar.Content>
                 </CommandBar>
 
                 <Grid Grid.Row="5" >
-                    <GridView x:Name="DevicesView" ItemsSource="{x:Bind DevicesForSelectedSite}" ItemClick="DevicesView_ItemClick" IsItemClickEnabled="True"  Visibility="Collapsed">
+                    <GridView
+                        x:Name="DevicesView"
+                        ItemsSource="{x:Bind DevicesForSelectedSite}"
+                        IsItemClickEnabled="True"
+                        Visibility="Collapsed"
+                        SelectionChanged="DevicesView_SelectionChanged"
+                        >
                         <GridView.ItemTemplate>
                             <DataTemplate x:Name="ImageTextDataTemplate" x:DataType="dataModel:Device" >
                                 <StackPanel Margin="12">
                                     <Grid>
                                         <Image Source="{x:Bind DeviceType, Converter={StaticResource DeviceTypeIconConverter}}" Height="128" Width="128" />
-                                        <TextBlock FontFamily="Segoe UI Symbol" HorizontalTextAlignment="Left" VerticalAlignment="Bottom" Foreground="Red">&#xE13A;</TextBlock>
+                                        <TextBlock
+                                            FontFamily="Segoe UI Symbol"
+                                            HorizontalTextAlignment="Left"
+                                            VerticalAlignment="Bottom"
+                                            Foreground="{Binding Path=Connected, Converter={StaticResource TerminalConnectedColorConverter}}"
+                                            Text ="&#xE13A;"
+                                            />
                                     </Grid>
                                     <TextBlock Text="{x:Bind Name}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}"/>
                                 </StackPanel>
@@ -113,7 +132,7 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <Button x:Name="AddTennantDone" Content="Add" Grid.Column="1" Margin="6,24" />
+                    <Button x:Name="AddTennantDone" Content="Add" Grid.Column="1" Margin="6,24" Tapped="AddTennantDone_Tapped" />
                     <Button x:Name="CancelAddTennant" Content="Cancel" Grid.Column="2" Margin="0,24" />
                 </Grid>
             </StackPanel>
@@ -143,7 +162,7 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <Button x:Name="AddSiteDone" Content="Add" Grid.Column="1" Margin="6,24" />
+                    <Button x:Name="AddSiteDone" Content="Add" Grid.Column="1" Margin="6,24" Tapped="AddSiteDone_Tapped" />
                     <Button x:Name="CancelAddSite" Content="Cancel" Grid.Column="2" Margin="0,24" />
                 </Grid>
             </StackPanel>
@@ -157,15 +176,15 @@
             <StackPanel Grid.Column="1" Padding="15">
                 <TextBlock Text="New connection" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Left" />
 
-                <TextBlock Text="Name:" Margin="0,12,0,0" />
-                <TextBox Text="New Connection" />
+                <TextBlock x:Name="ConnectionNameLabel" Text="Name:" Margin="0,12,0,0" />
+                <TextBox x:Name="ConnectionNameField" Text="New Connection" />
 
-                <TextBlock Text="Destination:" Margin="0,12,0,0" />
-                <TextBox Text="ssh://localhost" />
+                <TextBlock x:Name="ConnectionDestinationLabel" Text="Destination:" Margin="0,12,0,0" />
+                <TextBox x:Name="ConnectionDestinationField" Text="ssh://localhost" />
 
-                <TextBlock Text="Authentication method" Margin="0,12,0,0" />
+                <TextBlock x:Name="ConnectionAuthenticationMethodLabel" Text="Authentication method" Margin="0,12,0,0" />
                 <ComboBox 
-                        x:Name="AuthenticationMethodField"
+                        x:Name="ConnectionAuthenticationMethodField"
                         SelectedValue="None"
                         HorizontalAlignment="Stretch"
                         ItemsSource="{x:Bind local:AuthenticationMethod.DeviceAuthenticationMethods}"
@@ -177,14 +196,17 @@
                 <TextBlock x:Name="ConnectionPasswordLabel" Text="Password" Visibility="Collapsed" Margin="0,12,0,0" />
                 <PasswordBox x:Name="ConnectionPasswordField" Visibility="Collapsed" />
 
-                <TextBlock x:Name="AuthenticationProfileLabel" Text="Authentication profile:" Visibility="Collapsed" Margin="0,12,0,0" />
-                <ComboBox x:Name="AuthenticationProfileField" ItemsSource="{x:Bind AuthenticationProfiles}" HorizontalAlignment="Stretch" Visibility="Collapsed">
+                <TextBlock x:Name="ConnectionAuthenticationProfileLabel" Text="Authentication profile:" Visibility="Collapsed" Margin="0,12,0,0" />
+                <ComboBox x:Name="ConnectionAuthenticationProfileField" ItemsSource="{x:Bind AuthenticationProfiles}" HorizontalAlignment="Stretch" Visibility="Collapsed">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Name}" />
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
+
+                <TextBlock x:Name="ConnectionNotesLabel" Text="Notes:" Margin="0,12,0,0" />
+                <TextBox x:Name="ConnectionNotesField" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="80"/>
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -202,6 +224,8 @@
         <Interactivity:Interaction.Behaviors>
             <Core:EventTriggerBehavior SourceObject="{Binding ElementName=NewTennantButton}" EventName="Tapped">
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddTennantFlyout}" PropertyName="Visibility" Value="Visible" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=TennantNameField}" PropertyName="Text" Value="New Tennant" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=TennantNotesField}" PropertyName="Text" Value="" />
             </Core:EventTriggerBehavior>
 
             <Core:EventTriggerBehavior SourceObject="{Binding ElementName=AddTennantDone}" EventName="Click">
@@ -236,48 +260,64 @@
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddConnectionFlyout}" PropertyName="Visibility" Value="Collapsed" />
             </Core:EventTriggerBehavior>
 
-            <Core:DataTriggerBehavior Binding="{Binding ElementName=AuthenticationMethodField, Path=SelectedItem.Tag}" Value="UsernamePassword">
+            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=RemoveTennantButton}" EventName="Click">
+                
+            </Core:EventTriggerBehavior>
+
+            <Core:DataTriggerBehavior Binding="{Binding ElementName=DisconnectToDeviceButton, Path=IsEnabled}" Value="True">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=ConnectToDeviceButton}" PropertyName="IsEnabled" Value="False" />
+            </Core:DataTriggerBehavior>
+
+            <Core:DataTriggerBehavior Binding="{Binding ElementName=DisconnectToDeviceButton, Path=IsEnabled}" Value="False">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=ConnectToDeviceButton}" PropertyName="IsEnabled" Value="True" />
+            </Core:DataTriggerBehavior>
+
+            <Core:DataTriggerBehavior Binding="{Binding ElementName=ConnectionAuthenticationMethodField, Path=SelectedItem.Tag}" Value="UsernamePassword">
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=ConnectionUsernameLabel}" PropertyName="Visibility" Value="Visible" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=ConnectionUsernameField}" PropertyName="Visibility" Value="Visible" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=ConnectionPasswordLabel}" PropertyName="Visibility" Value="Visible" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=ConnectionPasswordField}" PropertyName="Visibility" Value="Visible" />
             </Core:DataTriggerBehavior>
 
-            <Core:DataTriggerBehavior Binding="{Binding ElementName=AuthenticationMethodField, Path=SelectedItem.Tag}" ComparisonCondition="NotEqual" Value="UsernamePassword">
+            <Core:DataTriggerBehavior Binding="{Binding ElementName=ConnectionAuthenticationMethodField, Path=SelectedItem.Tag}" ComparisonCondition="NotEqual" Value="UsernamePassword">
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=ConnectionUsernameLabel}" PropertyName="Visibility" Value="Collapsed" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=ConnectionUsernameField}" PropertyName="Visibility" Value="Collapsed" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=ConnectionPasswordLabel}" PropertyName="Visibility" Value="Collapsed" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=ConnectionPasswordField}" PropertyName="Visibility" Value="Collapsed" />
             </Core:DataTriggerBehavior>
 
-            <Core:DataTriggerBehavior Binding="{Binding ElementName=AuthenticationMethodField, Path=SelectedItem.Tag}" Value="AuthenticationProfile">
-                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AuthenticationProfileLabel}" PropertyName="Visibility" Value="Visible" />
-                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AuthenticationProfileField}" PropertyName="Visibility" Value="Visible" />
+            <Core:DataTriggerBehavior Binding="{Binding ElementName=ConnectionAuthenticationMethodField, Path=SelectedItem.Tag}" Value="AuthenticationProfile">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=ConnectionAuthenticationProfileLabel}" PropertyName="Visibility" Value="Visible" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=ConnectionAuthenticationProfileField}" PropertyName="Visibility" Value="Visible" />
             </Core:DataTriggerBehavior>
 
-            <Core:DataTriggerBehavior Binding="{Binding ElementName=AuthenticationMethodField, Path=SelectedItem.Tag}" ComparisonCondition="NotEqual" Value="AuthenticationProfile">
-                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AuthenticationProfileLabel}" PropertyName="Visibility" Value="Collapsed" />
-                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AuthenticationProfileField}" PropertyName="Visibility" Value="Collapsed" />
+            <Core:DataTriggerBehavior Binding="{Binding ElementName=ConnectionAuthenticationMethodField, Path=SelectedItem.Tag}" ComparisonCondition="NotEqual" Value="AuthenticationProfile">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=ConnectionAuthenticationProfileLabel}" PropertyName="Visibility" Value="Collapsed" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=ConnectionAuthenticationProfileField}" PropertyName="Visibility" Value="Collapsed" />
             </Core:DataTriggerBehavior>
 
             <Core:DataTriggerBehavior Binding="{Binding ElementName=SitesView, Path=SelectedIndex}" Value="-1">
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=DevicesCommandBar}" PropertyName="Visibility" Value="Collapsed" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=DevicesView}" PropertyName="Visibility" Value="Collapsed" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=RemoveSiteButton}" PropertyName="IsEnabled" Value="False" />
             </Core:DataTriggerBehavior>
 
             <Core:DataTriggerBehavior Binding="{Binding ElementName=SitesView, Path=SelectedIndex}" ComparisonCondition="GreaterThanOrEqual" Value="0">
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=DevicesCommandBar}" PropertyName="Visibility" Value="Visible" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=DevicesView}" PropertyName="Visibility" Value="Visible" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=RemoveSiteButton}" PropertyName="IsEnabled" Value="True" />
             </Core:DataTriggerBehavior>
 
             <Core:DataTriggerBehavior Binding="{Binding ElementName=TennantsView, Path=SelectedIndex}" Value="-1">
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=SitesCommandBar}" PropertyName="Visibility" Value="Collapsed" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=SitesView}" PropertyName="Visibility" Value="Collapsed" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=RemoveTennantButton}" PropertyName="IsEnabled" Value="False" />
             </Core:DataTriggerBehavior>
 
             <Core:DataTriggerBehavior Binding="{Binding ElementName=TennantsView, Path=SelectedIndex}" ComparisonCondition="GreaterThanOrEqual" Value="0">
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=SitesCommandBar}" PropertyName="Visibility" Value="Visible" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=SitesView}" PropertyName="Visibility" Value="Visible" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=RemoveTennantButton}" PropertyName="IsEnabled" Value="True" />
             </Core:DataTriggerBehavior>
         </Interactivity:Interaction.Behaviors>
     </Grid>

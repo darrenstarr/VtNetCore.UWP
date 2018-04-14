@@ -13,6 +13,3 @@
 [submodule "modules/SshNetCryptography"]
 	path = modules/SshNetCryptography
 	url = https://github.com/darrenstarr/Cryptography.git
-[submodule "modules/LiteDB"]
-	path = modules/LiteDB
-	url = https://github.com/mbdavid/LiteDB.git
