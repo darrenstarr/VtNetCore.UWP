@@ -70,6 +70,7 @@
                 {
                     {typeof(HomePage), "home"},
                     {typeof(TerminalPage), "terminals"},
+                    {typeof(AuthenticationProfilesPage), "authenticationProfiles"},
                     {typeof(SettingsPage), "settings"}
                 };
 
@@ -97,6 +98,10 @@
 
                 case "terminals":
                     ContentFrame.Navigate(typeof(TerminalPage));
+                    break;
+
+                case "authenticationProfiles":
+                    ContentFrame.Navigate(typeof(AuthenticationProfilesPage));
                     break;
 
                 case "settings":

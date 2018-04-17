@@ -25,10 +25,8 @@
         
         <NavigationView.MenuItems>
             <NavigationViewItem Content="Connections" Tag="home" Icon="Phone" />
-
-            <NavigationViewItemSeparator/>
-            <NavigationViewItemHeader Content="Main pages" Margin="33,0,0,0" />
-            <NavigationViewItem x:Uid="Terminals" Icon="XboxOneConsole" Content="Terminal" Tag="terminals" />
+            <NavigationViewItem Icon="People"  Content="Authentication" Tag="authenticationProfiles" />
+            <NavigationViewItem Icon="XboxOneConsole" Content="Terminal" Tag="terminals" />
         </NavigationView.MenuItems>
 
         <NavigationView.AutoSuggestBox>

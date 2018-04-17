@@ -8,6 +8,7 @@
         public event PropertyChangedEventHandler PropertyChanged;
 
         private Guid _id;
+        private Guid _parentId;
         private string _name;
         private string _username;
         private string _password;
@@ -17,6 +18,12 @@
         {
             get => _id;
             set { PropertyChanged.ChangeAndNotify(ref _id, value, () => Id); }
+        }
+
+        public Guid ParentId
+        {
+            get => _parentId;
+            set { PropertyChanged.ChangeAndNotify(ref _parentId, value, () => ParentId); }
         }
 
         public string Name
