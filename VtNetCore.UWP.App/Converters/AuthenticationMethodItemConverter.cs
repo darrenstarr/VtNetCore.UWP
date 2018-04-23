@@ -1,4 +1,4 @@
-﻿namespace VtNetCore.UWP.App
+﻿namespace VtNetCore.UWP.App.Converters
 {
     using System;
     using System.Linq;
@@ -22,6 +22,9 @@
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
+            if (value == null)
+                return null;
+            
             return (value as AuthenticationMethod).Method;
         }
     }

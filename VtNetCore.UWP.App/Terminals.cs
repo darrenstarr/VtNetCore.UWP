@@ -3,6 +3,7 @@
     using System;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
+    using System.Linq;
     using System.Threading.Tasks;
     using VtConnect;
     using VtNetCore.VirtualTerminal;
@@ -13,6 +14,36 @@
         public VirtualTerminalController Terminal { get; private set; }
         public DataConsumer Consumer { get; set; }
         public Connection Connection { get; set; }
+
+        private byte[] _sshFingerprint;
+        public byte[] SshFingerprint
+        {
+            get => _sshFingerprint;
+            set
+            {
+                if (_sshFingerprint == null && value == null)
+                    return;
+
+                if (_sshFingerprint == null)
+                {
+                    _sshFingerprint = value.ToArray();
+                }
+                else if(value == null)
+                {
+                    _sshFingerprint = null;
+                }
+                else if(value.SequenceEqual(_sshFingerprint))
+                {
+                    return;
+                }
+                else
+                {
+                    _sshFingerprint = value.ToArray();
+                }
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SshFingerprint"));
+            }
+        }
 
         public EventHandler ContentChanged;
 
@@ -43,8 +74,6 @@
             Terminal.SizeChanged += OnSizeChanged;
         }
 
-
-
         public bool ConnectTo(Uri uri, string userName, string password)
         {
             if (Connection != null)
@@ -62,8 +91,15 @@
             Connection = Connection.CreateConnection(uri);
             Connection.DataReceived += OnDataReceived;
             Connection.PropertyChanged += Connection_PropertyChanged;
+            Connection.KeyReceived += Connection_KeyReceived;
 
             return Connection.Connect(uri, credentials);
+        }
+
+        private void Connection_KeyReceived(object sender, SshFingerprintEventArgs e)
+        {
+            SshFingerprint = e.Fingerprint;
+            e.Proceed = true;
         }
 
         private void Connection_PropertyChanged(object sender, PropertyChangedEventArgs e)

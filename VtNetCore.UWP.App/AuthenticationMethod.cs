@@ -48,6 +48,12 @@
             InheritFromTennant
         };
 
+        public static readonly List<AuthenticationMethod> ProfileAuthenticationMethods = new List<AuthenticationMethod>
+        {
+            NoAuthentication,
+            UsernameAndPassword,
+        };
+
         public Model.EAuthenticationMethod Method { get; set; }
 
         public string Tag { get; set; }

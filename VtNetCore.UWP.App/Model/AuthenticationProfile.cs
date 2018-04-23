@@ -10,6 +10,7 @@
         private Guid _id;
         private Guid _parentId;
         private string _name;
+        private EAuthenticationMethod _authenticationMethod;
         private string _username;
         private string _password;
         private string _notes;
@@ -30,6 +31,12 @@
         {
             get => _name;
             set { PropertyChanged.ChangeAndNotify(ref _name, value, () => Name); }
+        }
+
+        public EAuthenticationMethod AuthenticationMethod
+        {
+            get => _authenticationMethod;
+            set { PropertyChanged.ChangeAndNotify(ref _authenticationMethod, value, () => AuthenticationMethod);  }
         }
 
         public string Username

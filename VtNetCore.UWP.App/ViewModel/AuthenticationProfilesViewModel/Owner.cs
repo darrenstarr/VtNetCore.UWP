@@ -12,6 +12,9 @@
         {
             get
             {
+                if (_item == null)
+                    return Guid.Empty;
+
                 if (_item is Model.Tennant)
                     return (_item as Model.Tennant).Id;
 
@@ -29,6 +32,9 @@
         {
             get
             {
+                if (_item == null)
+                    return "{Global}";
+
                 if (_item is Model.Tennant)
                     return (_item as Model.Tennant).Name;
 

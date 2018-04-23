@@ -1,4 +1,4 @@
-﻿namespace VtNetCore.UWP.App
+﻿namespace VtNetCore.UWP.App.Converters
 {
     using System;
     using System.Linq;
