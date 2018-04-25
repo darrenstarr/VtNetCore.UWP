@@ -26,10 +26,28 @@
             foreach (var authenticationProfile in authenticationProfiles)
                 AuthenticationProfiles.Add(authenticationProfile);
 
+            var deviceTypes = ObjectStore.Current.ReadAllObjects<DeviceType>(ObjectStoreRoot);
+            foreach (var deviceType in deviceTypes)
+                DeviceTypes.Add(deviceType);
+
+            var unknownDeviceType = DeviceTypes.SingleOrDefault(x => x.Id == Guid.Empty);
+            if (unknownDeviceType == null)
+            {
+                unknownDeviceType = new DeviceType
+                {
+                    Id = Guid.Empty,
+                    Name = "{Not set}",
+                    Notes = "This device type is reserved for items which have no device type set"
+                };
+
+                DeviceTypes.Add(unknownDeviceType);
+            }
+
             Tennants.CollectionChanged += Tennants_CollectionChanged;
             Sites.CollectionChanged += Sites_CollectionChanged;
             Devices.CollectionChanged += Devices_CollectionChanged;
             AuthenticationProfiles.CollectionChanged += AuthenticationProfiles_CollectionChanged;
+            DeviceTypes.CollectionChanged += DeviceTypes_CollectionChanged;
 
             var localTennant = Tennants.SingleOrDefault(x => x.Name.ToLowerInvariant() == "{local}");
             if (localTennant == null)
@@ -127,6 +145,25 @@
 
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
                     foreach (var item in e.OldItems.Cast<AuthenticationProfile>())
+                        ObjectStore.Current.RemoveObject(ObjectStoreRoot, item);
+                    break;
+
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        private void DeviceTypes_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                    foreach (var item in e.NewItems.Cast<DeviceType>())
+                        ObjectStore.Current.WriteObject(ObjectStoreRoot, item);
+                    break;
+
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                    foreach (var item in e.OldItems.Cast<DeviceType>())
                         ObjectStore.Current.RemoveObject(ObjectStoreRoot, item);
                     break;
 

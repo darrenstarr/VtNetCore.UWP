@@ -8,16 +8,16 @@
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            var deviceType = value.ToString().ToLowerInvariant();
+            var deviceType = (Guid)value;
 
-            if(deviceType.StartsWith("router"))
-                return new BitmapImage(new Uri("ms-appx://VtNetCore.UWP.App/Assets/DeviceIcons/view1/router.png"));
+            //if(deviceType.StartsWith("router"))
+            //    return new BitmapImage(new Uri("ms-appx://VtNetCore.UWP.App/Assets/DeviceIcons/view1/router.png"));
 
-            if (deviceType.StartsWith("switch"))
-                return new BitmapImage(new Uri("ms-appx://VtNetCore.UWP.App/Assets/DeviceIcons/view1/mls.png"));
+            //if (deviceType.StartsWith("switch"))
+            //    return new BitmapImage(new Uri("ms-appx://VtNetCore.UWP.App/Assets/DeviceIcons/view1/mls.png"));
 
-            if (deviceType.StartsWith("workstation"))
-                return new BitmapImage(new Uri("ms-appx://VtNetCore.UWP.App/Assets/DeviceIcons/view1/workstation.png"));
+            //if (deviceType.StartsWith("workstation"))
+            //    return new BitmapImage(new Uri("ms-appx://VtNetCore.UWP.App/Assets/DeviceIcons/view1/workstation.png"));
 
             return new BitmapImage(new Uri("ms-appx://VtNetCore.UWP.App/Assets/DeviceIcons/view2/QuestionMark.png"));
         }

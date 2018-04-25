@@ -1,4 +1,4 @@
-﻿namespace VtNetCore.UWP.App
+﻿namespace VtNetCore.UWP.App.Pages
 {
     using Microsoft.Toolkit.Uwp.UI;
     using System;
@@ -274,3 +274,4 @@
         }
     }
 }
+    

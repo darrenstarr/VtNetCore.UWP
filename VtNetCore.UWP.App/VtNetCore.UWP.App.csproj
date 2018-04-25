@@ -98,27 +98,32 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="AuthenticationMethod.cs" />
+    <Compile Include="Pages\DeviceTypesPage.xaml.cs">
+      <DependentUpon>DeviceTypesPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\AuthenticationMethodItemConverter.cs" />
-    <Compile Include="AuthenticationProfilesPage.xaml.cs">
+    <Compile Include="Pages\AuthenticationProfilesPage.xaml.cs">
       <DependentUpon>AuthenticationProfilesPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\ComboBoxItemConverter.cs" />
     <Compile Include="Converters\DeviceTypeIconConverter.cs" />
+    <Compile Include="Converters\DeviceTypeIdItemConverter.cs" />
+    <Compile Include="Converters\DeviceTypeItemConverter.cs" />
     <Compile Include="Converters\SiteItemConverter.cs" />
     <Compile Include="Converters\TennantItemConverter.cs" />
-    <Compile Include="HomePage.xaml.cs">
+    <Compile Include="Pages\HomePage.xaml.cs">
       <DependentUpon>HomePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="JsonDatastore\ObjectStore.cs" />
     <Compile Include="JsonDatastore\UwpObjectStore.cs" />
-    <Compile Include="MainPage.xaml.cs">
+    <Compile Include="Pages\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MockData.cs" />
     <Compile Include="Converters\ModelIconConverter.cs" />
     <Compile Include="Model\AuthenticationProfile.cs" />
     <Compile Include="Model\Context.cs" />
     <Compile Include="Model\Device.cs" />
+    <Compile Include="Model\DeviceType.cs" />
     <Compile Include="Model\EAuthenticationMethod.cs" />
     <Compile Include="Model\ObjectStoreContext.cs" />
     <Compile Include="Model\PropertyHelpers.cs" />
@@ -133,11 +138,11 @@
     <None Include="ScriptTool\DispatcherTaskExtensions.cs" />
     <None Include="ScriptTool\VtNetTerminal.cs" />
     <None Include="ScriptTool\VtNetTerminals.cs" />
-    <Compile Include="SettingsPage.xaml.cs">
+    <Compile Include="Pages\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\TerminalConnectedColorConverter.cs" />
-    <Compile Include="TerminalPage.xaml.cs">
+    <Compile Include="Pages\TerminalPage.xaml.cs">
       <DependentUpon>TerminalPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Terminals.cs" />
@@ -195,23 +200,27 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="AuthenticationProfilesPage.xaml">
+    <Page Include="Pages\AuthenticationProfilesPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="HomePage.xaml">
+    <Page Include="Pages\DeviceTypesPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="SettingsPage.xaml">
+    <Page Include="Pages\HomePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TerminalPage.xaml">
+    <Page Include="Pages\MainPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Pages\SettingsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\TerminalPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -231,6 +240,9 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>11.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="Telerik.UI.for.UniversalWindowsPlatform">
+      <Version>1.0.0.9</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

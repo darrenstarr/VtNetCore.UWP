@@ -1,18 +1,10 @@
-﻿<Page xmlns:my="using:VtNetCore.UWP" 
-    x:Class="VtNetCore.UWP.App.MainPage"
+﻿<Page
+    x:Class="VtNetCore.UWP.App.Pages.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    mc:Ignorable="d"
-    xmlns:monaco="using:Monaco"
-      >
-
-
-    <Page.Resources>
-
-    </Page.Resources>
+    mc:Ignorable="d">
 
     <NavigationView
         x:Name="NavView"
@@ -27,6 +19,7 @@
             <NavigationViewItem Content="Connections" Tag="home" Icon="Phone" />
             <NavigationViewItem Icon="People"  Content="Authentication" Tag="authenticationProfiles" />
             <NavigationViewItem Icon="XboxOneConsole" Content="Terminal" Tag="terminals" />
+            <NavigationViewItem Icon="Cellphone" Content="DeviceTypes" Tag="deviceTypes" />
         </NavigationView.MenuItems>
 
         <NavigationView.AutoSuggestBox>
@@ -41,8 +34,8 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <Image Source="Assets/Inpli/telenor_symbol_blue_3adff15a.png" Grid.Column="0" Margin="12,12,0,12" />
-                    <Image Source="Assets/Inpli/telenor_inpli_negative_f1f90398.png" Grid.Column="1" Margin="12,12,0,12"/>
+                    <Image Source="ms-appx:///Assets/Inpli/telenor_symbol_blue_3adff15a.png" Grid.Column="0" Margin="12,12,0,12" />
+                    <Image Source="ms-appx:///Assets/Inpli/telenor_inpli_negative_f1f90398.png" Grid.Column="1" Margin="12,12,0,12"/>
                     <CommandBar Grid.Column="1"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Top"

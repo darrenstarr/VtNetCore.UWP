@@ -39,6 +39,11 @@
         public ObservableCollection<AuthenticationProfile> AuthenticationProfiles { get; set; } = new ObservableCollection<AuthenticationProfile>();
 
         /// <summary>
+        /// Provides access to a list of device types that can be observed for changes
+        /// </summary>
+        public ObservableCollection<DeviceType> DeviceTypes { get; set; } = new ObservableCollection<DeviceType>();
+
+        /// <summary>
         /// Removes a tennant as well as the sites, devices and authentication profiles associated to it.
         /// </summary>
         /// <param name="tennant">The site to remove</param>
@@ -71,6 +76,21 @@
         public void RemoveDevice(Device device)
         {
             Devices.Remove(device);
+        }
+
+        /// <summary>
+        /// Removes the device type specified
+        /// </summary>
+        /// <param name="deviceType"></param>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when the device type is known to be in use by other records
+        /// </exception>
+        public void RemoveDeviceType(DeviceType deviceType)
+        {
+            if (Devices.Count(x => x.DeviceTypeId == deviceType.Id) > 0)
+                throw new InvalidOperationException("The given device type " + deviceType.Name + " is currently in use and cannot be removed");
+
+            DeviceTypes.Remove(deviceType);
         }
     }
 }

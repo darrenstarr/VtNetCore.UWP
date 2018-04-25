@@ -16,7 +16,7 @@
         private string _password;
         private Guid _authenticationProfileId;
         private string _notes;
-        private string _deviceType;
+        private Guid _deviceTypeId;
         private bool _connected;
 
         public Guid Id
@@ -73,10 +73,10 @@
             set { PropertyChanged.ChangeAndNotify(ref _notes, value, () => Notes); }
         }
 
-        public string DeviceType
+        public Guid DeviceTypeId
         {
-            get => _deviceType;
-            set { PropertyChanged.ChangeAndNotify(ref _deviceType, value, () => DeviceType); }
+            get => _deviceTypeId;
+            set { PropertyChanged.ChangeAndNotify(ref _deviceTypeId, value, () => DeviceTypeId); }
         }
 
         [Newtonsoft.Json.JsonIgnore]

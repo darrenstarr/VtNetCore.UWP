@@ -1,4 +1,4 @@
-﻿namespace VtNetCore.UWP.App
+﻿namespace VtNetCore.UWP.App.Pages
 {
     using System;
     using System.Collections.ObjectModel;
@@ -19,26 +19,31 @@
 
         public ObservableCollection<Model.Device> Devices
         {
-            get { return Model.Context.Current.Devices; }
+            get => Model.Context.Current.Devices;
         }
 
         public ObservableCollection<Model.AuthenticationProfile> AuthenticationProfiles
         {
-            get { return Model.Context.Current.AuthenticationProfiles; }
+            get => Model.Context.Current.AuthenticationProfiles;
         }
 
         public ObservableCollection<Model.Tennant> Tennants
         {
-            get { return Model.Context.Current.Tennants; }
+            get => Model.Context.Current.Tennants;
         }
 
         public ObservableCollection<Model.Site> Sites
         {
-            get { return Model.Context.Current.Sites; }
+            get => Model.Context.Current.Sites;
         }
 
-        private ObservableCollection<Model.Site> SitesForSelectedTennant = new ObservableCollection<Model.Site>();
-        private ObservableCollection<Model.Device> DevicesForSelectedSite = new ObservableCollection<Model.Device>();
+        public ObservableCollection<Model.DeviceType> DeviceTypes
+        {
+            get => Model.Context.Current.DeviceTypes;
+        }
+
+        private ObservableCollection<Model.Site> SitesForSelectedTennant { get; set; } = new ObservableCollection<Model.Site>();
+        private ObservableCollection<Model.Device> DevicesForSelectedSite { get; set; } = new ObservableCollection<Model.Device>();
 
         public HomePage()
         {
@@ -339,7 +344,7 @@
                     Username = ConnectionUsernameField.Text,
                     Password = ConnectionPasswordField.Password,
                     Notes = ConnectionNotesField.Text,
-                    DeviceType = "Whatever",
+                    DeviceTypeId = NewConnection.Id,
                 }
                 );
         }

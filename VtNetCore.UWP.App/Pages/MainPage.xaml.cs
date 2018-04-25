@@ -1,4 +1,4 @@
-﻿namespace VtNetCore.UWP.App
+﻿namespace VtNetCore.UWP.App.Pages
 {
     //using NiL.JS;
     //using NiL.JS.BaseLibrary;
@@ -71,8 +71,9 @@
                     {typeof(HomePage), "home"},
                     {typeof(TerminalPage), "terminals"},
                     {typeof(AuthenticationProfilesPage), "authenticationProfiles"},
-                    {typeof(SettingsPage), "settings"}
-                };
+                    {typeof(DeviceTypesPage), "deviceTypes" },
+                    { typeof(SettingsPage), "settings"},
+        };
 
                 string stringTag = lookup[ContentFrame.SourcePageType];
 
@@ -102,6 +103,10 @@
 
                 case "authenticationProfiles":
                     ContentFrame.Navigate(typeof(AuthenticationProfilesPage));
+                    break;
+
+                case "deviceTypes":
+                    ContentFrame.Navigate(typeof(DeviceTypesPage));
                     break;
 
                 case "settings":
