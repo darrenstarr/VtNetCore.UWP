@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
-  <Identity Name="InpliTerm" Publisher="CN=Darren" Version="0.0.1.0" />
+  <Identity Name="InpliTerm" Publisher="CN=Darren Star" Version="0.0.1.0" />
   <mp:PhoneIdentity PhoneProductId="352c6662-725a-4d05-b95e-60ba6d6f8b7b" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>VtNetCore.UWP.App</DisplayName>

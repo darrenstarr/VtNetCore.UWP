@@ -2,6 +2,7 @@
 {
     using System;
     using System.ComponentModel;
+    using VtNetCore.UWP.App.Utility.Helpers;
 
     public class AuthenticationProfile : INotifyPropertyChanged
     {

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using VtNetCore.UWP.App.JsonDatastore;
 
     public class ObjectStoreContext : Context
@@ -170,6 +171,11 @@
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+        public async override Task SaveChanges<T>(T item)
+        {
+            await ObjectStore.Current.WriteObjectAsync (ObjectStoreRoot, item);
         }
     }
 }

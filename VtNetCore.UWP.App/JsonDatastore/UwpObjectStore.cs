@@ -29,6 +29,21 @@
             }
         }
 
+        public async override Task WriteObjectAsync(string folderPath, object toWrite)
+        {
+            var scheme = folderPath.Split(":").First();
+
+            switch (scheme)
+            {
+                case "local":
+                    await WriteObjectLocal(folderPath, toWrite);
+                    break;
+
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
         public override void RemoveObject(string folderPath, object toRemove)
         {
             var scheme = folderPath.Split(":").First();

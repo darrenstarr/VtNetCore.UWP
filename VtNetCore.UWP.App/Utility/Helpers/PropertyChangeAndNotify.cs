@@ -1,11 +1,11 @@
-﻿namespace VtNetCore.UWP.App.Model
+﻿namespace VtNetCore.UWP.App.Utility.Helpers
 {
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq.Expressions;
 
-    public static class PropertyHelpers
+    public static class PropertyChangeAndNotify
     {
         public static bool ChangeAndNotify<T>
             (

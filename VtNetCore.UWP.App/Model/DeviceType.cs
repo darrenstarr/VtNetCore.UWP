@@ -2,6 +2,7 @@
 {
     using System;
     using System.ComponentModel;
+    using VtNetCore.UWP.App.Utility.Helpers;
 
     public class DeviceType : INotifyPropertyChanged
     {
@@ -14,6 +15,32 @@
         public DateTimeOffset _endOfSale;
         public DateTimeOffset _endOfSupport;
         public string _notes;
+        public Guid _deviceClassId = Guid.Empty;
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(obj, this))
+                return true;
+
+            var other = (obj as DeviceType);
+            if (other == null)
+                return false;
+
+            return
+                _id.Equals(other.Id) &&
+                _name.Equals(other.Name) &&
+                _vendor.Equals(other.Vendor) &&
+                _model.Equals(other.Model) &&
+                _endOfSale.Equals(other.EndOfSale) &&
+                _endOfSupport.Equals(other.EndOfSupport) &&
+                _notes.Equals(other.Notes) &&
+                _deviceClassId.Equals(other.DeviceClassId);
+        }
 
         /// <summary>
         /// Record Unique ID/Key
@@ -83,6 +110,15 @@
         {
             get => _notes;
             set { PropertyChanged.ChangeAndNotify(ref _notes, value, () => Notes); }
+        }
+
+        /// <summary>
+        /// Specifies the device class. For example Router/Switch...
+        /// </summary>
+        public Guid DeviceClassId
+        {
+            get => _deviceClassId;
+            set { PropertyChanged.ChangeAndNotify(ref _deviceClassId, value, () => DeviceClassId); }
         }
     }
 }

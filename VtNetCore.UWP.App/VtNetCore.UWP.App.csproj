@@ -98,6 +98,10 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="AuthenticationMethod.cs" />
+    <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
+    <Compile Include="Converters\DeviceClassIconItemConverter.cs" />
+    <Compile Include="Converters\DeviceClassGuidItemConverter.cs" />
+    <Compile Include="Model\DeviceClass.cs" />
     <Compile Include="Pages\DeviceTypesPage.xaml.cs">
       <DependentUpon>DeviceTypesPage.xaml</DependentUpon>
     </Compile>
@@ -126,11 +130,12 @@
     <Compile Include="Model\DeviceType.cs" />
     <Compile Include="Model\EAuthenticationMethod.cs" />
     <Compile Include="Model\ObjectStoreContext.cs" />
-    <Compile Include="Model\PropertyHelpers.cs" />
+    <Compile Include="Utility\Helpers\PropertyChangeAndNotify.cs" />
     <Compile Include="Model\Site.cs" />
     <Compile Include="Model\Tennant.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Converters\SshToTextConverter.cs" />
+    <Compile Include="Utility\Helpers\StringBlankIfNull.cs" />
     <Compile Include="ViewModel\AuthenticationProfilesViewModel\AuthenticationProfilesViewModel.cs" />
     <Compile Include="ViewModel\AuthenticationProfilesViewModel\Owner.cs" />
     <None Include="Assets\DeviceIcons\view2\QuestionMark.afphoto" />

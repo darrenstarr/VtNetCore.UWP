@@ -3,9 +3,9 @@
     using System;
     using System.Collections.ObjectModel;
     using System.Linq;
-    using VtNetCore.UWP.App.JsonDatastore;
+    using System.Threading.Tasks;
 
-    public class Context
+    public abstract class Context
     {
         private static readonly Lazy<Context> lazy =
             new Lazy<Context>(
@@ -92,5 +92,7 @@
 
             DeviceTypes.Remove(deviceType);
         }
+
+        public abstract Task SaveChanges<T>(T item);
     }
 }

@@ -3,6 +3,7 @@
     using System;
     using System.ComponentModel;
     using System.ComponentModel.DataAnnotations.Schema;
+    using VtNetCore.UWP.App.Utility.Helpers;
 
     public class Site : INotifyPropertyChanged
     {
