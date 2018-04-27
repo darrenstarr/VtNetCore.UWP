@@ -7,6 +7,8 @@
 
     <Application.Resources>
         <ResourceDictionary>
+            <FontFamily x:Key="ContentControlThemeFontFamily">Telenor</FontFamily>
+            
             <AcrylicBrush x:Key="NavigationViewDefaultPaneBackground" BackgroundSource="HostBackdrop" TintColor="#0c1026" TintOpacity=".8"/>
             <AcrylicBrush x:Key="NavigationViewExpandedPaneBackground" BackgroundSource="HostBackdrop" TintColor="#0c1026" TintOpacity=".8"/>
             <AcrylicBrush x:Key="FlyoutBackgroundThemeBrush" BackgroundSource="HostBackdrop" TintColor="#FF1F1F1F" TintOpacity=".8"/>
