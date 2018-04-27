@@ -68,7 +68,7 @@
             {
                 Dictionary<Type, string> lookup = new Dictionary<Type, string>()
                 {
-                    {typeof(HomePage), "home"},
+                    {typeof(ConnectionsPage), "home"},
                     {typeof(TerminalPage), "terminals"},
                     {typeof(AuthenticationProfilesPage), "authenticationProfiles"},
                     {typeof(DeviceTypesPage), "deviceTypes" },
@@ -94,7 +94,7 @@
             switch (item.Tag)
             {
                 case "home":
-                    ContentFrame.Navigate(typeof(HomePage));
+                    ContentFrame.Navigate(typeof(ConnectionsPage));
                     break;
 
                 case "terminals":

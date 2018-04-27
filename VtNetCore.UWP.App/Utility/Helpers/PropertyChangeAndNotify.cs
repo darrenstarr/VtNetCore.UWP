@@ -12,7 +12,8 @@
                 this PropertyChangedEventHandler handler,
                 ref T field,
                 T value,
-                Expression<Func<T>> memberExpression
+                Expression<Func<T>> memberExpression,
+                bool force=false
             )
         {
             if (memberExpression == null)
@@ -22,7 +23,7 @@
             if (body == null)
                 throw new ArgumentException("Lambda must return a property.");
 
-            if (EqualityComparer<T>.Default.Equals(field, value))
+            if (!force && EqualityComparer<T>.Default.Equals(field, value))
             {
                 return false;
             }

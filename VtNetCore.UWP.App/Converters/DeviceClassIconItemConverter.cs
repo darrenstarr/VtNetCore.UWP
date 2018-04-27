@@ -7,7 +7,7 @@
 
     public class DeviceClassIconItemConverter : IValueConverter
     {
-        private static Dictionary<Guid, BitmapImage> Bitmaps = new Dictionary<Guid, BitmapImage>
+        internal static Dictionary<Guid, BitmapImage> Bitmaps = new Dictionary<Guid, BitmapImage>
         {
             {
                 Model.DeviceClass.Router,

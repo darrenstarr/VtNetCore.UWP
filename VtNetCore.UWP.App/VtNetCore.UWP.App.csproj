@@ -98,6 +98,11 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="AuthenticationMethod.cs" />
+    <Compile Include="Controls\DevicePropertiesForm.xaml.cs">
+      <DependentUpon>DevicePropertiesForm.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\FormOperation.cs" />
+    <Compile Include="Converters\AuthenticationProfileIdConverter.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\DeviceClassIconItemConverter.cs" />
     <Compile Include="Converters\DeviceClassGuidItemConverter.cs" />
@@ -115,8 +120,8 @@
     <Compile Include="Converters\DeviceTypeItemConverter.cs" />
     <Compile Include="Converters\SiteItemConverter.cs" />
     <Compile Include="Converters\TennantItemConverter.cs" />
-    <Compile Include="Pages\HomePage.xaml.cs">
-      <DependentUpon>HomePage.xaml</DependentUpon>
+    <Compile Include="Pages\ConnectionsPage.xaml.cs">
+      <DependentUpon>ConnectionsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="JsonDatastore\ObjectStore.cs" />
     <Compile Include="JsonDatastore\UwpObjectStore.cs" />
@@ -140,6 +145,30 @@
     <Compile Include="ViewModel\AuthenticationProfilesViewModel\Owner.cs" />
     <None Include="Assets\DeviceIcons\view2\QuestionMark.afphoto" />
     <None Include="Assets\DeviceIcons\view2\QuestionMark.pdf" />
+    <Content Include="Fonts\telenor_typeface\Telenor-Bold.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Fonts\telenor_typeface\Telenor-BoldItalic.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Fonts\telenor_typeface\Telenor-Italic.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Fonts\telenor_typeface\Telenor-Medium.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Fonts\telenor_typeface\Telenor-MediumItalic.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Fonts\telenor_typeface\Telenor.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Fonts\telenor_typeface\TelenorLight-Italic.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Fonts\telenor_typeface\TelenorLight.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="ScriptTool\DispatcherTaskExtensions.cs" />
     <None Include="ScriptTool\VtNetTerminal.cs" />
     <None Include="ScriptTool\VtNetTerminals.cs" />
@@ -205,6 +234,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\DevicePropertiesForm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\AuthenticationProfilesPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -213,7 +246,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Pages\HomePage.xaml">
+    <Page Include="Pages\ConnectionsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

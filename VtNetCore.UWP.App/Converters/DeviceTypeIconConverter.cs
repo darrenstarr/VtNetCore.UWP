@@ -1,25 +1,26 @@
 ﻿namespace VtNetCore.UWP.App.Converters
 {
     using System;
+    using System.Linq;
     using Windows.UI.Xaml.Data;
     using Windows.UI.Xaml.Media.Imaging;
 
     public class DeviceTypeIconConverter : IValueConverter
     {
+        private static BitmapImage IconOfLastResort = new BitmapImage(new Uri("ms-appx://VtNetCore.UWP.App/Assets/DeviceIcons/view2/QuestionMark.png"));
+
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            var deviceType = (Guid)value;
+            var deviceType = Model.Context.Current.DeviceTypes.SingleOrDefault(x => x.Id == (Guid)value);
 
-            //if(deviceType.StartsWith("router"))
-            //    return new BitmapImage(new Uri("ms-appx://VtNetCore.UWP.App/Assets/DeviceIcons/view1/router.png"));
+            var deviceClassId = Guid.Empty;
+            if (deviceType != null)
+                deviceClassId = deviceType.DeviceClassId;
 
-            //if (deviceType.StartsWith("switch"))
-            //    return new BitmapImage(new Uri("ms-appx://VtNetCore.UWP.App/Assets/DeviceIcons/view1/mls.png"));
+            if (DeviceClassIconItemConverter.Bitmaps.TryGetValue(deviceClassId, out BitmapImage result))
+                return result;
 
-            //if (deviceType.StartsWith("workstation"))
-            //    return new BitmapImage(new Uri("ms-appx://VtNetCore.UWP.App/Assets/DeviceIcons/view1/workstation.png"));
-
-            return new BitmapImage(new Uri("ms-appx://VtNetCore.UWP.App/Assets/DeviceIcons/view2/QuestionMark.png"));
+            return IconOfLastResort;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

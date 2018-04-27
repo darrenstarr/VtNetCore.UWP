@@ -9,7 +9,7 @@
     using Windows.UI.Xaml.Data;
     using Windows.UI.Xaml.Input;
 
-    public sealed partial class HomePage : Page, INotifyPropertyChanged
+    public sealed partial class ConnectionsPage : Page
     {
         public Model.Device NewConnection { get; set; } =
             new Model.Device
@@ -45,7 +45,7 @@
         private ObservableCollection<Model.Site> SitesForSelectedTennant { get; set; } = new ObservableCollection<Model.Site>();
         private ObservableCollection<Model.Device> DevicesForSelectedSite { get; set; } = new ObservableCollection<Model.Device>();
 
-        public HomePage()
+        public ConnectionsPage()
         {
             InitializeComponent();
             Sites.CollectionChanged += Sites_CollectionChanged;
@@ -166,19 +166,6 @@
             }
         }
 
-        private void NewConnectionButtonTapped(object sender, TappedRoutedEventArgs e)
-        {
-            NewConnection = new Model.Device
-            {
-                Id = Guid.NewGuid(),
-                AuthenticationMethod = Model.EAuthenticationMethod.InheritFromSite,
-            };
-
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("NewConnection"));
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public bool AlwaysFalseAnchorValue { get; } = false;
 
         private void DevicesView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -194,6 +181,7 @@
 
                 DisconnectToDeviceButton.IsEnabled = false;
                 RemoveDeviceButton.IsEnabled = false;
+                EditDeviceButton.IsEnabled = false;
                 return;
             }
 
@@ -210,6 +198,7 @@
             DisconnectToDeviceButton.SetBinding(IsEnabledProperty, newBinding);
 
             RemoveDeviceButton.IsEnabled = true;
+            EditDeviceButton.IsEnabled = true;
         }
 
         private void ConnectToDeviceButton_Tapped(object sender, TappedRoutedEventArgs e)
@@ -327,28 +316,6 @@
                 );
         }
 
-        private void AddConnectionDoneClicked(object sender, RoutedEventArgs e)
-        {
-            Devices.Add(
-                new Model.Device
-                {
-                    Id = Guid.NewGuid(),
-                    SiteId = (SitesView.SelectedItem as Model.Site).Id,
-                    Name = ConnectionNameField.Text,
-                    Destination = ConnectionDestinationField.Text,
-                    AuthenticationMethod = (ConnectionAuthenticationMethodField.SelectedItem as AuthenticationMethod).Method,
-                    AuthenticationProfileId =
-                        ConnectionAuthenticationProfileField.SelectedItem == null ?
-                            Guid.Empty :
-                            (ConnectionAuthenticationProfileField.SelectedItem as Model.AuthenticationProfile).Id,
-                    Username = ConnectionUsernameField.Text,
-                    Password = ConnectionPasswordField.Password,
-                    Notes = ConnectionNotesField.Text,
-                    DeviceTypeId = NewConnection.Id,
-                }
-                );
-        }
-
         private async void RemoveTennantButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
             var selectedTennant = (Model.Tennant)TennantsView.SelectedItem;
@@ -404,6 +371,44 @@
                 return;
 
             Model.Context.Current.RemoveDevice(selectedDevice);
+        }
+
+        private void EditDeviceButton_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            var selectedDevice = (Model.Device)DevicesView.SelectedItem;
+
+            AddConnectionFlyout.Operation = Controls.FormOperation.Edit;
+            AddConnectionFlyout.Device = selectedDevice ?? throw new Exception("Edit device button should not be active when no device is selected");
+        }
+
+        private void AddDeviceButton_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            var selectedSite = SitesView.SelectedItem as Model.Site;
+            if (selectedSite == null)
+                throw new Exception("It should not be possible to select add device if no site is selected");
+
+            AddConnectionFlyout.Operation = Controls.FormOperation.Add;
+            AddConnectionFlyout.Device = null;
+            AddConnectionFlyout.ClearForm();
+            AddConnectionFlyout.SiteId = selectedSite.Id;
+        }
+
+        private async void AddConnectionFlyout_OnDeviceChanged(object sender, Controls.DevicePropertiesForm.DeviceChangedEventArgs e)
+        {
+            switch(e.Operation)
+            {
+                case Controls.FormOperation.Add:
+                    Model.Context.Current.Devices.Add(e.Device);
+                    DevicesView.SelectedItem = e.Device;
+                    break;
+
+                case Controls.FormOperation.Edit:
+                    await Model.Context.Current.SaveChanges(e.Device);
+                    break;
+
+                default:
+                    throw new NotImplementedException();
+            }
         }
     }
 }

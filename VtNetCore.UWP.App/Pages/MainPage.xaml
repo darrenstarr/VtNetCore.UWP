@@ -19,7 +19,7 @@
             <NavigationViewItem Content="Connections" Tag="home" Icon="Phone" />
             <NavigationViewItem Icon="People"  Content="Authentication" Tag="authenticationProfiles" />
             <NavigationViewItem Icon="XboxOneConsole" Content="Terminal" Tag="terminals" />
-            <NavigationViewItem Icon="Cellphone" Content="DeviceTypes" Tag="deviceTypes" />
+            <NavigationViewItem Icon="Cellphone" Content="Device types" Tag="deviceTypes" />
         </NavigationView.MenuItems>
 
         <NavigationView.AutoSuggestBox>
