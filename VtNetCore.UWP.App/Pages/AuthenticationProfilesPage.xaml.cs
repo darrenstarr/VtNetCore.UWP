@@ -272,6 +272,46 @@
 
             throw new Exception("Unhandled flyout mode");
         }
+
+        private async void RemoveProfileButton_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            var currentAuthenticationProfile = (Model.AuthenticationProfile)AuthenticationProfilesView.SelectedItem;
+
+            if (currentAuthenticationProfile == null)
+                throw new InvalidOperationException("The remove authentication profile button should not be enabled when there is none selected");
+
+            var confirmDeletion = new ContentDialog
+            {
+                Title = "Confirm deletion?",
+                Content = "Are you sure you wish to delete this authentication profile from the system?",
+                SecondaryButtonText = "Confirm",
+                PrimaryButtonText = "Cancel"
+            };
+
+            var result = await confirmDeletion.ShowAsync();
+            if (result == ContentDialogResult.Secondary)
+            {
+                try
+                {
+                    Model.Context.Current.RemoveAuthenticationProfile(currentAuthenticationProfile);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    // TODO : Replace this with a "Record in use" in use type exception
+
+                    var itemInUseDialog = new ContentDialog
+                    {
+                        Title = "Invalid operation",
+                        Content = ex.Message,
+                        PrimaryButtonText = "Close"
+                    };
+
+                    await itemInUseDialog.ShowAsync();
+
+                    return;
+                }
+            }
+        }
     }
 }
     

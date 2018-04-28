@@ -106,6 +106,9 @@
         <CommandBar>
             <AppBarButton x:Name="AddProfileButton" Icon="Add" Label="Add" Tapped="AddProfileButton_Tapped" Flyout="{StaticResource ProfileFlyout}" Loaded="AppButton_Loaded" />
             <AppBarButton x:Name="EditProfileButton" Icon="Edit" Label="Edit" Tapped="EditProfileButton_Tapped" Flyout="{StaticResource ProfileFlyout}" Loaded="AppButton_Loaded" />
+            <CommandBar.SecondaryCommands>
+                <AppBarButton x:Name="RemoveProfileButton" Icon="Remove" Label="Remove" Tapped="RemoveProfileButton_Tapped" />
+            </CommandBar.SecondaryCommands>
         </CommandBar>
         <ScrollViewer Grid.Row="1">
             <GridView x:Name="AuthenticationProfilesView" ItemsSource="{Binding Source={StaticResource AuthenticationProfileItems}}">
@@ -150,11 +153,13 @@
 
     <Interactivity:Interaction.Behaviors>
         <Core:DataTriggerBehavior Binding="{Binding ElementName=AuthenticationProfilesView, Path=SelectedIndex}" Value="-1">
-            <Core:ChangePropertyAction TargetObject="{Binding ElementName=EditProfileButton}" PropertyName="Visibility" Value="Collapsed" />
+            <Core:ChangePropertyAction TargetObject="{Binding ElementName=EditProfileButton}" PropertyName="IsEnabled" Value="False" />
+            <Core:ChangePropertyAction TargetObject="{Binding ElementName=RemoveProfileButton}" PropertyName="IsEnabled" Value="False" />
         </Core:DataTriggerBehavior>
 
         <Core:DataTriggerBehavior Binding="{Binding ElementName=AuthenticationProfilesView, Path=SelectedIndex}" ComparisonCondition="NotEqual" Value="-1">
-            <Core:ChangePropertyAction TargetObject="{Binding ElementName=EditProfileButton}" PropertyName="Visibility" Value="Visible" />
+            <Core:ChangePropertyAction TargetObject="{Binding ElementName=EditProfileButton}" PropertyName="IsEnabled" Value="True" />
+            <Core:ChangePropertyAction TargetObject="{Binding ElementName=RemoveProfileButton}" PropertyName="IsEnabled" Value="True" />
         </Core:DataTriggerBehavior>
     </Interactivity:Interaction.Behaviors>
 </Page>

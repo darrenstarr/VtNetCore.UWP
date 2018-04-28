@@ -93,6 +93,24 @@
             DeviceTypes.Remove(deviceType);
         }
 
+        /// <summary>
+        /// Removes an authentication profile if it is not in use
+        /// </summary>
+        /// <param name="authenticationProfile">The profile to remove</param>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when the authentication profile is known to be in use by other records
+        /// </exception>
+        public void RemoveAuthenticationProfile(AuthenticationProfile authenticationProfile)
+        {
+            // TODO : Check drop through lists when this comes into play
+
+            if (Devices.Count(x => x.AuthenticationProfileId == authenticationProfile.Id) > 0)
+                throw new InvalidOperationException("The given authentication profile " + authenticationProfile.Name + " is currently in use and cannot be removed");
+
+            AuthenticationProfiles.Remove(authenticationProfile);
+        }
+
+
         public abstract Task SaveChanges<T>(T item);
     }
 }
