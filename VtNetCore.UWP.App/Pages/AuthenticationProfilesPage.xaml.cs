@@ -40,9 +40,9 @@
         }
 
         private bool IsLoaded { get; set; }
-        private Model.Tennant NewProfileTennant { get; set; }
+        private Model.Tenant NewProfileTenant { get; set; }
         private Model.Site NewProfileSite { get; set; }
-        private ObservableCollection<Model.Tennant> Tennants { get => Model.Context.Current.Tennants; }
+        private ObservableCollection<Model.Tenant> Tenants { get => Model.Context.Current.Tenants; }
         private AdvancedCollectionView Sites { get; } = new AdvancedCollectionView(Model.Context.Current.Sites, true);
 
         public AuthenticationProfilesPage()
@@ -84,22 +84,22 @@
 
             if (ScopeGlobal.IsChecked.Value)
             {
-                ProfileTennantsLabel.Visibility = Visibility.Collapsed;
-                ProfileTennantsField.Visibility = Visibility.Collapsed;
+                ProfileTenantsLabel.Visibility = Visibility.Collapsed;
+                ProfileTenantsField.Visibility = Visibility.Collapsed;
                 ProfileSitesLabel.Visibility = Visibility.Collapsed;
                 ProfileSitesField.Visibility = Visibility.Collapsed;
             }
-            else if (ScopeTennant.IsChecked.Value)
+            else if (ScopeTenant.IsChecked.Value)
             {
-                ProfileTennantsLabel.Visibility = Visibility.Visible;
-                ProfileTennantsField.Visibility = Visibility.Visible;
+                ProfileTenantsLabel.Visibility = Visibility.Visible;
+                ProfileTenantsField.Visibility = Visibility.Visible;
                 ProfileSitesLabel.Visibility = Visibility.Collapsed;
                 ProfileSitesField.Visibility = Visibility.Collapsed;
             }
             else if (ScopeSite.IsChecked.Value)
             {
-                ProfileTennantsLabel.Visibility = Visibility.Visible;
-                ProfileTennantsField.Visibility = Visibility.Visible;
+                ProfileTenantsLabel.Visibility = Visibility.Visible;
+                ProfileTenantsField.Visibility = Visibility.Visible;
                 ProfileSitesLabel.Visibility = Visibility.Visible;
                 ProfileSitesField.Visibility = Visibility.Visible;
             }
@@ -110,10 +110,10 @@
             IsLoaded = true;
             Sites.Filter = x =>
             {
-                if (NewProfileTennant == null)
+                if (NewProfileTenant == null)
                     return false;
 
-                return ((Model.Site)x).TennantId == NewProfileTennant.Id;
+                return ((Model.Site)x).TenantId == NewProfileTenant.Id;
             };
 
             AuthenticationProfiles.CollectionChanged += (source, ev) =>
@@ -137,7 +137,7 @@
             }
         }
 
-        private void TennantsField_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void TenantsField_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Sites.RefreshFilter();
         }
@@ -146,16 +146,16 @@
         {
             ProfileFlyoutMode = EProfileFlyoutMode.Add;
             ScopeGlobal.IsEnabled = true;
-            ScopeTennant.IsEnabled = true;
+            ScopeTenant.IsEnabled = true;
             ScopeSite.IsEnabled = true;
-            ProfileTennantsField.IsEnabled = true;
+            ProfileTenantsField.IsEnabled = true;
             ProfileSitesField.IsEnabled = true;
 
             ProfileNameField.Text = "";
             ProfileAuthenticationMethod = Model.EAuthenticationMethod.UsernamePassword;
             ProfileUsernameField.Text = "";
             ProfilePasswordField.Password = "";
-            ProfileTennantsField.SelectedIndex = -1;
+            ProfileTenantsField.SelectedIndex = -1;
             ScopeGlobal.IsChecked = true;
             Sites.RefreshFilter();
             ProfileNotesField.Text = "";
@@ -165,9 +165,9 @@
         {
             ProfileFlyoutMode = EProfileFlyoutMode.Edit;
             ScopeGlobal.IsEnabled = false;
-            ScopeTennant.IsEnabled = false;
+            ScopeTenant.IsEnabled = false;
             ScopeSite.IsEnabled = false;
-            ProfileTennantsField.IsEnabled = false;
+            ProfileTenantsField.IsEnabled = false;
             ProfileSitesField.IsEnabled = false;
 
             var selectedItem = (Model.AuthenticationProfile) AuthenticationProfilesView.SelectedItem;
@@ -178,23 +178,23 @@
             ProfileAuthenticationMethod = selectedItem.AuthenticationMethod;
             ProfileUsernameField.Text = string.IsNullOrWhiteSpace(selectedItem.Username) ? "" : selectedItem.Username;
             ProfilePasswordField.Password = string.IsNullOrWhiteSpace(selectedItem.Password) ? "" : selectedItem.Password;
-            ProfileTennantsField.SelectedIndex = -1;
+            ProfileTenantsField.SelectedIndex = -1;
             ProfileNotesField.Text = string.IsNullOrWhiteSpace(selectedItem.Notes) ? "" : selectedItem.Notes;
 
             if(selectedItem.ParentId == Guid.Empty)
             {
                 ScopeGlobal.IsChecked = true;
-                ProfileTennantsField.SelectedIndex = -1;
+                ProfileTenantsField.SelectedIndex = -1;
                 Sites.RefreshFilter();
 
                 return;
             }
 
-            var parentTennant = Model.Context.Current.Tennants.SingleOrDefault(x => x.Id == selectedItem.ParentId);
-            if (parentTennant != null)
+            var parentTenant = Model.Context.Current.Tenants.SingleOrDefault(x => x.Id == selectedItem.ParentId);
+            if (parentTenant != null)
             {
-                ScopeTennant.IsChecked = true;
-                ProfileTennantsField.SelectedItem = parentTennant;
+                ScopeTenant.IsChecked = true;
+                ProfileTenantsField.SelectedItem = parentTenant;
                 Sites.RefreshFilter();
 
                 return;
@@ -203,10 +203,10 @@
             var parentSite = Model.Context.Current.Sites.SingleOrDefault(x => x.Id == selectedItem.ParentId);
             if(parentSite != null)
             {
-                parentTennant = Model.Context.Current.Tennants.Single(x => x.Id == parentSite.TennantId);
+                parentTenant = Model.Context.Current.Tenants.Single(x => x.Id == parentSite.TenantId);
 
                 ScopeSite.IsChecked = true;
-                ProfileTennantsField.SelectedItem = parentTennant;
+                ProfileTenantsField.SelectedItem = parentTenant;
                 Sites.RefreshFilter();
                 ProfileSitesField.SelectedItem = parentSite;
 
@@ -224,8 +224,8 @@
             var authenticationMethod = ((AuthenticationMethod)ProfileAuthenticationMethodField.SelectedItem).Method;
 
             Guid parentId = Guid.Empty;
-            if (ScopeTennant.IsChecked.Value)
-                parentId = ((Model.Tennant)ProfileTennantsField.SelectedItem).Id;
+            if (ScopeTenant.IsChecked.Value)
+                parentId = ((Model.Tenant)ProfileTenantsField.SelectedItem).Id;
             else if (ScopeSite.IsChecked.Value)
                 parentId = ((Model.Site)ProfileSitesField.SelectedItem).Id;
 
@@ -248,7 +248,7 @@
                 ProfileAuthenticationMethod = Model.EAuthenticationMethod.UsernamePassword;
                 ProfileUsernameField.Text = "";
                 ProfilePasswordField.Password = "";
-                ProfileTennantsField.SelectedIndex = -1;
+                ProfileTenantsField.SelectedIndex = -1;
                 ScopeGlobal.IsChecked = true;
                 Sites.RefreshFilter();
                 ProfileNotesField.Text = "";

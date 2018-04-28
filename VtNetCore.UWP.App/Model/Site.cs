@@ -10,7 +10,7 @@
         public event PropertyChangedEventHandler PropertyChanged;
 
         private Guid _id;
-        private Guid _tennantId;
+        private Guid _tenantId;
         private string _name;
         private string _location;
         private string _notes;
@@ -21,10 +21,10 @@
             set { PropertyChanged.ChangeAndNotify(ref _id, value, () => Id); }
         }
 
-        public Guid TennantId
+        public Guid TenantId
         {
-            get => _tennantId;
-            set { PropertyChanged.ChangeAndNotify(ref _tennantId, value, () => TennantId); }
+            get => _tenantId;
+            set { PropertyChanged.ChangeAndNotify(ref _tenantId, value, () => TenantId); }
         }
 
         public string Name

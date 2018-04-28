@@ -122,7 +122,7 @@
     <Compile Include="Converters\DeviceTypeIdItemConverter.cs" />
     <Compile Include="Converters\DeviceTypeItemConverter.cs" />
     <Compile Include="Converters\SiteItemConverter.cs" />
-    <Compile Include="Converters\TennantItemConverter.cs" />
+    <Compile Include="Converters\TenantItemConverter.cs" />
     <Compile Include="Pages\ConnectionsPage.xaml.cs">
       <DependentUpon>ConnectionsPage.xaml</DependentUpon>
     </Compile>
@@ -140,7 +140,7 @@
     <Compile Include="Model\ObjectStoreContext.cs" />
     <Compile Include="Utility\Helpers\PropertyChangeAndNotify.cs" />
     <Compile Include="Model\Site.cs" />
-    <Compile Include="Model\Tennant.cs" />
+    <Compile Include="Model\Tenant.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Converters\SshToTextConverter.cs" />
     <Compile Include="Utility\Helpers\StringBlankIfNull.cs" />
@@ -196,8 +196,8 @@
     <None Include="Assets\DeviceIcons\view1\workstation.pdf" />
     <None Include="Assets\DeviceIcons\view2\Site.afphoto" />
     <None Include="Assets\DeviceIcons\view2\Site.pdf" />
-    <None Include="Assets\DeviceIcons\view2\Tennant.afphoto" />
-    <None Include="Assets\DeviceIcons\view2\Tennant.pdf" />
+    <None Include="Assets\DeviceIcons\view2\Tenant.afphoto" />
+    <None Include="Assets\DeviceIcons\view2\Tenant.pdf" />
     <PRIResource Include="Strings\en-US\Resources.resw" />
     <None Include="VtNetCore.UWP.App_TemporaryKey.pfx" />
   </ItemGroup>
@@ -209,7 +209,7 @@
     <Content Include="Assets\DeviceIcons\view1\workstation.png" />
     <Content Include="Assets\DeviceIcons\view2\QuestionMark.png" />
     <Content Include="Assets\DeviceIcons\view2\Site.png" />
-    <Content Include="Assets\DeviceIcons\view2\Tennant.png" />
+    <Content Include="Assets\DeviceIcons\view2\Tenant.png" />
     <Content Include="Assets\Inpli\telenor_inpli_negative_f1f90398.png" />
     <Content Include="Assets\Inpli\telenor_inpli_negative_f1f90398.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -19,9 +19,9 @@
         }
 
         /// <summary>
-        /// Provides access to a list of tennants that can be observed for changes
+        /// Provides access to a list of tenants that can be observed for changes
         /// </summary>
-        public ObservableCollection<Tennant> Tennants { get; set; } = new ObservableCollection<Tennant>();
+        public ObservableCollection<Tenant> Tenants { get; set; } = new ObservableCollection<Tenant>();
 
         /// <summary>
         /// Provides access to a list of sites that can be observed for changes
@@ -44,16 +44,16 @@
         public ObservableCollection<DeviceType> DeviceTypes { get; set; } = new ObservableCollection<DeviceType>();
 
         /// <summary>
-        /// Removes a tennant as well as the sites, devices and authentication profiles associated to it.
+        /// Removes a tenant as well as the sites, devices and authentication profiles associated to it.
         /// </summary>
-        /// <param name="tennant">The site to remove</param>
-        public void RemoveTennant(Tennant tennant)
+        /// <param name="tenant">The site to remove</param>
+        public void RemoveTenant(Tenant tenant)
         {
-            var sites = Sites.Where(x => x.TennantId == tennant.Id).ToList();
+            var sites = Sites.Where(x => x.TenantId == tenant.Id).ToList();
             foreach (var site in sites)
                 RemoveSite(site);
 
-            Tennants.Remove(tennant);
+            Tenants.Remove(tenant);
         }
 
         /// <summary>

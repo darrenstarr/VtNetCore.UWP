@@ -3,7 +3,7 @@
     using System;
     using Windows.UI.Xaml.Data;
 
-    public class TennantItemConverter : IValueConverter
+    public class TenantItemConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
@@ -12,7 +12,7 @@
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
-            return value as Model.Tennant;
+            return value as Model.Tenant;
         }
     }
 }

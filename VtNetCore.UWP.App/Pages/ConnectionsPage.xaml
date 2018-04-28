@@ -33,22 +33,22 @@
                 </Grid.RowDefinitions>
 
                 <CommandBar Grid.Row="0">
-                    <AppBarButton x:Name="AddTennantButton" Icon="Add" Label="New" Tapped="AddTennantButton_Tapped" />
+                    <AppBarButton x:Name="AddTenantButton" Icon="Add" Label="New" Tapped="AddTenantButton_Tapped" />
                     <AppBarButton x:Name="EditTenantButton" Icon="Edit" Label="Edit" IsEnabled="False" Tapped="EditTenantButton_Tapped" />
                     <CommandBar.SecondaryCommands>
-                        <AppBarButton x:Name="RemoveTennantButton" Icon="Remove" Label="Remove" IsEnabled="False" Tapped="RemoveTennantButton_Tapped" FontFamily="Segoe UI" />
+                        <AppBarButton x:Name="RemoveTenantButton" Icon="Remove" Label="Remove" IsEnabled="False" Tapped="RemoveTenantButton_Tapped" FontFamily="Segoe UI" />
                     </CommandBar.SecondaryCommands>
                     <CommandBar.Content>
-                        <TextBlock Text="Tennants" Margin="12,14" />
+                        <TextBlock Text="Tenants" Margin="12,14" />
                     </CommandBar.Content>
                 </CommandBar>
 
                 <Grid Grid.Row="1" >
-                    <GridView x:Name="TenantsView" ItemsSource="{x:Bind Tennants}" IsItemClickEnabled="True" ItemClick="TennantsView_ItemClick">
+                    <GridView x:Name="TenantsView" ItemsSource="{x:Bind Tenants}" IsItemClickEnabled="True" ItemClick="TenantsView_ItemClick">
                         <GridView.ItemTemplate>
-                            <DataTemplate x:DataType="dataModel:Tennant" >
+                            <DataTemplate x:DataType="dataModel:Tenant" >
                                 <StackPanel Margin="12">
-                                    <Image Source="ms-appx:///Assets/DeviceIcons/view2/Tennant.png" Height="128" Width="128" />
+                                    <Image Source="ms-appx:///Assets/DeviceIcons/view2/Tenant.png" Height="128" Width="128" />
                                     <TextBlock Text="{x:Bind Name}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" FontFamily="Segoe UI"/>
                                 </StackPanel>
                             </DataTemplate>
@@ -65,7 +65,7 @@
                 </CommandBar>
 
                 <Grid Grid.Row="3">
-                    <GridView x:Name="SitesView" ItemsSource="{x:Bind SitesForSelectedTennant}" IsItemClickEnabled="True" ItemClick="SitesView_ItemClick" Visibility="Collapsed">
+                    <GridView x:Name="SitesView" ItemsSource="{x:Bind SitesForSelectedTenant}" IsItemClickEnabled="True" ItemClick="SitesView_ItemClick" Visibility="Collapsed">
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="dataModel:Site" >
                                 <StackPanel Margin="12">
@@ -167,7 +167,7 @@
             />
         
         <Interactivity:Interaction.Behaviors>
-            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=AddTennantButton}" EventName="Tapped">
+            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=AddTenantButton}" EventName="Tapped">
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddTenantFlyout}" PropertyName="Visibility" Value="Visible" />
             </Core:EventTriggerBehavior>
 
@@ -218,14 +218,14 @@
             <Core:DataTriggerBehavior Binding="{Binding ElementName=TenantsView, Path=SelectedIndex}" Value="-1">
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=SitesCommandBar}" PropertyName="Visibility" Value="Collapsed" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=SitesView}" PropertyName="Visibility" Value="Collapsed" />
-                <Core:ChangePropertyAction TargetObject="{Binding ElementName=RemoveTennantButton}" PropertyName="IsEnabled" Value="False" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=RemoveTenantButton}" PropertyName="IsEnabled" Value="False" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=EditTenantButton}" PropertyName="IsEnabled" Value="False" />
             </Core:DataTriggerBehavior>
 
             <Core:DataTriggerBehavior Binding="{Binding ElementName=TenantsView, Path=SelectedIndex}" ComparisonCondition="GreaterThanOrEqual" Value="0">
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=SitesCommandBar}" PropertyName="Visibility" Value="Visible" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=SitesView}" PropertyName="Visibility" Value="Visible" />
-                <Core:ChangePropertyAction TargetObject="{Binding ElementName=RemoveTennantButton}" PropertyName="IsEnabled" Value="True" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=RemoveTenantButton}" PropertyName="IsEnabled" Value="True" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=EditTenantButton}" PropertyName="IsEnabled" Value="True" />
             </Core:DataTriggerBehavior>
         </Interactivity:Interaction.Behaviors>

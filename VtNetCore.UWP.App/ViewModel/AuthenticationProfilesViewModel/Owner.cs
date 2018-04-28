@@ -15,8 +15,8 @@
                 if (_item == null)
                     return Guid.Empty;
 
-                if (_item is Model.Tennant)
-                    return (_item as Model.Tennant).Id;
+                if (_item is Model.Tenant)
+                    return (_item as Model.Tenant).Id;
 
                 if (_item is Model.Site)
                     return (_item as Model.Site).Id;
@@ -35,8 +35,8 @@
                 if (_item == null)
                     return "{Global}";
 
-                if (_item is Model.Tennant)
-                    return (_item as Model.Tennant).Name;
+                if (_item is Model.Tenant)
+                    return (_item as Model.Tenant).Name;
 
                 if (_item is Model.Site)
                     return (_item as Model.Site).Name;

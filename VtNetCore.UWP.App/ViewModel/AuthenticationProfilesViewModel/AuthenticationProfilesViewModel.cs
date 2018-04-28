@@ -19,8 +19,8 @@
         {
             Add(GlobalOwner);
 
-            foreach (var tennant in Model.Context.Current.Tennants)
-                AddTennant(tennant);
+            foreach (var tenant in Model.Context.Current.Tenants)
+                AddTenant(tenant);
 
             foreach (var site in Model.Context.Current.Sites)
                 AddSite(site);
@@ -28,7 +28,7 @@
             foreach (var device in Model.Context.Current.Devices)
                 AddDevice(device);
 
-            Model.Context.Current.Tennants.CollectionChanged += Tennants_CollectionChanged;
+            Model.Context.Current.Tenants.CollectionChanged += Tenants_CollectionChanged;
             Model.Context.Current.Sites.CollectionChanged += Sites_CollectionChanged;
             Model.Context.Current.Devices.CollectionChanged += Devices_CollectionChanged;
             Model.Context.Current.AuthenticationProfiles.CollectionChanged += AuthenticationProfiles_CollectionChanged;
@@ -36,7 +36,7 @@
 
         public void Dispose()
         {
-            Model.Context.Current.Tennants.CollectionChanged -= Tennants_CollectionChanged;
+            Model.Context.Current.Tenants.CollectionChanged -= Tenants_CollectionChanged;
             Model.Context.Current.Sites.CollectionChanged -= Sites_CollectionChanged;
             Model.Context.Current.Devices.CollectionChanged -= Devices_CollectionChanged;
             Model.Context.Current.AuthenticationProfiles.CollectionChanged -= AuthenticationProfiles_CollectionChanged;
@@ -140,22 +140,22 @@
                 );
         }
 
-        private void Tennants_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void Tenants_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
             {
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                    foreach (var item in e.NewItems.Cast<Model.Tennant>())
-                        AddTennant(item);
+                    foreach (var item in e.NewItems.Cast<Model.Tenant>())
+                        AddTenant(item);
                     break;
 
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
-                    foreach (var item in e.OldItems.Cast<Model.Tennant>().ToList())
-                        RemoveTennant(item);
+                    foreach (var item in e.OldItems.Cast<Model.Tenant>().ToList())
+                        RemoveTenant(item);
                     break;
 
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
-                    ClearTennants();
+                    ClearTenants();
                     break;
             }
         }
@@ -185,22 +185,22 @@
             }
         }
 
-        private void ClearTennants()
+        private void ClearTenants()
         {
-            foreach (var item in this.OfType<Model.Tennant>().ToList())
-                RemoveTennant(item);
+            foreach (var item in this.OfType<Model.Tenant>().ToList())
+                RemoveTenant(item);
         }
 
-        private void RemoveTennant(Model.Tennant item)
+        private void RemoveTenant(Model.Tenant item)
         {
             var toRemove = this
-                .Single(x => typeof(Model.Tennant)
-                .IsAssignableFrom(x.Item.GetType()) && (x.Item as Model.Tennant).Id == item.Id);
+                .Single(x => typeof(Model.Tenant)
+                .IsAssignableFrom(x.Item.GetType()) && (x.Item as Model.Tenant).Id == item.Id);
 
             Remove(toRemove);
         }
 
-        private void AddTennant(Model.Tennant item)
+        private void AddTenant(Model.Tenant item)
         {
             Add(
                 new Owner

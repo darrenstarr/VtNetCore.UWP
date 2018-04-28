@@ -4,7 +4,7 @@
     using System.ComponentModel;
     using VtNetCore.UWP.App.Utility.Helpers;
 
-    public class Tennant : INotifyPropertyChanged
+    public class Tenant : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 

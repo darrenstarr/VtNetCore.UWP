@@ -27,9 +27,9 @@
             get => Model.Context.Current.AuthenticationProfiles;
         }
 
-        public ObservableCollection<Model.Tennant> Tennants
+        public ObservableCollection<Model.Tenant> Tenants
         {
-            get => Model.Context.Current.Tennants;
+            get => Model.Context.Current.Tenants;
         }
 
         public ObservableCollection<Model.Site> Sites
@@ -42,7 +42,7 @@
             get => Model.Context.Current.DeviceTypes;
         }
 
-        private ObservableCollection<Model.Site> SitesForSelectedTennant { get; set; } = new ObservableCollection<Model.Site>();
+        private ObservableCollection<Model.Site> SitesForSelectedTenant { get; set; } = new ObservableCollection<Model.Site>();
         private ObservableCollection<Model.Device> DevicesForSelectedSite { get; set; } = new ObservableCollection<Model.Device>();
 
         public ConnectionsPage()
@@ -82,36 +82,36 @@
             if (TenantsView.SelectedItem == null)
                 return;
 
-            var tennant = TenantsView.SelectedItem as Model.Tennant;
+            var tenant = TenantsView.SelectedItem as Model.Tenant;
 
             switch(e.Action)
             {
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                    foreach (var addition in e.NewItems.Cast<Model.Site>().Where(x => x.TennantId == tennant.Id))
-                        SitesForSelectedTennant.Add(addition);
+                    foreach (var addition in e.NewItems.Cast<Model.Site>().Where(x => x.TenantId == tenant.Id))
+                        SitesForSelectedTenant.Add(addition);
                     break;
 
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
-                    foreach (var removal in e.OldItems.Cast<Model.Site>().Where(x => x.TennantId == tennant.Id))
-                        SitesForSelectedTennant.Remove(removal);
+                    foreach (var removal in e.OldItems.Cast<Model.Site>().Where(x => x.TenantId == tenant.Id))
+                        SitesForSelectedTenant.Remove(removal);
                     break;
 
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
-                    SitesForSelectedTennant.Clear();
+                    SitesForSelectedTenant.Clear();
                     break;
             }
         }
 
-        private void TennantsView_ItemClick(object sender, ItemClickEventArgs e)
+        private void TenantsView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            SitesForSelectedTennant.Clear();
+            SitesForSelectedTenant.Clear();
             DevicesForSelectedSite.Clear();
 
-            if ((e.ClickedItem as Model.Tennant) != null)
+            if ((e.ClickedItem as Model.Tenant) != null)
             {
-                var sites = Sites.Where(x => x.TennantId == (e.ClickedItem as Model.Tennant).Id);
+                var sites = Sites.Where(x => x.TenantId == (e.ClickedItem as Model.Tenant).Id);
                 foreach (var site in sites)
-                    SitesForSelectedTennant.Add(site);
+                    SitesForSelectedTenant.Add(site);
             }
         }
 
@@ -290,25 +290,13 @@
             terminalInstance.Connection.Disconnect();
         }
 
-        //private void AddTennantDone_Tapped(object sender, TappedRoutedEventArgs e)
-        //{
-        //    Tennants.Add(
-        //        new Model.Tennant
-        //        {
-        //            Id = Guid.NewGuid(),
-        //            Name = TennantNameField.Text,
-        //            Notes = TennantNotesField.Text
-        //        }
-        //        );
-        //}
-
         private void AddSiteDone_Tapped(object sender, TappedRoutedEventArgs e)
         {
             Sites.Add(
                 new Model.Site
                 {
                     Id = Guid.NewGuid(),
-                    TennantId = (TenantsView.SelectedItem as Model.Tennant).Id,
+                    TenantId = (TenantsView.SelectedItem as Model.Tenant).Id,
                     Name = SiteNameField.Text,
                     Location = SiteLocationField.Text,
                     Notes = SiteNotesField.Text
@@ -316,23 +304,23 @@
                 );
         }
 
-        private async void RemoveTennantButton_Tapped(object sender, TappedRoutedEventArgs e)
+        private async void RemoveTenantButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            var selectedTennant = (Model.Tennant)TenantsView.SelectedItem;
+            var selectedTenant = (Model.Tenant)TenantsView.SelectedItem;
 
-            var removeTennantDialog = new ContentDialog
+            var removeTenantDialog = new ContentDialog
             {
-                Title = "Delete tennant?",
-                Content = "The selected tennant '" + selectedTennant.Name + "' is about to be removed. Continue?",
+                Title = "Delete tenant?",
+                Content = "The selected tenant '" + selectedTenant.Name + "' is about to be removed. Continue?",
                 CloseButtonText = "Cancel",
                 PrimaryButtonText = "Remove"
             };
 
-            var result = await removeTennantDialog.ShowAsync();
+            var result = await removeTenantDialog.ShowAsync();
             if (result == ContentDialogResult.None)
                 return;
 
-            Model.Context.Current.RemoveTennant(selectedTennant);
+            Model.Context.Current.RemoveTenant(selectedTenant);
         }
 
         private async void RemoveSiteButton_Tapped(object sender, TappedRoutedEventArgs e)
@@ -411,7 +399,7 @@
             }
         }
 
-        private void AddTennantButton_Tapped(object sender, TappedRoutedEventArgs e)
+        private void AddTenantButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
             AddTenantFlyout.Operation = Controls.FormOperation.Add;
             AddTenantFlyout.Tenant = null;
@@ -420,7 +408,7 @@
 
         private void EditTenantButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            var selectedTenant = (Model.Tennant)TenantsView.SelectedItem;
+            var selectedTenant = (Model.Tenant)TenantsView.SelectedItem;
 
             AddTenantFlyout.Operation = Controls.FormOperation.Edit;
             AddTenantFlyout.Tenant = selectedTenant ?? throw new Exception("Edit tenant button should not be active when no tenant is selected");
@@ -431,7 +419,7 @@
             switch (e.Operation)
             {
                 case Controls.FormOperation.Add:
-                    Model.Context.Current.Tennants.Add(e.Tenant);
+                    Model.Context.Current.Tenants.Add(e.Tenant);
                     DevicesView.SelectedItem = e.Tenant;
                     break;
 

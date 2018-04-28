@@ -12,10 +12,10 @@
             var parentId = (Guid)value;
 
             if(parentId == Guid.Empty)
-                return new BitmapImage(new Uri("ms-appx://VtNetCore.UWP.App/Assets/DeviceIcons/view2/Tennant.png"));
+                return new BitmapImage(new Uri("ms-appx://VtNetCore.UWP.App/Assets/DeviceIcons/view2/Tenant.png"));
 
-            if (Model.Context.Current.Tennants.SingleOrDefault(x => x.Id == parentId) != null)
-                return new BitmapImage(new Uri("ms-appx://VtNetCore.UWP.App/Assets/DeviceIcons/view2/Tennant.png"));
+            if (Model.Context.Current.Tenants.SingleOrDefault(x => x.Id == parentId) != null)
+                return new BitmapImage(new Uri("ms-appx://VtNetCore.UWP.App/Assets/DeviceIcons/view2/Tenant.png"));
 
             if (Model.Context.Current.Sites.SingleOrDefault(x => x.Id == parentId) != null)
                 return new BitmapImage(new Uri("ms-appx://VtNetCore.UWP.App/Assets/DeviceIcons/view2/Site.png"));

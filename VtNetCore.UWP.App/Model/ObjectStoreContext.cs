@@ -11,9 +11,9 @@
 
         public ObjectStoreContext()
         {
-            var tennants = ObjectStore.Current.ReadAllObjects<Tennant>(ObjectStoreRoot);
-            foreach (var tennant in tennants)
-                Tennants.Add(tennant);
+            var tenants = ObjectStore.Current.ReadAllObjects<Tenant>(ObjectStoreRoot);
+            foreach (var tenant in tenants)
+                Tenants.Add(tenant);
 
             var sites = ObjectStore.Current.ReadAllObjects<Site>(ObjectStoreRoot);
             foreach (var site in sites)
@@ -44,23 +44,23 @@
                 DeviceTypes.Add(unknownDeviceType);
             }
 
-            Tennants.CollectionChanged += Tennants_CollectionChanged;
+            Tenants.CollectionChanged += Tenants_CollectionChanged;
             Sites.CollectionChanged += Sites_CollectionChanged;
             Devices.CollectionChanged += Devices_CollectionChanged;
             AuthenticationProfiles.CollectionChanged += AuthenticationProfiles_CollectionChanged;
             DeviceTypes.CollectionChanged += DeviceTypes_CollectionChanged;
 
-            var localTennant = Tennants.SingleOrDefault(x => x.Name.ToLowerInvariant() == "{local}");
-            if (localTennant == null)
+            var localTenant = Tenants.SingleOrDefault(x => x.Name.ToLowerInvariant() == "{local}");
+            if (localTenant == null)
             {
-                localTennant = new Tennant
+                localTenant = new Tenant
                 {
                     Id = Guid.NewGuid(),
                     Name = "{Local}",
-                    Notes = "Local tennant"
+                    Notes = "Local tenant"
                 };
 
-                Tennants.Add(localTennant);
+                Tenants.Add(localTenant);
             }
 
             var localSite = Sites.SingleOrDefault(x => x.Name.ToLowerInvariant() == "{local site}");
@@ -69,7 +69,7 @@
                 localSite = new Site
                 {
                     Id = Guid.NewGuid(),
-                    TennantId = localTennant.Id,
+                    TenantId = localTenant.Id,
                     Name = "{Local Site}",
                     Notes = "Local site"
                 };
@@ -78,17 +78,17 @@
             }
         }
 
-        private void Tennants_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void Tenants_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
             {
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                    foreach (var item in e.NewItems.Cast<Tennant>())
+                    foreach (var item in e.NewItems.Cast<Tenant>())
                         ObjectStore.Current.WriteObject(ObjectStoreRoot, item);
                     break;
 
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
-                    foreach (var item in e.OldItems.Cast<Tennant>())
+                    foreach (var item in e.OldItems.Cast<Tenant>())
                         ObjectStore.Current.RemoveObject(ObjectStoreRoot, item);
                     break;
 

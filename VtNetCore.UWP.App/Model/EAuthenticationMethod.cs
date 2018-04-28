@@ -6,6 +6,6 @@
         UsernamePassword,
         AuthenticationProfile,
         InheritFromSite,
-        InheritFromTennant
+        InheritFromTenant
     };
 }

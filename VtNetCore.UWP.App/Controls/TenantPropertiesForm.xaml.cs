@@ -14,13 +14,13 @@
         public class TenantChangedEventArgs : EventArgs
         {
             public FormOperation Operation { get; set; }
-            public Model.Tennant Tenant { get; set; }
+            public Model.Tenant Tenant { get; set; }
         };
 
         public event EventHandler<TenantChangedEventArgs> OnTenantChanged;
 
         private FormOperation _operation;
-        private Model.Tennant _tenant;
+        private Model.Tenant _tenant;
         private string _tenantName;
         private string _notes;
 
@@ -30,7 +30,7 @@
             set => PropertyChanged.ChangeAndNotify(ref _operation, value, () => Operation);
         }
 
-        public Model.Tennant Tenant
+        public Model.Tenant Tenant
         {
             get => _tenant;
             set => PropertyChanged.ChangeAndNotify(ref _tenant, value, () => Tenant, true);
@@ -122,7 +122,7 @@
                     new TenantChangedEventArgs
                     {
                         Operation = FormOperation.Add,
-                        Tenant = new Model.Tennant
+                        Tenant = new Model.Tenant
                         {
                             Id = Guid.NewGuid(),
                             Name = TenantName,

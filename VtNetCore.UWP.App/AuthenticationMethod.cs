@@ -32,11 +32,11 @@
             HumanReadable = "{Inherit from site}"
         };
 
-        public static readonly AuthenticationMethod InheritFromTennant = new AuthenticationMethod
+        public static readonly AuthenticationMethod InheritFromTenant = new AuthenticationMethod
         {
-            Method = Model.EAuthenticationMethod.InheritFromTennant,
-            Tag = "InheritFromTennant",
-            HumanReadable = "{Inherit from tennant}"
+            Method = Model.EAuthenticationMethod.InheritFromTenant,
+            Tag = "InheritFromTenant",
+            HumanReadable = "{Inherit from tenant}"
         };
 
         public static readonly List<AuthenticationMethod> DeviceAuthenticationMethods = new List<AuthenticationMethod>
@@ -45,7 +45,7 @@
             UsernameAndPassword,
             AuthenticationProfile,
             InheritFromSite,
-            InheritFromTennant
+            InheritFromTenant
         };
 
         public static readonly List<AuthenticationMethod> ProfileAuthenticationMethods = new List<AuthenticationMethod>

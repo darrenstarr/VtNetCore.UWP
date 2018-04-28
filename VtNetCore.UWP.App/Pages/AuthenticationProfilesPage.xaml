@@ -24,7 +24,7 @@
 
         <converters:ModelIconConverter x:Key="ModelIconConverter" />
         <converters:AuthenticationMethodItemConverter x:Key="AuthenticationMethodItemConverter" />
-        <converters:TennantItemConverter x:Key="TennantItemConverter" />
+        <converters:TenantItemConverter x:Key="TenantItemConverter" />
         <converters:SiteItemConverter x:Key="SiteItemConverter" />
 
         <Flyout x:Name="ProfileFlyout">
@@ -48,20 +48,20 @@
                 
                 <TextBlock x:Name="ProfileAssignToScopeLabel" Text="Assign to scope" />
                 <RadioButton x:Name="ScopeGlobal" IsChecked="True" Content="Global" GroupName="AssignToScope" Checked="ScopeRadioChecked"/>
-                <RadioButton x:Name="ScopeTennant" Content="Tennant" GroupName="AssignToScope" Checked="ScopeRadioChecked" />
+                <RadioButton x:Name="ScopeTenant" Content="Tenant" GroupName="AssignToScope" Checked="ScopeRadioChecked" />
                 <RadioButton x:Name="ScopeSite" Content="Site" GroupName="AssignToScope" Checked="ScopeRadioChecked" />
                 
-                <TextBlock x:Name="ProfileTennantsLabel" Text="Tennant" Visibility="Collapsed" />
+                <TextBlock x:Name="ProfileTenantsLabel" Text="Tenant" Visibility="Collapsed" />
                 <ComboBox
-                    x:Name="ProfileTennantsField"
+                    x:Name="ProfileTenantsField"
                     HorizontalAlignment="Stretch"
                     Visibility="Collapsed"
-                    SelectedItem="{x:Bind NewProfileTennant, Mode=TwoWay, Converter={StaticResource TennantItemConverter}}"
-                    ItemsSource="{x:Bind Tennants, Mode=OneWay}"
-                    SelectionChanged="TennantsField_SelectionChanged"
+                    SelectedItem="{x:Bind NewProfileTenant, Mode=TwoWay, Converter={StaticResource TenantItemConverter}}"
+                    ItemsSource="{x:Bind Tenants, Mode=OneWay}"
+                    SelectionChanged="TenantsField_SelectionChanged"
                     >
                     <ComboBox.ItemTemplate>
-                        <DataTemplate x:DataType="model:Tennant">
+                        <DataTemplate x:DataType="model:Tenant">
                             <TextBlock Text="{Binding Name}" />
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
