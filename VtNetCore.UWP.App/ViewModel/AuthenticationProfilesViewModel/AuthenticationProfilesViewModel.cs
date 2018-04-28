@@ -71,8 +71,12 @@
         private void RemoveDevice(Model.Device item)
         {
             var toRemove = this
-                .Single(x => typeof(Model.Device)
+                .SingleOrDefault(x => typeof(Model.Device)
                 .IsAssignableFrom(x.Item.GetType()) && (x.Item as Model.Device).Id == item.Id);
+
+            // The device wasn't found. This is normal since the device removal can be recursive.
+            if (toRemove == null)
+                return;
 
             Remove(toRemove);
         }
@@ -120,8 +124,12 @@
         private void RemoveSite(Model.Site item)
         {
             var toRemove = this
-                .Single(x => typeof(Model.Site)
+                .SingleOrDefault(x => typeof(Model.Site)
                 .IsAssignableFrom(x.Item.GetType()) && (x.Item as Model.Site).Id == item.Id);
+
+            // The site wasn't found. This is normal since the site removal can be recursive.
+            if (toRemove == null)
+                return;
 
             Remove(toRemove);
         }
@@ -194,8 +202,12 @@
         private void RemoveTenant(Model.Tenant item)
         {
             var toRemove = this
-                .Single(x => typeof(Model.Tenant)
+                .SingleOrDefault(x => typeof(Model.Tenant)
                 .IsAssignableFrom(x.Item.GetType()) && (x.Item as Model.Tenant).Id == item.Id);
+
+            // The tenant wasn't found. This is normal since the tenant removal can be recursive.
+            if (toRemove == null)
+                return;
 
             Remove(toRemove);
         }
