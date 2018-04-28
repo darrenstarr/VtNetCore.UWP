@@ -5,6 +5,8 @@
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Linq;
+    using System.Threading.Tasks;
+    using VtNetCore.UWP.App.Utility.Helpers;
     using VtNetCore.UWP.App.ViewModel.AuthenticationProfilesViewModel;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
@@ -219,6 +221,27 @@
 
         }
 
+        private string ProtectedPasswordValueField
+        {
+            get
+            {
+                var authenticationMethod = ((AuthenticationMethod)ProfileAuthenticationMethodField.SelectedItem).Method;
+
+                if (authenticationMethod != Model.EAuthenticationMethod.UsernamePassword)
+                    return null;
+
+                var result = ProfilePasswordField.Password;
+
+                if (result == null || result.StartsWith("\u00FF"))
+                    return result;
+
+                var protectTask = Task.Run(async () => await result.Protect());
+                protectTask.Wait();
+
+                return "\u00FF" + protectTask.Result;
+            }
+        }
+
         private void ProfileDoneButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
             var authenticationMethod = ((AuthenticationMethod)ProfileAuthenticationMethodField.SelectedItem).Method;
@@ -239,7 +262,7 @@
                         Name = ProfileNameField.Text,
                         AuthenticationMethod = authenticationMethod,
                         Username = authenticationMethod == Model.EAuthenticationMethod.UsernamePassword ? ProfileUsernameField.Text : null,
-                        Password = authenticationMethod == Model.EAuthenticationMethod.UsernamePassword ? ProfilePasswordField.Password : null,
+                        Password = ProtectedPasswordValueField,
                         Notes = ProfileNotesField.Text
                     }
                     );
@@ -264,7 +287,7 @@
 
                 selectedItem.AuthenticationMethod = ProfileAuthenticationMethod;
                 selectedItem.Username = authenticationMethod == Model.EAuthenticationMethod.UsernamePassword ? ProfileUsernameField.Text : null;
-                selectedItem.Password = authenticationMethod == Model.EAuthenticationMethod.UsernamePassword ? ProfilePasswordField.Password : null;
+                selectedItem.Password = ProtectedPasswordValueField;
                 selectedItem.Notes = ProfileNotesField.Text;
 
                 Model.Context.Current.SaveChanges(selectedItem);

@@ -147,6 +147,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Converters\SshToTextConverter.cs" />
     <Compile Include="Utility\Helpers\StringBlankIfNull.cs" />
+    <Compile Include="Utility\Helpers\StringProtect.cs" />
     <Compile Include="ViewModel\AuthenticationProfilesViewModel\AuthenticationProfilesViewModel.cs" />
     <Compile Include="ViewModel\AuthenticationProfilesViewModel\Owner.cs" />
     <None Include="Assets\DeviceIcons\view2\QuestionMark.afphoto" />

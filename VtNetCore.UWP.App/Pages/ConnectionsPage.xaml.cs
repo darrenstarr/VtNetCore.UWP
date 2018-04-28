@@ -4,6 +4,7 @@
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Linq;
+    using VtNetCore.UWP.App.Utility.Helpers;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Data;
@@ -201,7 +202,7 @@
             EditDeviceButton.IsEnabled = true;
         }
 
-        private void ConnectToDeviceButton_Tapped(object sender, TappedRoutedEventArgs e)
+        private async void ConnectToDeviceButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
             var device = (Model.Device)DevicesView.SelectedItem;
             if (device == null)
@@ -230,7 +231,7 @@
             else if(device.AuthenticationMethod == Model.EAuthenticationMethod.UsernamePassword)
             {
                 username = device.Username;
-                password = device.Password;
+                password = device.Password.StartsWith("\u00FF") ? await device.Password.Substring(1).Unprotect() : device.Password;
             }
             else
             {
@@ -241,7 +242,7 @@
                     return;
                 }
                 username = authenticationProfile.Username;
-                password = authenticationProfile.Password;
+                password = device.Password.StartsWith("\u00FF") ? await device.Password.Substring(1).Unprotect() : device.Password;
             }
 
             DisconnectToDeviceButton.ClearValue(IsEnabledProperty);
@@ -369,14 +370,24 @@
 
         private async void AddConnectionFlyout_OnDeviceChanged(object sender, Controls.DevicePropertiesForm.DeviceChangedEventArgs e)
         {
-            switch(e.Operation)
+            switch (e.Operation)
             {
                 case Controls.FormOperation.Add:
+                    if (e.Device.AuthenticationMethod == Model.EAuthenticationMethod.UsernamePassword)
+                        e.Device.Password = "\u00FF" + await e.Device.Password.Protect();
+
                     Model.Context.Current.Devices.Add(e.Device);
+
                     DevicesView.SelectedItem = e.Device;
                     break;
 
                 case Controls.FormOperation.Edit:
+                    if (e.Device.AuthenticationMethod == Model.EAuthenticationMethod.UsernamePassword)
+                    {
+                        if (!e.Device.Password.StartsWith("\u00FF"))
+                            e.Device.Password = "\u00FF" + await e.Device.Password.Protect();
+                    }
+
                     await Model.Context.Current.SaveChanges(e.Device);
                     break;
 
