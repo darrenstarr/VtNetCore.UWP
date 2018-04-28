@@ -20,7 +20,7 @@
         <converters:DeviceTypeIdItemConverter x:Key="DeviceTypeIdItemConverter" />
     </Control.Resources>
     
-    <Grid  Background="{ThemeResource FlyoutBackgroundThemeBrush}">
+    <Grid Background="{ThemeResource FlyoutBackgroundThemeBrush}">
         <StackPanel Padding="15">
             <TextBlock x:Name="FormHeadingLabel" Text="New connection" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Left" />
 

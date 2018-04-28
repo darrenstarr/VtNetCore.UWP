@@ -33,15 +33,18 @@
                 </Grid.RowDefinitions>
 
                 <CommandBar Grid.Row="0">
-                    <AppBarButton x:Name="NewTennantButton" Icon="Add" Label="New" Tapped="AddDeviceButton_Tapped" />
-                    <AppBarButton x:Name="RemoveTennantButton" Icon="Remove" Label="Remove" IsEnabled="False" Tapped="RemoveTennantButton_Tapped" FontFamily="Segoe UI" />
+                    <AppBarButton x:Name="AddTennantButton" Icon="Add" Label="New" Tapped="AddTennantButton_Tapped" />
+                    <AppBarButton x:Name="EditTenantButton" Icon="Edit" Label="Edit" IsEnabled="False" Tapped="EditTenantButton_Tapped" />
+                    <CommandBar.SecondaryCommands>
+                        <AppBarButton x:Name="RemoveTennantButton" Icon="Remove" Label="Remove" IsEnabled="False" Tapped="RemoveTennantButton_Tapped" FontFamily="Segoe UI" />
+                    </CommandBar.SecondaryCommands>
                     <CommandBar.Content>
                         <TextBlock Text="Tennants" Margin="12,14" />
                     </CommandBar.Content>
                 </CommandBar>
 
                 <Grid Grid.Row="1" >
-                    <GridView x:Name="TennantsView" ItemsSource="{x:Bind Tennants}" IsItemClickEnabled="True" ItemClick="TennantsView_ItemClick">
+                    <GridView x:Name="TenantsView" ItemsSource="{x:Bind Tennants}" IsItemClickEnabled="True" ItemClick="TennantsView_ItemClick">
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="dataModel:Tennant" >
                                 <StackPanel Margin="12">
@@ -117,33 +120,6 @@
             </Grid>
         </ScrollViewer>
 
-        <Grid x:Name="AddTennantFlyout" VerticalAlignment="Stretch" HorizontalAlignment="Right" Visibility="Collapsed" Background="{ThemeResource FlyoutBackgroundThemeBrush}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="1" Padding="15">
-                <TextBlock Text="New Tennant" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="250" />
-
-                <TextBlock x:Name="TennantNameLabel" Text="Name:" Margin="0,12,0,0" />
-                <TextBox x:Name="TennantNameField" />
-
-                <TextBlock x:Name="TennantNotesLabel" Text="Notes:" Margin="0,12,0,0" />
-                <TextBox x:Name="TennantNotesField" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="80"/>
-
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <Button x:Name="AddTennantDone" Content="Add" Grid.Column="1" Margin="6,24" Tapped="AddTennantDone_Tapped" />
-                    <Button x:Name="CancelAddTennant" Content="Cancel" Grid.Column="2" Margin="0,24" />
-                </Grid>
-            </StackPanel>
-        </Grid>
-
         <Grid x:Name="AddSiteFlyout" VerticalAlignment="Stretch" HorizontalAlignment="Right" Visibility="Collapsed" Background="{ThemeResource FlyoutBackgroundThemeBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -174,6 +150,14 @@
             </StackPanel>
         </Grid>
 
+        <controls:TenantPropertiesForm
+            x:Name="AddTenantFlyout"
+            VerticalAlignment="Stretch"
+            HorizontalAlignment="Right"
+            Visibility="Collapsed"
+            OnTenantChanged="AddTenantFlyout_OnTenantChanged"
+            />
+
         <controls:DevicePropertiesForm
             x:Name="AddConnectionFlyout"
             VerticalAlignment="Stretch"
@@ -183,18 +167,12 @@
             />
         
         <Interactivity:Interaction.Behaviors>
-            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=NewTennantButton}" EventName="Tapped">
-                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddTennantFlyout}" PropertyName="Visibility" Value="Visible" />
-                <Core:ChangePropertyAction TargetObject="{Binding ElementName=TennantNameField}" PropertyName="Text" Value="New Tennant" />
-                <Core:ChangePropertyAction TargetObject="{Binding ElementName=TennantNotesField}" PropertyName="Text" Value="" />
+            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=AddTennantButton}" EventName="Tapped">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddTenantFlyout}" PropertyName="Visibility" Value="Visible" />
             </Core:EventTriggerBehavior>
 
-            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=AddTennantDone}" EventName="Click">
-                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddTennantFlyout}" PropertyName="Visibility" Value="Collapsed" />
-            </Core:EventTriggerBehavior>
-
-            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=CancelAddTennant}" EventName="Click">
-                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddTennantFlyout}" PropertyName="Visibility" Value="Collapsed" />
+            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=EditTenantButton}" EventName="Tapped">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddTenantFlyout}" PropertyName="Visibility" Value="Visible" />
             </Core:EventTriggerBehavior>
 
             <Core:EventTriggerBehavior SourceObject="{Binding ElementName=NewSiteButton}" EventName="Tapped">
@@ -237,16 +215,18 @@
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=RemoveSiteButton}" PropertyName="IsEnabled" Value="True" />
             </Core:DataTriggerBehavior>
 
-            <Core:DataTriggerBehavior Binding="{Binding ElementName=TennantsView, Path=SelectedIndex}" Value="-1">
+            <Core:DataTriggerBehavior Binding="{Binding ElementName=TenantsView, Path=SelectedIndex}" Value="-1">
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=SitesCommandBar}" PropertyName="Visibility" Value="Collapsed" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=SitesView}" PropertyName="Visibility" Value="Collapsed" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=RemoveTennantButton}" PropertyName="IsEnabled" Value="False" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=EditTenantButton}" PropertyName="IsEnabled" Value="False" />
             </Core:DataTriggerBehavior>
 
-            <Core:DataTriggerBehavior Binding="{Binding ElementName=TennantsView, Path=SelectedIndex}" ComparisonCondition="GreaterThanOrEqual" Value="0">
+            <Core:DataTriggerBehavior Binding="{Binding ElementName=TenantsView, Path=SelectedIndex}" ComparisonCondition="GreaterThanOrEqual" Value="0">
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=SitesCommandBar}" PropertyName="Visibility" Value="Visible" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=SitesView}" PropertyName="Visibility" Value="Visible" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=RemoveTennantButton}" PropertyName="IsEnabled" Value="True" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=EditTenantButton}" PropertyName="IsEnabled" Value="True" />
             </Core:DataTriggerBehavior>
         </Interactivity:Interaction.Behaviors>
     </Grid>

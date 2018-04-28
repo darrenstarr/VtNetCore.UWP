@@ -102,6 +102,9 @@
       <DependentUpon>DevicePropertiesForm.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\FormOperation.cs" />
+    <Compile Include="Controls\TenantPropertiesForm.xaml.cs">
+      <DependentUpon>TenantPropertiesForm.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\AuthenticationProfileIdConverter.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\DeviceClassIconItemConverter.cs" />
@@ -235,6 +238,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\DevicePropertiesForm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\TenantPropertiesForm.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

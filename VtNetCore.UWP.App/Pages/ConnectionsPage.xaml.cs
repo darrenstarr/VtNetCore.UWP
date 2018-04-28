@@ -79,10 +79,10 @@
 
         private void Sites_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if (TennantsView.SelectedItem == null)
+            if (TenantsView.SelectedItem == null)
                 return;
 
-            var tennant = TennantsView.SelectedItem as Model.Tennant;
+            var tennant = TenantsView.SelectedItem as Model.Tennant;
 
             switch(e.Action)
             {
@@ -290,17 +290,17 @@
             terminalInstance.Connection.Disconnect();
         }
 
-        private void AddTennantDone_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            Tennants.Add(
-                new Model.Tennant
-                {
-                    Id = Guid.NewGuid(),
-                    Name = TennantNameField.Text,
-                    Notes = TennantNotesField.Text
-                }
-                );
-        }
+        //private void AddTennantDone_Tapped(object sender, TappedRoutedEventArgs e)
+        //{
+        //    Tennants.Add(
+        //        new Model.Tennant
+        //        {
+        //            Id = Guid.NewGuid(),
+        //            Name = TennantNameField.Text,
+        //            Notes = TennantNotesField.Text
+        //        }
+        //        );
+        //}
 
         private void AddSiteDone_Tapped(object sender, TappedRoutedEventArgs e)
         {
@@ -308,7 +308,7 @@
                 new Model.Site
                 {
                     Id = Guid.NewGuid(),
-                    TennantId = (TennantsView.SelectedItem as Model.Tennant).Id,
+                    TennantId = (TenantsView.SelectedItem as Model.Tennant).Id,
                     Name = SiteNameField.Text,
                     Location = SiteLocationField.Text,
                     Notes = SiteNotesField.Text
@@ -318,7 +318,7 @@
 
         private async void RemoveTennantButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            var selectedTennant = (Model.Tennant)TennantsView.SelectedItem;
+            var selectedTennant = (Model.Tennant)TenantsView.SelectedItem;
 
             var removeTennantDialog = new ContentDialog
             {
@@ -373,14 +373,6 @@
             Model.Context.Current.RemoveDevice(selectedDevice);
         }
 
-        private void EditDeviceButton_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            var selectedDevice = (Model.Device)DevicesView.SelectedItem;
-
-            AddConnectionFlyout.Operation = Controls.FormOperation.Edit;
-            AddConnectionFlyout.Device = selectedDevice ?? throw new Exception("Edit device button should not be active when no device is selected");
-        }
-
         private void AddDeviceButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
             var selectedSite = SitesView.SelectedItem as Model.Site;
@@ -391,6 +383,14 @@
             AddConnectionFlyout.Device = null;
             AddConnectionFlyout.ClearForm();
             AddConnectionFlyout.SiteId = selectedSite.Id;
+        }
+
+        private void EditDeviceButton_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            var selectedDevice = (Model.Device)DevicesView.SelectedItem;
+
+            AddConnectionFlyout.Operation = Controls.FormOperation.Edit;
+            AddConnectionFlyout.Device = selectedDevice ?? throw new Exception("Edit device button should not be active when no device is selected");
         }
 
         private async void AddConnectionFlyout_OnDeviceChanged(object sender, Controls.DevicePropertiesForm.DeviceChangedEventArgs e)
@@ -404,6 +404,39 @@
 
                 case Controls.FormOperation.Edit:
                     await Model.Context.Current.SaveChanges(e.Device);
+                    break;
+
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        private void AddTennantButton_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            AddTenantFlyout.Operation = Controls.FormOperation.Add;
+            AddTenantFlyout.Tenant = null;
+            AddTenantFlyout.ClearForm();
+        }
+
+        private void EditTenantButton_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            var selectedTenant = (Model.Tennant)TenantsView.SelectedItem;
+
+            AddTenantFlyout.Operation = Controls.FormOperation.Edit;
+            AddTenantFlyout.Tenant = selectedTenant ?? throw new Exception("Edit tenant button should not be active when no tenant is selected");
+        }
+
+        private async void AddTenantFlyout_OnTenantChanged(object sender, Controls.TenantPropertiesForm.TenantChangedEventArgs e)
+        {
+            switch (e.Operation)
+            {
+                case Controls.FormOperation.Add:
+                    Model.Context.Current.Tennants.Add(e.Tenant);
+                    DevicesView.SelectedItem = e.Tenant;
+                    break;
+
+                case Controls.FormOperation.Edit:
+                    await Model.Context.Current.SaveChanges(e.Tenant);
                     break;
 
                 default:
