@@ -102,6 +102,9 @@
       <DependentUpon>DevicePropertiesForm.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\FormOperation.cs" />
+    <Compile Include="Controls\SitePropertiesForm.xaml.cs">
+      <DependentUpon>SitePropertiesForm.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\TenantPropertiesForm.xaml.cs">
       <DependentUpon>TenantPropertiesForm.xaml</DependentUpon>
     </Compile>
@@ -238,6 +241,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\DevicePropertiesForm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\SitePropertiesForm.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

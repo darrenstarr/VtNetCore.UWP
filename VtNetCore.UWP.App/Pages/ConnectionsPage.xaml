@@ -13,11 +13,8 @@
     >
 
     <Page.Resources>
-        <converters:AuthenticationMethodItemConverter x:Key="AuthenticationMethodItemConverter" />
         <converters:DeviceTypeIconConverter x:Key="DeviceTypeIconConverter" />
         <converters:TerminalConnectedColorConverter x:Key="TerminalConnectedColorConverter" />
-        <converters:DeviceTypeIdItemConverter x:Key="DeviceTypeIdItemConverter" />
-        <converters:DeviceClassIconItemConverter x:Key="DeviceClassIconItemConverter" />
     </Page.Resources>
 
     <Grid>
@@ -57,8 +54,11 @@
                 </Grid>
 
                 <CommandBar x:Name="SitesCommandBar" Grid.Row="2" Visibility="Collapsed">
-                    <AppBarButton x:Name="NewSiteButton" Icon="Add" Label="New" />
-                    <AppBarButton x:Name="RemoveSiteButton" Icon="Remove" Label="Remove" IsEnabled="False" Tapped="RemoveSiteButton_Tapped" FontFamily="Segoe UI" />
+                    <AppBarButton x:Name="AddSiteButton" Icon="Add" Label="New" Tapped="AddSiteButton_Tapped"/>
+                    <AppBarButton x:Name="EditSiteButton" Icon="Edit" Label="Edit" IsEnabled="False" Tapped="EditSiteButton_Tapped" />
+                    <CommandBar.SecondaryCommands>
+                        <AppBarButton x:Name="RemoveSiteButton" Icon="Remove" Label="Remove" IsEnabled="False" Tapped="RemoveSiteButton_Tapped" FontFamily="Segoe UI" />
+                    </CommandBar.SecondaryCommands>
                     <CommandBar.Content>
                         <TextBlock Text="Sites" Margin="12,14" />
                     </CommandBar.Content>
@@ -120,42 +120,20 @@
             </Grid>
         </ScrollViewer>
 
-        <Grid x:Name="AddSiteFlyout" VerticalAlignment="Stretch" HorizontalAlignment="Right" Visibility="Collapsed" Background="{ThemeResource FlyoutBackgroundThemeBrush}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="1" Padding="15">
-                <TextBlock Text="New Site" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="250" />
-
-                <TextBlock x:Name="SiteNameLabel" Text="Name:" Margin="0,12,0,0" />
-                <TextBox x:Name="SiteNameField" />
-
-                <TextBlock x:Name="SiteLocationLabel" Text="Location:" Margin="0,12,0,0" />
-                <TextBox x:Name="SiteLocationField" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="80"/>
-
-                <TextBlock x:Name="SiteNotesLabel" Text="Notes:" Margin="0,12,0,0" />
-                <TextBox x:Name="SiteNotesField" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="80"/>
-
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <Button x:Name="AddSiteDone" Content="Add" Grid.Column="1" Margin="6,24" Tapped="AddSiteDone_Tapped" />
-                    <Button x:Name="CancelAddSite" Content="Cancel" Grid.Column="2" Margin="0,24" />
-                </Grid>
-            </StackPanel>
-        </Grid>
-
         <controls:TenantPropertiesForm
             x:Name="AddTenantFlyout"
             VerticalAlignment="Stretch"
             HorizontalAlignment="Right"
             Visibility="Collapsed"
             OnTenantChanged="AddTenantFlyout_OnTenantChanged"
+            />
+
+        <controls:SitePropertiesForm
+            x:Name="AddSiteFlyout"
+            VerticalAlignment="Stretch"
+            HorizontalAlignment="Right"
+            Visibility="Collapsed"
+            OnSiteChanged="AddSiteFlyout_OnSiteChanged"
             />
 
         <controls:DevicePropertiesForm
@@ -175,16 +153,12 @@
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddTenantFlyout}" PropertyName="Visibility" Value="Visible" />
             </Core:EventTriggerBehavior>
 
-            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=NewSiteButton}" EventName="Tapped">
+            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=AddSiteButton}" EventName="Tapped">
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddSiteFlyout}" PropertyName="Visibility" Value="Visible" />
             </Core:EventTriggerBehavior>
 
-            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=AddSiteDone}" EventName="Click">
-                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddSiteFlyout}" PropertyName="Visibility" Value="Collapsed" />
-            </Core:EventTriggerBehavior>
-
-            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=CancelAddSite}" EventName="Click">
-                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddSiteFlyout}" PropertyName="Visibility" Value="Collapsed" />
+            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=EditSiteButton}" EventName="Tapped">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddSiteFlyout}" PropertyName="Visibility" Value="Visible" />
             </Core:EventTriggerBehavior>
 
             <Core:EventTriggerBehavior SourceObject="{Binding ElementName=NewConnectionButton}" EventName="Tapped">
@@ -207,12 +181,14 @@
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=DevicesCommandBar}" PropertyName="Visibility" Value="Collapsed" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=DevicesView}" PropertyName="Visibility" Value="Collapsed" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=RemoveSiteButton}" PropertyName="IsEnabled" Value="False" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=EditSiteButton}" PropertyName="IsEnabled" Value="False" />
             </Core:DataTriggerBehavior>
 
             <Core:DataTriggerBehavior Binding="{Binding ElementName=SitesView, Path=SelectedIndex}" ComparisonCondition="GreaterThanOrEqual" Value="0">
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=DevicesCommandBar}" PropertyName="Visibility" Value="Visible" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=DevicesView}" PropertyName="Visibility" Value="Visible" />
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=RemoveSiteButton}" PropertyName="IsEnabled" Value="True" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=EditSiteButton}" PropertyName="IsEnabled" Value="True" />
             </Core:DataTriggerBehavior>
 
             <Core:DataTriggerBehavior Binding="{Binding ElementName=TenantsView, Path=SelectedIndex}" Value="-1">

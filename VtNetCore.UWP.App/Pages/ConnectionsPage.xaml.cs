@@ -290,20 +290,6 @@
             terminalInstance.Connection.Disconnect();
         }
 
-        private void AddSiteDone_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            Sites.Add(
-                new Model.Site
-                {
-                    Id = Guid.NewGuid(),
-                    TenantId = (TenantsView.SelectedItem as Model.Tenant).Id,
-                    Name = SiteNameField.Text,
-                    Location = SiteLocationField.Text,
-                    Notes = SiteNotesField.Text
-                }
-                );
-        }
-
         private async void RemoveTenantButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
             var selectedTenant = (Model.Tenant)TenantsView.SelectedItem;
@@ -430,6 +416,44 @@
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+        private async void AddSiteFlyout_OnSiteChanged(object sender, Controls.SitePropertiesForm.SiteChangedEventArgs e)
+        {
+            switch (e.Operation)
+            {
+                case Controls.FormOperation.Add:
+                    Model.Context.Current.Sites.Add(e.Site);
+                    SitesView.SelectedItem = e.Site;
+                    break;
+
+                case Controls.FormOperation.Edit:
+                    await Model.Context.Current.SaveChanges(e.Site);
+                    break;
+
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        private void EditSiteButton_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            var selectedSite = (Model.Site)SitesView.SelectedItem;
+
+            AddSiteFlyout.Operation = Controls.FormOperation.Edit;
+            AddSiteFlyout.Site = selectedSite ?? throw new Exception("Edit site button should not be active when no device is selected");
+        }
+
+        private void AddSiteButton_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            var selectedTenant = TenantsView.SelectedItem as Model.Tenant;
+            if (selectedTenant == null)
+                throw new Exception("It should not be possible to select add site if no tenant is selected");
+
+            AddSiteFlyout.Operation = Controls.FormOperation.Add;
+            AddSiteFlyout.Site = null;
+            AddSiteFlyout.ClearForm();
+            AddSiteFlyout.TenantId = selectedTenant.Id;
         }
     }
 }
