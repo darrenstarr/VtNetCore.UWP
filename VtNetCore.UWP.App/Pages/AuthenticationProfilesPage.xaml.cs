@@ -267,6 +267,10 @@
                 selectedItem.Password = authenticationMethod == Model.EAuthenticationMethod.UsernamePassword ? ProfilePasswordField.Password : null;
                 selectedItem.Notes = ProfileNotesField.Text;
 
+                Model.Context.Current.SaveChanges(selectedItem);
+
+                EditProfileButton.Flyout.Hide();
+
                 return;
             }
 
