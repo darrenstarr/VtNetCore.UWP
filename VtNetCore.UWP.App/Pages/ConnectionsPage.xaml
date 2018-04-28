@@ -46,7 +46,7 @@
                             <DataTemplate x:DataType="dataModel:Tenant" >
                                 <StackPanel Margin="12">
                                     <Image Source="ms-appx:///Assets/DeviceIcons/view2/Tenant.png" Height="128" Width="128" />
-                                    <TextBlock Text="{x:Bind Name}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" FontFamily="Segoe UI"/>
+                                    <TextBlock Text="{x:Bind Name, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" FontFamily="Segoe UI"/>
                                 </StackPanel>
                             </DataTemplate>
                         </GridView.ItemTemplate>
@@ -70,7 +70,7 @@
                             <DataTemplate x:DataType="dataModel:Site" >
                                 <StackPanel Margin="12">
                                     <Image Source="ms-appx:///Assets/DeviceIcons/view2/Site.png" Height="128" Width="128" />
-                                    <TextBlock Text="{x:Bind Name}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}"/>
+                                    <TextBlock Text="{x:Bind Name, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </GridView.ItemTemplate>
@@ -102,16 +102,16 @@
                             <DataTemplate x:Name="ImageTextDataTemplate" x:DataType="dataModel:Device" >
                                 <StackPanel Margin="12">
                                     <Grid>
-                                        <Image Source="{x:Bind DeviceTypeId, Converter={StaticResource DeviceTypeIconConverter}}" Height="128" Width="128" />
+                                        <Image Source="{x:Bind DeviceTypeId, Mode=OneWay, Converter={StaticResource DeviceTypeIconConverter}}" Height="128" Width="128" />
                                         <TextBlock
                                             FontFamily="Segoe UI Symbol"
                                             HorizontalTextAlignment="Left"
                                             VerticalAlignment="Bottom"
-                                            Foreground="{Binding Path=Connected, Converter={StaticResource TerminalConnectedColorConverter}}"
+                                            Foreground="{Binding Path=Connected, Mode=OneWay, Converter={StaticResource TerminalConnectedColorConverter}}"
                                             Text ="&#xE13A;"
                                             />
                                     </Grid>
-                                    <TextBlock Text="{x:Bind Name}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}"/>
+                                    <TextBlock Text="{x:Bind Name, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </GridView.ItemTemplate>
