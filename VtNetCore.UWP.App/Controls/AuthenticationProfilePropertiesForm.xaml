@@ -1,0 +1,98 @@
+﻿<UserControl
+    x:Class="VtNetCore.UWP.App.Controls.AuthenticationProfilePropertiesForm"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="using:VtNetCore.UWP.App"
+    xmlns:converters="using:VtNetCore.UWP.App.Converters"
+    xmlns:model="using:VtNetCore.UWP.App.Model"
+    mc:Ignorable="d"
+    d:DesignHeight="600"
+    d:DesignWidth="300"
+    >
+
+    <Control.Resources>
+        <converters:AuthenticationMethodItemConverter x:Key="AuthenticationMethodItemConverter" />
+        <converters:TenantIdItemConverter x:Key="TenantIdItemConverter" />
+        <converters:SiteIdItemConverter x:Key="SiteIdItemConverter" />
+    </Control.Resources>
+    
+    <Grid Background="{ThemeResource FlyoutBackgroundThemeBrush}">
+        <StackPanel Padding="15">
+            <TextBlock x:Name="FormHeadingLabel" Text="Add profile" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Left" />
+
+            <TextBlock x:Name="NameLabel" Text="Name:" Margin="0,12,0,0" />
+            <TextBox x:Name="NameField" Text="{x:Bind ProfileName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+            <TextBlock x:Name="AuthenticationMethodLabel" Text="Authentication method" />
+            <ComboBox
+                    x:Name="AuthenticationMethodField"
+                    ItemsSource="{x:Bind local:AuthenticationMethod.ProfileAuthenticationMethods}"
+                    HorizontalAlignment="Stretch"
+                    SelectedItem="{x:Bind AuthenticationMethod, Mode=TwoWay, Converter={StaticResource AuthenticationMethodItemConverter} }" 
+                    />
+
+            <TextBlock x:Name="UsernameLabel" Text="Username" />
+            <TextBox x:Name="UsernameField" Text="{x:Bind Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+            <TextBlock x:Name="PasswordLabel" Text="Password" />
+            <PasswordBox x:Name="PasswordField" Password="{x:Bind Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+            <TextBlock x:Name="AssignToScopeLabel" Text="Assign to scope" />
+            <RadioButton x:Name="ScopeGlobal" IsChecked="True" Content="Global" GroupName="AssignToScope" />
+            <RadioButton x:Name="ScopeTenant" Content="Tenant" GroupName="AssignToScope" />
+            <RadioButton x:Name="ScopeSite" Content="Site" GroupName="AssignToScope" />
+
+            <TextBlock x:Name="TenantLabel" Text="Tenant" Visibility="Collapsed" />
+            <ComboBox
+                x:Name="TenantField"
+                HorizontalAlignment="Stretch"
+                Visibility="Collapsed"
+                SelectedItem="{x:Bind TenantId, Mode=TwoWay, Converter={StaticResource TenantIdItemConverter}}"
+                ItemsSource="{x:Bind Tenants, Mode=OneWay}"
+                >
+                <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="model:Tenant">
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+
+            <TextBlock x:Name="SiteLabel" Text="Site" Visibility="Collapsed" />
+            <ComboBox
+                x:Name="SiteField"
+                HorizontalAlignment="Stretch"
+                Visibility="Collapsed"
+                SelectedItem="{x:Bind SiteId, Mode=TwoWay, Converter={StaticResource SiteIdItemConverter}}"
+                ItemsSource="{x:Bind Sites}"
+                >
+                <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="model:Site">
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+
+            <TextBlock x:Name="NotesLabel" Text="Notes" />
+            <TextBox
+                x:Name="NotesField"
+                TextWrapping="Wrap"
+                AcceptsReturn="True"
+                MinHeight="80"
+                Text="{x:Bind Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                />
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Button x:Name="DoneButton" Content="Done" Grid.Column="1" Margin="6,24" Tapped="DoneButton_Tapped" />
+                <Button x:Name="CancelButton" Content="Cancel" Grid.Column="2" Margin="0,24" Tapped="CancelButton_Tapped" />
+            </Grid>
+        </StackPanel>
+    </Grid>
+</UserControl>

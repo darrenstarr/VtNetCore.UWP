@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:VtNetCore.UWP.App"
+    xmlns:controls="using:VtNetCore.UWP.App.Controls"
     xmlns:converters="using:VtNetCore.UWP.App.Converters"
     xmlns:model="using:VtNetCore.UWP.App.Model"
     xmlns:viewModel="using:VtNetCore.UWP.App.ViewModel.AuthenticationProfilesViewModel"
@@ -23,79 +24,6 @@
             />
 
         <converters:ModelIconConverter x:Key="ModelIconConverter" />
-        <converters:AuthenticationMethodItemConverter x:Key="AuthenticationMethodItemConverter" />
-        <converters:TenantItemConverter x:Key="TenantItemConverter" />
-        <converters:SiteItemConverter x:Key="SiteItemConverter" />
-
-        <Flyout x:Name="ProfileFlyout">
-            <StackPanel Width="300">
-                <TextBlock x:Name="ProfileNameLabel" Text="Name" />
-                <TextBox x:Name="ProfileNameField" />
-                
-                <TextBlock x:Name="ProfileAuthenticationMethodLabel" Text="Authentication method" />
-                <ComboBox
-                    x:Name="ProfileAuthenticationMethodField"
-                    ItemsSource="{x:Bind local:AuthenticationMethod.ProfileAuthenticationMethods}"
-                    HorizontalAlignment="Stretch"
-                    SelectedItem="{x:Bind ProfileAuthenticationMethod, Mode=TwoWay, Converter={StaticResource AuthenticationMethodItemConverter} }" 
-                    />
-                
-                <TextBlock x:Name="ProfileUsernameLabel" Text="Username" />
-                <TextBox x:Name="ProfileUsernameField" />
-                
-                <TextBlock x:Name="ProfilePasswordLabel" Text="Password" />
-                <PasswordBox x:Name="ProfilePasswordField" />
-                
-                <TextBlock x:Name="ProfileAssignToScopeLabel" Text="Assign to scope" />
-                <RadioButton x:Name="ScopeGlobal" IsChecked="True" Content="Global" GroupName="AssignToScope" Checked="ScopeRadioChecked"/>
-                <RadioButton x:Name="ScopeTenant" Content="Tenant" GroupName="AssignToScope" Checked="ScopeRadioChecked" />
-                <RadioButton x:Name="ScopeSite" Content="Site" GroupName="AssignToScope" Checked="ScopeRadioChecked" />
-                
-                <TextBlock x:Name="ProfileTenantsLabel" Text="Tenant" Visibility="Collapsed" />
-                <ComboBox
-                    x:Name="ProfileTenantsField"
-                    HorizontalAlignment="Stretch"
-                    Visibility="Collapsed"
-                    SelectedItem="{x:Bind NewProfileTenant, Mode=TwoWay, Converter={StaticResource TenantItemConverter}}"
-                    ItemsSource="{x:Bind Tenants, Mode=OneWay}"
-                    SelectionChanged="TenantsField_SelectionChanged"
-                    >
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate x:DataType="model:Tenant">
-                            <TextBlock Text="{Binding Name}" />
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-                
-                <TextBlock x:Name="ProfileSitesLabel" Text="Site" Visibility="Collapsed" />
-                <ComboBox
-                    x:Name="ProfileSitesField"
-                    HorizontalAlignment="Stretch"
-                    Visibility="Collapsed"
-                    SelectedItem="{x:Bind NewProfileSite, Mode=TwoWay, Converter={StaticResource SiteItemConverter}}"
-                    ItemsSource="{x:Bind Sites}">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate x:DataType="model:Site">
-                            <TextBlock Text="{Binding Name}" />
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-
-                <TextBlock x:Name="ProfileNotesLabel" Text="Notes" />
-                <TextBox x:Name="ProfileNotesField" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="80"/>
-
-                <Grid Margin="0,12,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <Button x:Name="ProfileDoneButton" Content="Done" Grid.Column="1" Margin="0,12,6,0" Tapped="ProfileDoneButton_Tapped" />
-                    <Button x:Name="ProfileCancelButton" Content="Cancel" Grid.Column="2" Margin="0,12,0,0" Tapped="ProfileCancelButton_Tapped" />
-                </Grid>
-            </StackPanel>
-        </Flyout>
     </Page.Resources>
     
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -103,9 +31,13 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
         <CommandBar>
-            <AppBarButton x:Name="AddProfileButton" Icon="Add" Label="Add" Tapped="AddProfileButton_Tapped" Flyout="{StaticResource ProfileFlyout}" Loaded="AppButton_Loaded" />
-            <AppBarButton x:Name="EditProfileButton" Icon="Edit" Label="Edit" Tapped="EditProfileButton_Tapped" Flyout="{StaticResource ProfileFlyout}" Loaded="AppButton_Loaded" />
+            <AppBarButton x:Name="AddProfileButton" Icon="Add" Label="Add" Tapped="AddProfileButton_Tapped" />
+            <AppBarButton x:Name="EditProfileButton" Icon="Edit" Label="Edit" Tapped="EditProfileButton_Tapped" />
             <CommandBar.SecondaryCommands>
                 <AppBarButton x:Name="RemoveProfileButton" Icon="Remove" Label="Remove" Tapped="RemoveProfileButton_Tapped" />
             </CommandBar.SecondaryCommands>
@@ -114,7 +46,7 @@
             <GridView x:Name="AuthenticationProfilesView" ItemsSource="{Binding Source={StaticResource AuthenticationProfileItems}}">
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="model:AuthenticationProfile">
-                        <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+                        <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}" Padding="5">
                             <StackPanel>
                                 <Grid>
                                     <Image Source="Assets/DeviceIcons/Lock-icon-512.png" Width="32" Height="32" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="20,10"/>
@@ -149,6 +81,15 @@
                 </GridView.ItemsPanel>
             </GridView>
         </ScrollViewer>
+        
+        <controls:AuthenticationProfilePropertiesForm
+            x:Name="AuthenticationProfileForm"
+            Visibility="Collapsed"
+            Grid.RowSpan="2"
+            Grid.Column="1"
+            MaxWidth="300"
+            OnAuthenticationProfileChanged="AuthenticationProfileForm_OnAuthenticationProfileChanged"
+            />
     </Grid>
 
     <Interactivity:Interaction.Behaviors>

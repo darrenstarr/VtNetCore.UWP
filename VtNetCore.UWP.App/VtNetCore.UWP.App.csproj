@@ -98,6 +98,9 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="AuthenticationMethod.cs" />
+    <Compile Include="Controls\AuthenticationProfilePropertiesForm.xaml.cs">
+      <DependentUpon>AuthenticationProfilePropertiesForm.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\DevicePropertiesForm.xaml.cs">
       <DependentUpon>DevicePropertiesForm.xaml</DependentUpon>
     </Compile>
@@ -112,6 +115,8 @@
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\DeviceClassIconItemConverter.cs" />
     <Compile Include="Converters\DeviceClassGuidItemConverter.cs" />
+    <Compile Include="Converters\SiteIdItemConverter.cs" />
+    <Compile Include="Converters\TenantIdItemConverter.cs" />
     <Compile Include="Model\DeviceClass.cs" />
     <Compile Include="Pages\DeviceTypesPage.xaml.cs">
       <DependentUpon>DeviceTypesPage.xaml</DependentUpon>
@@ -238,6 +243,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Assets\Style\TabControlStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\AuthenticationProfilePropertiesForm.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

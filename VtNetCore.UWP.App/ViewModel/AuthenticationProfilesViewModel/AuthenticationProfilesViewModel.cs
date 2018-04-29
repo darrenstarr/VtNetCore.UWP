@@ -225,5 +225,20 @@
                 }
                 );
         }
+
+        public void SaveChanges(Model.AuthenticationProfile profile)
+        {
+            var oldOwner = this.SingleOrDefault(x => x.AuthenticationProfiles.Contains(profile));
+            if(oldOwner != null)
+            {
+                if (oldOwner.Id != profile.ParentId)
+                {
+                    oldOwner.AuthenticationProfiles.Remove(profile);
+
+                    var newOwner = this.SingleOrDefault(x => x.Id == profile.ParentId);
+                    newOwner.AuthenticationProfiles.Add(profile);
+                }
+            }
+        }
     }
 }

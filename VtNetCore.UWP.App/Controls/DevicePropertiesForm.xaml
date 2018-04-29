@@ -82,8 +82,8 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
 
-            <TextBlock x:Name="ConnectionNotesLabel" Text="Notes:" Margin="0,12,0,0" />
-            <TextBox x:Name="ConnectionNotesField" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="80" Text="{x:Bind Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBlock x:Name="NotesLabel" Text="Notes:" Margin="0,12,0,0" />
+            <TextBox x:Name="NotesField" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="80" Text="{x:Bind Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
             <Grid>
                 <Grid.ColumnDefinitions>
