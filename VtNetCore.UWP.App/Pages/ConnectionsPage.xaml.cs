@@ -1,5 +1,6 @@
 ﻿namespace VtNetCore.UWP.App.Pages
 {
+    using Microsoft.Toolkit.Uwp.UI;
     using System;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
@@ -12,162 +13,44 @@
 
     public sealed partial class ConnectionsPage : Page
     {
-        public Model.Device NewConnection { get; set; } =
-            new Model.Device
-            {
-                AuthenticationMethod = Model.EAuthenticationMethod.InheritFromSite
-            };
-
-        public ObservableCollection<Model.Device> Devices
-        {
-            get => Model.Context.Current.Devices;
-        }
-
-        public ObservableCollection<Model.AuthenticationProfile> AuthenticationProfiles
-        {
-            get => Model.Context.Current.AuthenticationProfiles;
-        }
-
-        public ObservableCollection<Model.Tenant> Tenants
-        {
-            get => Model.Context.Current.Tenants;
-        }
-
-        public ObservableCollection<Model.Site> Sites
-        {
-            get => Model.Context.Current.Sites;
-        }
-
-        public ObservableCollection<Model.DeviceType> DeviceTypes
-        {
-            get => Model.Context.Current.DeviceTypes;
-        }
-
-        private ObservableCollection<Model.Site> SitesForSelectedTenant { get; set; } = new ObservableCollection<Model.Site>();
-        private ObservableCollection<Model.Device> DevicesForSelectedSite { get; set; } = new ObservableCollection<Model.Device>();
+        private ObservableCollection<Model.Tenant> Tenants => Model.Context.Current.Tenants;
+        private AdvancedCollectionView Sites { get; } = new AdvancedCollectionView(Model.Context.Current.Sites);
+        private AdvancedCollectionView Devices { get; } = new AdvancedCollectionView(Model.Context.Current.Devices);
 
         public ConnectionsPage()
         {
             InitializeComponent();
-            Sites.CollectionChanged += Sites_CollectionChanged;
-            Devices.CollectionChanged += Devices_CollectionChanged;
-        }
 
-        private void Devices_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            if (SitesView.SelectedItem == null)
-                return;
-
-            var site = SitesView.SelectedItem as Model.Site;
-
-            switch(e.Action)
+            Sites.Filter = x =>
             {
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                    foreach (var addition in e.NewItems.Cast<Model.Device>().Where(x => x.SiteId == site.Id))
-                        DevicesForSelectedSite.Add(addition);
-                    break;
+                var tenant = (Model.Tenant)TenantsView.SelectedItem;
 
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
-                    foreach (var removal in e.OldItems.Cast<Model.Device>().Where(x => x.SiteId == site.Id))
-                        DevicesForSelectedSite.Remove(removal);
-                    break;
+                if (tenant == null)
+                    return false;
 
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
-                    DevicesForSelectedSite.Clear();
-                    break;
-            }
-        }
+                return ((Model.Site)x).TenantId == tenant.Id;
+            };
 
-        private void Sites_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            if (TenantsView.SelectedItem == null)
-                return;
-
-            var tenant = TenantsView.SelectedItem as Model.Tenant;
-
-            switch(e.Action)
+            Devices.Filter = x =>
             {
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                    foreach (var addition in e.NewItems.Cast<Model.Site>().Where(x => x.TenantId == tenant.Id))
-                        SitesForSelectedTenant.Add(addition);
-                    break;
+                var site = (Model.Site)SitesView.SelectedItem;
 
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
-                    foreach (var removal in e.OldItems.Cast<Model.Site>().Where(x => x.TenantId == tenant.Id))
-                        SitesForSelectedTenant.Remove(removal);
-                    break;
+                if (site == null)
+                    return false;
 
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
-                    SitesForSelectedTenant.Clear();
-                    break;
-            }
+                return ((Model.Device)x).SiteId == site.Id;
+            };
         }
 
-        private void TenantsView_ItemClick(object sender, ItemClickEventArgs e)
+        private void TenantsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            SitesForSelectedTenant.Clear();
-            DevicesForSelectedSite.Clear();
-
-            if ((e.ClickedItem as Model.Tenant) != null)
-            {
-                var sites = Sites.Where(x => x.TenantId == (e.ClickedItem as Model.Tenant).Id);
-                foreach (var site in sites)
-                    SitesForSelectedTenant.Add(site);
-            }
+            Sites.RefreshFilter();
         }
 
-        private void SitesView_ItemClick(object sender, ItemClickEventArgs e)
+        private void SitesView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            DevicesForSelectedSite.Clear();
-
-            if ((e.ClickedItem as Model.Site) != null)
-            {
-                var devices = Devices.Where(x => x.SiteId == (e.ClickedItem as Model.Site).Id);
-                foreach (var device in devices)
-                    DevicesForSelectedSite.Add(device);
-            }
+            Devices.RefreshFilter();
         }
-
-        private void DevicesView_ItemClick(object sender, ItemClickEventArgs e)
-        {
-            var item = (Model.Device)e.ClickedItem;
-
-            var t = Terminals.Instance;
-
-            var terminalInstance = t.Where(x => x.Connection.Destination.ToString() == item.Destination).SingleOrDefault();
-            if(terminalInstance == null)
-            {
-                var username = string.Empty;
-                var password = string.Empty;
-
-                if (item.AuthenticationMethod == Model.EAuthenticationMethod.NoAuthentication)
-                {
-
-                }
-                else
-                {
-                    var authenticationProfile = AuthenticationProfiles.Where(x => x.Id == item.AuthenticationProfileId).SingleOrDefault();
-                    if (authenticationProfile == null)
-                    {
-                        System.Diagnostics.Debug.WriteLine("Failed to find an authentication profile");
-                        return;
-                    }
-                    username = authenticationProfile.Username;
-                    password = authenticationProfile.Password;
-                }
-
-                terminalInstance = new TerminalInstance();
-                if(!terminalInstance.ConnectTo(new Uri(item.Destination), username, password))
-                {
-                    System.Diagnostics.Debug.WriteLine("Failed to connect to destination");
-                    return;
-                }
-
-                t.Add(terminalInstance);
-            }
-        }
-
-        public bool AlwaysFalseAnchorValue { get; } = false;
 
         private void DevicesView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -235,7 +118,7 @@
             }
             else
             {
-                var authenticationProfile = AuthenticationProfiles.Where(x => x.Id == device.AuthenticationProfileId).SingleOrDefault();
+                var authenticationProfile = Model.Context.Current.AuthenticationProfiles.Where(x => x.Id == device.AuthenticationProfileId).SingleOrDefault();
                 if (authenticationProfile == null)
                 {
                     System.Diagnostics.Debug.WriteLine("Failed to find an authentication profile");
@@ -267,7 +150,13 @@
         {
             var terminal = (TerminalInstance)sender;
 
-            var device = Devices.Where(x => (new Uri(x.Destination)).Equals(terminal.Connection.Destination)).SingleOrDefault();
+            var device = 
+                (Model.Device)Devices
+                    .Where(
+                        x => 
+                            (new Uri(((Model.Device)x).Destination)).Equals(terminal.Connection.Destination)
+                    )
+                    .SingleOrDefault();
 
             if (device == null)
                 return;

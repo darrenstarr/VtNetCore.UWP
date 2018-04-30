@@ -20,7 +20,10 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <controls:ValidationRectangle Width="5" PropertyName="SiteName" />
-                <TextBox x:Name="NameField" Text="{x:Bind ViewModel.SiteName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" />
+                <TextBox
+                    x:Name="NameField"
+                    Text="{x:Bind ViewModel.SiteName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1"
+                    />
             </Grid>
 
             <TextBlock x:Name="LocationLabel" Text="Location::" Margin="0,12,0,0" />
@@ -30,7 +33,10 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <controls:ValidationRectangle Width="5" PropertyName="Location" />
-                <TextBox x:Name="LocationField" Text="{x:Bind ViewModel.Location, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" />
+                <TextBox
+                    x:Name="LocationField"
+                    Text="{x:Bind ViewModel.Location, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1"
+                    />
             </Grid>
 
             <TextBlock x:Name="NotesLabel" Text="Notes:" Margin="0,12,0,0" />

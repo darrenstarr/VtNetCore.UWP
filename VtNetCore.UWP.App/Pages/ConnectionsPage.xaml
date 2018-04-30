@@ -45,7 +45,12 @@
                 </CommandBar>
 
                 <Grid Grid.Row="1" >
-                    <GridView x:Name="TenantsView" ItemsSource="{x:Bind Tenants}" IsItemClickEnabled="True" ItemClick="TenantsView_ItemClick">
+                    <GridView
+                        x:Name="TenantsView"
+                        ItemsSource="{x:Bind Tenants}"
+                        IsItemClickEnabled="True"
+                        SelectionChanged="TenantsView_SelectionChanged"
+                        >
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="dataModel:Tenant" >
                                 <StackPanel Margin="12">
@@ -69,7 +74,13 @@
                 </CommandBar>
 
                 <Grid Grid.Row="3">
-                    <GridView x:Name="SitesView" ItemsSource="{x:Bind SitesForSelectedTenant}" IsItemClickEnabled="True" ItemClick="SitesView_ItemClick" Visibility="Collapsed">
+                    <GridView
+                        x:Name="SitesView"
+                        ItemsSource="{x:Bind Sites}"
+                        IsItemClickEnabled="True"
+                        SelectionChanged="SitesView_SelectionChanged"
+                        Visibility="Collapsed"
+                        >
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="dataModel:Site" >
                                 <StackPanel Margin="12">
@@ -97,7 +108,7 @@
                 <Grid Grid.Row="5" >
                     <GridView
                         x:Name="DevicesView"
-                        ItemsSource="{x:Bind DevicesForSelectedSite}"
+                        ItemsSource="{x:Bind Devices}"
                         IsItemClickEnabled="True"
                         Visibility="Collapsed"
                         SelectionChanged="DevicesView_SelectionChanged"

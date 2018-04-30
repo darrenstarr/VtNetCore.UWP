@@ -1,6 +1,7 @@
 ﻿namespace VtNetCore.UWP.App.Controls
 {
     using Windows.UI;
+    using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Media;
 
@@ -12,13 +13,16 @@
         private string _propertyName;
         private bool _isValid = true;
 
+        public static readonly DependencyProperty PropertyNameProperty =
+            DependencyProperty.Register(
+                "PropertyName", typeof(string),
+                typeof(ValidationRectangle), null
+            );
+
         public string PropertyName
         {
             get => _propertyName;
-            set
-            {
-                _propertyName = value;
-            }
+            set => _propertyName = value;
         }
 
         public bool IsValid
@@ -36,7 +40,7 @@
 
         public ValidationRectangle()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
     }
 }
