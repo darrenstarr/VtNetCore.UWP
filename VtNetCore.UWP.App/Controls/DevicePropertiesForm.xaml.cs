@@ -6,7 +6,6 @@
     using System.ComponentModel;
     using System.Linq;
     using System.Reflection;
-    using VtNetCore.UWP.App.Utility.Helpers;
     using VtNetCore.UWP.App.ViewModel;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
@@ -52,7 +51,7 @@
         {
             InitializeComponent();
 
-            FindChildren<ValidationRectangle>(AllValidationRectangles, this);
+            FindChildren(AllValidationRectangles, this);
             Validate();
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
@@ -181,7 +180,7 @@
                     T asType = (T)current;
                     results.Add(asType);
                 }
-                FindChildren<T>(results, current);
+                FindChildren(results, current);
             }
         }
     }

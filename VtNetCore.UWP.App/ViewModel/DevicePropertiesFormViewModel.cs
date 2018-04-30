@@ -269,6 +269,8 @@
         {
             List<ValidityState> result = new List<ValidityState>();
 
+            // TODO : Validate Id ?
+
             if (Operation == FormOperation.Add && SiteId != Guid.Empty)
             {
                 result.Add(

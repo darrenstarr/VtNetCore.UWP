@@ -159,6 +159,7 @@
     <Compile Include="ViewModel\DevicePropertiesFormViewModel.cs" />
     <Compile Include="ViewModel\AuthenticationProfilesViewModel\AuthenticationProfilesViewModel.cs" />
     <Compile Include="ViewModel\AuthenticationProfilesViewModel\Owner.cs" />
+    <Compile Include="ViewModel\TenantPropertiesFormViewModel.cs" />
     <Compile Include="ViewModel\ValidityState.cs" />
     <None Include="Assets\DeviceIcons\view2\QuestionMark.afphoto" />
     <None Include="Assets\DeviceIcons\view2\QuestionMark.pdf" />

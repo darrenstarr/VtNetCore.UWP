@@ -1,16 +1,18 @@
 ﻿namespace VtNetCore.UWP.App.Controls
 {
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel;
-    using VtNetCore.UWP.App.Utility.Helpers;
+    using System.Linq;
+    using System.Reflection;
+    using VtNetCore.UWP.App.ViewModel;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Input;
+    using Windows.UI.Xaml.Media;
 
-    public sealed partial class TenantPropertiesForm : UserControl, INotifyPropertyChanged
+    public sealed partial class TenantPropertiesForm : UserControl
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public class TenantChangedEventArgs : EventArgs
         {
             public FormOperation Operation { get; set; }
@@ -19,40 +21,29 @@
 
         public event EventHandler<TenantChangedEventArgs> OnTenantChanged;
 
-        private FormOperation _operation;
-        private Model.Tenant _tenant;
-        private string _tenantName;
-        private string _notes;
+        public TenantPropertiesFormViewModel ViewModel { get; set; } = new TenantPropertiesFormViewModel();
 
-        public FormOperation Operation
-        {
-            get => _operation;
-            set => PropertyChanged.ChangeAndNotify(ref _operation, value, () => Operation);
-        }
+        private List<ValidationRectangle> AllValidationRectangles = new List<ValidationRectangle>();
 
         public Model.Tenant Tenant
         {
-            get => _tenant;
-            set => PropertyChanged.ChangeAndNotify(ref _tenant, value, () => Tenant, true);
+            get => ViewModel.Tenant;
+            set => ViewModel.Tenant = value;
         }
 
-        private string TenantName
+        public FormOperation Operation
         {
-            get => _tenantName;
-            set => PropertyChanged.ChangeAndNotify(ref _tenantName, value, () => TenantName);
-        }
-
-        private string Notes
-        {
-            get => _notes;
-            set => PropertyChanged.ChangeAndNotify(ref _notes, value, () => Notes);
+            get => ViewModel.Operation;
+            set => ViewModel.Operation = value;
         }
 
         public TenantPropertiesForm()
         {
             InitializeComponent();
+            FindChildren(AllValidationRectangles, this);
 
-            PropertyChanged += TenantPropertiesForm_PropertyChanged;
+            Validate();
+            ViewModel.PropertyChanged += TenantPropertiesForm_PropertyChanged;
         }
 
         private void TenantPropertiesForm_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -62,29 +53,15 @@
                 case "Operation":
                     OperationChanged();
                     break;
-
-                case "Tenant":
-                    TenantChanged();
-                    break;
             }
 
-            DoneButton.IsEnabled = IsDirty();
+            Validate();
+            DoneButton.IsEnabled = ViewModel.IsDirty;
         }
 
         public void ClearForm()
         {
-            TenantName = string.Empty;
-            Notes = string.Empty;
-        }
-
-        private bool IsDirty()
-        {
-            return
-                Tenant == null ||
-                !(
-                    TenantName == Tenant.Name.BlankIfNull() &&
-                    Notes == Tenant.Notes.BlankIfNull()
-                );
+            ViewModel.Clear();
         }
 
         private void OperationChanged()
@@ -101,59 +78,63 @@
             }
         }
 
-        private void TenantChanged()
-        {
-            if (Tenant == null)
-            {
-                ClearForm();
-                return;
-            }
-
-            TenantName = Tenant.Name.BlankIfNull();
-            Notes = Tenant.Notes.BlankIfNull();
-        }
-
         private void DoneButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            if (Operation == FormOperation.Add)
-            {
-                OnTenantChanged?.Invoke(
+            // TODO : throw on validation error here.
+
+            ViewModel.Commit();
+
+            OnTenantChanged?.Invoke(
                     this,
                     new TenantChangedEventArgs
                     {
-                        Operation = FormOperation.Add,
-                        Tenant = new Model.Tenant
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = TenantName,
-                            Notes = Notes
-                        }
+                        Operation = ViewModel.Operation,
+                        Tenant = ViewModel.Tenant
                     }
-                    );
+                );
 
-                Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                Tenant.Name = TenantName;
-                Tenant.Notes = Notes;
-
-                OnTenantChanged?.Invoke(
-                    this,
-                    new TenantChangedEventArgs
-                    {
-                        Operation = FormOperation.Edit,
-                        Tenant = Tenant
-                    }
-                    );
-
-                Visibility = Visibility.Collapsed;
-            }
+            Visibility = Visibility.Collapsed;
         }
 
         private void CancelButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
             Visibility = Visibility.Collapsed;
+        }
+
+        private bool UpdateIsValid(ValidityState state)
+        {
+            var namedObjects = AllValidationRectangles.Where(x => x.PropertyName == state.Name);
+            foreach (var namedObject in namedObjects)
+                namedObject.IsValid = state.IsValid;
+
+            return state.IsValid;
+        }
+
+        public bool Validate()
+        {
+            var isValid = true;
+
+            var items = ViewModel.Validate();
+            foreach (var item in items)
+                if (!UpdateIsValid(item))
+                    isValid = false;
+
+            return isValid;
+        }
+
+        internal static void FindChildren<T>(List<T> results, DependencyObject startNode) where T : DependencyObject
+        {
+            int count = VisualTreeHelper.GetChildrenCount(startNode);
+            for (int i = 0; i < count; i++)
+            {
+                DependencyObject current = VisualTreeHelper.GetChild(startNode, i);
+                if ((current.GetType()).Equals(typeof(T)) || (current.GetType().GetTypeInfo().IsSubclassOf(typeof(T))))
+                {
+                    T asType = (T)current;
+                    results.Add(asType);
+                }
+                FindChildren(results, current);
+            }
         }
     }
 }

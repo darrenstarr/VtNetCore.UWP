@@ -19,7 +19,6 @@
         <converters:AuthenticationProfileIdConverter x:Key="AuthenticationProfileIdConverter" />
         <converters:DeviceClassIconItemConverter x:Key="DeviceClassIconItemConverter" />
         <converters:DeviceTypeIdItemConverter x:Key="DeviceTypeIdItemConverter" />
-        <converters:ValidationCheckColorItemConverter x:Key="ValidationCheckColorItemConverter" />
     </Control.Resources>
     
     <Grid Background="{ThemeResource FlyoutBackgroundThemeBrush}">
