@@ -2,7 +2,7 @@
     x:Class="VtNetCore.UWP.App.Controls.SitePropertiesForm"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:VtNetCore.UWP.App.Controls"
+    xmlns:controls="using:VtNetCore.UWP.App.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -13,29 +13,42 @@
         <StackPanel Padding="15">
             <TextBlock x:Name="FormHeadingLabel" Text="New Site" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="250" />
 
-            <TextBlock x:Name="SiteNameLabel" Text="Name:" Margin="0,12,0,0" />
-            <TextBox
-                x:Name="SiteNameField"
-                Text="{x:Bind SiteName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                />
+            <TextBlock x:Name="NameLabel" Text="Name:" Margin="0,12,0,0" />
+            <Grid HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <controls:ValidationRectangle Width="5" PropertyName="SiteName" />
+                <TextBox x:Name="NameField" Text="{x:Bind ViewModel.SiteName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" />
+            </Grid>
 
-            <TextBlock x:Name="LocationLabel" Text="Location:" Margin="0,12,0,0" />
-            <TextBox
-                x:Name="LocationField"
-                TextWrapping="Wrap"
-                AcceptsReturn="True"
-                MinHeight="80"
-                Text="{x:Bind Location, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                />
+            <TextBlock x:Name="LocationLabel" Text="Location::" Margin="0,12,0,0" />
+            <Grid HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <controls:ValidationRectangle Width="5" PropertyName="Location" />
+                <TextBox x:Name="LocationField" Text="{x:Bind ViewModel.Location, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" />
+            </Grid>
 
             <TextBlock x:Name="NotesLabel" Text="Notes:" Margin="0,12,0,0" />
-            <TextBox
-                x:Name="NotesField"
-                TextWrapping="Wrap"
-                AcceptsReturn="True"
-                MinHeight="80"
-                Text="{x:Bind Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                />
+            <Grid HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <controls:ValidationRectangle Width="5" PropertyName="Notes" />
+                <TextBox
+                    x:Name="NotesField"
+                    TextWrapping="Wrap"
+                    AcceptsReturn="True"
+                    MinHeight="80"
+                    Text="{x:Bind ViewModel.Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Grid.Column="1"
+                    />
+            </Grid>
 
             <Grid>
                 <Grid.ColumnDefinitions>

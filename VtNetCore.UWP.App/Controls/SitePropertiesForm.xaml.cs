@@ -1,16 +1,18 @@
 ﻿namespace VtNetCore.UWP.App.Controls
 {
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel;
-    using VtNetCore.UWP.App.Utility.Helpers;
+    using System.Linq;
+    using System.Reflection;
+    using VtNetCore.UWP.App.ViewModel;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Input;
+    using Windows.UI.Xaml.Media;
 
-    public sealed partial class SitePropertiesForm : UserControl, INotifyPropertyChanged
+    public sealed partial class SitePropertiesForm : UserControl
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public class SiteChangedEventArgs : EventArgs
         {
             public FormOperation Operation { get; set; }
@@ -19,90 +21,53 @@
 
         public event EventHandler<SiteChangedEventArgs> OnSiteChanged;
 
-        private FormOperation _operation;
-        private Model.Site _site;
+        public SitePropertiesFormViewModel ViewModel { get; set; } = new SitePropertiesFormViewModel();
 
-        private string _siteName;
-        private Guid _tenantId;
-        private string _location;
-        private string _notes;
+        private List<ValidationRectangle> AllValidationRectangles = new List<ValidationRectangle>();
 
         public FormOperation Operation
         {
-            get => _operation;
-            set => PropertyChanged.ChangeAndNotify(ref _operation, value, () => Operation);
+            get => ViewModel.Operation;
+            set => ViewModel.Operation = value;
         }
 
         public Model.Site Site
         {
-            get => _site;
-            set => PropertyChanged.ChangeAndNotify(ref _site, value, () => Site, true);
-        }
-
-        private string SiteName
-        {
-            get => _siteName;
-            set => PropertyChanged.ChangeAndNotify(ref _siteName, value, () => SiteName);
+            get => ViewModel.Site;
+            set => ViewModel.Site = value;
         }
 
         public Guid TenantId
         {
-            get => _tenantId;
-            set => PropertyChanged.ChangeAndNotify(ref _tenantId, value, () => TenantId);
-        }
-
-        private string Location
-        {
-            get => _location;
-            set => PropertyChanged.ChangeAndNotify(ref _location, value, () => Location);
-        }
-
-        private string Notes
-        {
-            get => _notes;
-            set => PropertyChanged.ChangeAndNotify(ref _notes, value, () => Notes);
+            get => ViewModel.TenantId;
+            set => ViewModel.TenantId = value;
         }
 
         public SitePropertiesForm()
         {
             InitializeComponent();
 
-            PropertyChanged += SitePropertiesForm_PropertyChanged;
+            FindChildren(AllValidationRectangles, this);
+            Validate();
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
 
-        private void SitePropertiesForm_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        public void ClearForm()
+        {
+            ViewModel.Clear();
+        }
+
+        private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
                 case "Operation":
                     OperationChanged();
                     break;
-
-                case "Site":
-                    SiteChanged();
-                    break;
             }
 
-            DoneButton.IsEnabled = IsDirty();
-        }
-
-        public void ClearForm()
-        {
-            SiteName = string.Empty;
-            TenantId = Guid.Empty;
-            Location = string.Empty;
-            Notes = string.Empty;
-        }
-
-        private bool IsDirty()
-        {
-            return
-                Site == null ||
-                !(
-                    SiteName == Site.Name.BlankIfNull() &&
-                    Location == Site.Location.BlankIfNull() &&
-                    Notes == Site.Notes.BlankIfNull()
-                );
+            Validate();
+            DoneButton.IsEnabled = ViewModel.IsDirty;
         }
 
         private void OperationChanged()
@@ -119,64 +84,63 @@
             }
         }
 
-        private void SiteChanged()
-        {
-            if (Site == null)
-            {
-                ClearForm();
-                return;
-            }
-
-            TenantId = Site.TenantId;
-            SiteName = Site.Name.BlankIfNull();
-            Location = Site.Location.BlankIfNull();
-            Notes = Site.Notes.BlankIfNull();
-        }
-
         private void DoneButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            if (Operation == FormOperation.Add)
-            {
-                OnSiteChanged?.Invoke(
+            // TODO : throw on validation error here.
+
+            ViewModel.Commit();
+
+            OnSiteChanged?.Invoke(
                     this,
                     new SiteChangedEventArgs
                     {
-                        Operation = FormOperation.Add,
-                        Site = new Model.Site
-                        {
-                            Id = Guid.NewGuid(),
-                            TenantId = TenantId,
-                            Name = SiteName,
-                            Location = Location,
-                            Notes = Notes
-                        }
+                        Operation = ViewModel.Operation,
+                        Site = ViewModel.Site
                     }
-                    );
+                );
 
-                Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                Site.Name = SiteName;
-                Site.Location = Location;
-                Site.Notes = Notes;
-
-                OnSiteChanged?.Invoke(
-                    this,
-                    new SiteChangedEventArgs
-                    {
-                        Operation = FormOperation.Edit,
-                        Site = Site
-                    }
-                    );
-
-                Visibility = Visibility.Collapsed;
-            }
+            Visibility = Visibility.Collapsed;
         }
 
         private void CancelButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
             Visibility = Visibility.Collapsed;
+        }
+
+        private bool UpdateIsValid(ValidityState state)
+        {
+            var namedObjects = AllValidationRectangles.Where(x => x.PropertyName == state.Name);
+            foreach (var namedObject in namedObjects)
+                namedObject.IsValid = state.IsValid;
+
+            return state.IsValid;
+        }
+
+        public bool Validate()
+        {
+            var isValid = true;
+
+            var items = ViewModel.Validate();
+            foreach (var item in items)
+                if (!UpdateIsValid(item))
+                    isValid = false;
+
+            return isValid;
+        }
+
+        internal static void FindChildren<T>(List<T> results, DependencyObject startNode) where T : DependencyObject
+        {
+            int count = VisualTreeHelper.GetChildrenCount(startNode);
+            for (int i = 0; i < count; i++)
+            {
+                DependencyObject current = VisualTreeHelper.GetChild(startNode, i);
+                if ((current.GetType()).Equals(typeof(T)) || (current.GetType().GetTypeInfo().IsSubclassOf(typeof(T))))
+                {
+                    T asType = (T)current;
+                    results.Add(asType);
+                }
+                FindChildren(results, current);
+            }
         }
     }
 }
