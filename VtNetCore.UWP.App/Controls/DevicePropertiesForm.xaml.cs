@@ -2,15 +2,18 @@
 {
     using Microsoft.Toolkit.Uwp.UI;
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Linq;
+    using System.Reflection;
     using VtNetCore.UWP.App.Utility.Helpers;
+    using VtNetCore.UWP.App.ViewModel;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
+    using Windows.UI.Xaml.Media;
 
-    public sealed partial class DevicePropertiesForm : UserControl, INotifyPropertyChanged
+    public sealed partial class DevicePropertiesForm : UserControl
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public class DeviceChangedEventArgs : EventArgs
         {
             public FormOperation Operation { get; set; }
@@ -23,93 +26,38 @@
 
         private AdvancedCollectionView DeviceTypes { get; } = new AdvancedCollectionView(Model.Context.Current.DeviceTypes);
 
-        private FormOperation _operation;
-        private Model.Device _device;
+        public DevicePropertiesFormViewModel ViewModel = new DevicePropertiesFormViewModel();
 
-        private string _deviceName;
-        private Guid _siteId = Guid.Empty;
-        private string _destination;
-        private Guid _deviceTypeId = Guid.Empty;
-        private Model.EAuthenticationMethod _deviceAuthenticationMethod = Model.EAuthenticationMethod.InheritFromSite;
-        private string _username;
-        private string _password;
-        private Guid _authenticationProfileId = Guid.Empty;
-        private string _notes;
-
-        public FormOperation Operation
-        {
-            get => _operation;
-            set => PropertyChanged.ChangeAndNotify(ref _operation, value, () => Operation);
-        }
+        private List<ValidationRectangle> AllValidationRectangles = new List<ValidationRectangle>();
 
         public Model.Device Device
         {
-            get => _device;
-            set => PropertyChanged.ChangeAndNotify(ref _device, value, () => Device, true);
+            get => ViewModel.Device;
+            set => ViewModel.Device = value;
         }
 
-        private string DeviceName
+        public FormOperation Operation
         {
-            get => _deviceName;
-            set => PropertyChanged.ChangeAndNotify(ref _deviceName, value, () => DeviceName);
+            get => ViewModel.Operation;
+            set => ViewModel.Operation = value;
         }
 
         public Guid SiteId
         {
-            get => _siteId;
-            set => PropertyChanged.ChangeAndNotify(ref _siteId, value, () => SiteId);
-        }
-
-        private string Destination
-        {
-            get => _destination;
-            set => PropertyChanged.ChangeAndNotify(ref _destination, value, () => Destination);
-        }
-
-        private Guid DeviceTypeId
-        {
-            get => _deviceTypeId;
-            set => PropertyChanged.ChangeAndNotify(ref _deviceTypeId, value, () => DeviceTypeId);
-        }
-
-        private Model.EAuthenticationMethod DeviceAuthenticationMethod
-        {
-            get => _deviceAuthenticationMethod;
-            set => PropertyChanged.ChangeAndNotify(ref _deviceAuthenticationMethod, value, () => DeviceAuthenticationMethod);
-        }
-
-        private string Username
-        {
-            get => _username;
-            set => PropertyChanged.ChangeAndNotify(ref _username, value, () => Username);
-        }
-
-        private string Password
-        {
-            get => _password;
-            set => PropertyChanged.ChangeAndNotify(ref _password, value, () => Password);
-        }
-
-        private Guid AuthenticationProfileId
-        {
-            get => _authenticationProfileId;
-            set => PropertyChanged.ChangeAndNotify(ref _authenticationProfileId, value, () => AuthenticationProfileId);
-        }
-
-        private string Notes
-        {
-            get => _notes;
-            set => PropertyChanged.ChangeAndNotify(ref _notes, value, () => Notes);
+            get => ViewModel.SiteId;
+            set => ViewModel.SiteId = value;
         }
 
         public DevicePropertiesForm()
         {
             InitializeComponent();
 
-            PropertyChanged += DevicePropertiesForm_PropertyChanged;
+            FindChildren<ValidationRectangle>(AllValidationRectangles, this);
+            Validate();
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
 
-        private void DevicePropertiesForm_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch(e.PropertyName)
             {
@@ -117,21 +65,18 @@
                     OperationChanged();
                     break;
 
-                case "Device":
-                    DeviceChanged();
-                    break;
-
                 case "DeviceAuthenticationMethod":
                     AuthenticationMethodChanged();
                     break;
             }
 
-            DoneButton.IsEnabled = IsDirty();
+            Validate();
+            DoneButton.IsEnabled = ViewModel.IsDirty;
         }
 
         private void AuthenticationMethodChanged()
         {
-            switch(DeviceAuthenticationMethod)
+            switch(ViewModel.DeviceAuthenticationMethod)
             {
                 case Model.EAuthenticationMethod.UsernamePassword:
                     UsernameLabel.Visibility = Visibility.Visible;
@@ -164,7 +109,7 @@
 
         private void OperationChanged()
         {
-            switch(Operation)
+            switch(ViewModel.Operation)
             {
                 case FormOperation.Add:
                     FormHeadingLabel.Text = "Add device";
@@ -176,109 +121,68 @@
             }
         }
 
-        public void ClearForm()
-        {
-            DeviceName = string.Empty;
-            SiteId = Guid.Empty;
-            Destination = string.Empty;
-            DeviceTypeId = Guid.Empty;
-            DeviceAuthenticationMethod = Model.EAuthenticationMethod.InheritFromSite;
-            Username = string.Empty;
-            Password = string.Empty;
-            AuthenticationProfileId = Guid.Empty;
-            Notes = string.Empty;
-        }
-
-        private void DeviceChanged()
-        {
-            if(Device == null)
-            {
-                ClearForm();
-                return;
-            }
-
-            DeviceName = Device.Name.BlankIfNull();
-            SiteId = Device.SiteId;
-            Destination = Device.Destination.BlankIfNull();
-            DeviceTypeId = Device.DeviceTypeId;
-            DeviceAuthenticationMethod = Device.AuthenticationMethod;
-            Username = Device.Username.BlankIfNull();
-            Password = Device.Password.BlankIfNull(); ;
-            AuthenticationProfileId = Device.AuthenticationProfileId;
-            Notes = Device.Notes.BlankIfNull();
-        }
-
-        private bool IsDirty()
-        {
-            return
-                Device == null ||
-                !(
-                    DeviceName == Device.Name.BlankIfNull() &&
-                    SiteId == Device.SiteId &&
-                    Destination == Device.Destination.BlankIfNull() &&
-                    DeviceTypeId == Device.DeviceTypeId &&
-                    DeviceAuthenticationMethod == Device.AuthenticationMethod &&
-                    Username == Device.Username.BlankIfNull() &&
-                    Password == Device.Password.BlankIfNull() &&
-                    AuthenticationProfileId == Device.AuthenticationProfileId &&
-                    Notes == Device.Notes.BlankIfNull()
-                );
-        }
-
         private void DoneButton_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
-            if (Operation == FormOperation.Add)
-            {
-                OnDeviceChanged?.Invoke(
+            // TODO : throw on validation error here.
+
+            ViewModel.Commit();
+
+            OnDeviceChanged?.Invoke(
                     this,
                     new DeviceChangedEventArgs
                     {
-                        Operation = FormOperation.Add,
-                        Device = new Model.Device
-                        {
-                            Id = Guid.NewGuid(),
-                            SiteId = SiteId,
-                            Name = DeviceName,
-                            Destination = Destination,
-                            DeviceTypeId = DeviceTypeId,
-                            AuthenticationMethod = DeviceAuthenticationMethod,
-                            AuthenticationProfileId = AuthenticationProfileId,
-                            Username = Username,
-                            Password = Password,
-                            Notes = Notes
-                        }
+                        Operation = ViewModel.Operation,
+                        Device = ViewModel.Device
                     }
-                    );
+                );
 
-                Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                Device.Name = DeviceName;
-                Device.Destination = Destination;
-                Device.DeviceTypeId = DeviceTypeId;
-                Device.AuthenticationMethod = DeviceAuthenticationMethod;
-                Device.AuthenticationProfileId = AuthenticationProfileId;
-                Device.Username = Username;
-                Device.Password = Password;
-                Device.Notes = Notes;
-
-                OnDeviceChanged?.Invoke(
-                    this,
-                    new DeviceChangedEventArgs
-                    {
-                        Operation = FormOperation.Edit,
-                        Device = Device
-                    }
-                    );
-
-                Visibility = Visibility.Collapsed;
-            }
+            Visibility = Visibility.Collapsed;
         }
 
         private void CancelButton_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
             Visibility = Visibility.Collapsed;
+        }
+
+        public void ClearForm()
+        {
+            ViewModel.Clear();
+        }
+
+        private bool UpdateIsValid(ValidityState state)
+        {
+            var namedObjects = AllValidationRectangles.Where(x => x.PropertyName == state.Name);
+            foreach (var namedObject in namedObjects)
+                namedObject.IsValid = state.IsValid;
+
+            return state.IsValid;
+        }
+
+        public bool Validate()
+        {
+            var isValid = true;
+
+            var items = ViewModel.Validate();
+            foreach (var item in items)
+                if (!UpdateIsValid(item))
+                    isValid = false;
+
+            return isValid;
+        }
+
+        internal static void FindChildren<T>(List<T> results, DependencyObject startNode) where T : DependencyObject
+        {
+            int count = VisualTreeHelper.GetChildrenCount(startNode);
+            for (int i = 0; i < count; i++)
+            {
+                DependencyObject current = VisualTreeHelper.GetChild(startNode, i);
+                if ((current.GetType()).Equals(typeof(T)) || (current.GetType().GetTypeInfo().IsSubclassOf(typeof(T))))
+                {
+                    T asType = (T)current;
+                    results.Add(asType);
+                }
+                FindChildren<T>(results, current);
+            }
         }
     }
 }

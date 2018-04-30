@@ -18,6 +18,10 @@
     </Page.Resources>
 
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
         <ScrollViewer Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
             <Grid>
                 <Grid.RowDefinitions>
@@ -125,7 +129,9 @@
             VerticalAlignment="Stretch"
             HorizontalAlignment="Right"
             Visibility="Collapsed"
+            MaxWidth="300"
             OnTenantChanged="AddTenantFlyout_OnTenantChanged"
+            Grid.Column="1"
             />
 
         <controls:SitePropertiesForm
@@ -133,7 +139,9 @@
             VerticalAlignment="Stretch"
             HorizontalAlignment="Right"
             Visibility="Collapsed"
+            MaxWidth="300"
             OnSiteChanged="AddSiteFlyout_OnSiteChanged"
+            Grid.Column="1"
             />
 
         <controls:DevicePropertiesForm
@@ -141,7 +149,9 @@
             VerticalAlignment="Stretch"
             HorizontalAlignment="Right"
             Visibility="Collapsed"
+            MaxWidth="300"
             OnDeviceChanged="AddConnectionFlyout_OnDeviceChanged"
+            Grid.Column="1"
             />
         
         <Interactivity:Interaction.Behaviors>

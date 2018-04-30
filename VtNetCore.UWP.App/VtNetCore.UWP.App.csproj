@@ -111,6 +111,9 @@
     <Compile Include="Controls\TenantPropertiesForm.xaml.cs">
       <DependentUpon>TenantPropertiesForm.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ValidationRectangle.xaml.cs">
+      <DependentUpon>ValidationRectangle.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\AuthenticationProfileIdConverter.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\DeviceClassIconItemConverter.cs" />
@@ -153,8 +156,10 @@
     <Compile Include="Converters\SshToTextConverter.cs" />
     <Compile Include="Utility\Helpers\StringBlankIfNull.cs" />
     <Compile Include="Utility\Helpers\StringProtect.cs" />
+    <Compile Include="ViewModel\DevicePropertiesFormViewModel.cs" />
     <Compile Include="ViewModel\AuthenticationProfilesViewModel\AuthenticationProfilesViewModel.cs" />
     <Compile Include="ViewModel\AuthenticationProfilesViewModel\Owner.cs" />
+    <Compile Include="ViewModel\ValidityState.cs" />
     <None Include="Assets\DeviceIcons\view2\QuestionMark.afphoto" />
     <None Include="Assets\DeviceIcons\view2\QuestionMark.pdf" />
     <Content Include="Fonts\telenor_typeface\Telenor-Bold.otf">
@@ -262,6 +267,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\ValidationRectangle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\AuthenticationProfilesPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -289,7 +298,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.0.8</Version>
+      <Version>6.1.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.UI">
       <Version>2.2.0</Version>
