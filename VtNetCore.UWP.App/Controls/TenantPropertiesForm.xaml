@@ -8,7 +8,7 @@
     mc:Ignorable="d"
     d:DesignHeight="500"
     d:DesignWidth="250"
-    MinWidth="250"
+    Width="300"
     >
 
     <Grid Background="{ThemeResource FlyoutBackgroundThemeBrush}">
