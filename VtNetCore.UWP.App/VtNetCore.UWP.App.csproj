@@ -31,6 +31,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -43,6 +44,7 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
@@ -156,9 +158,11 @@
     <Compile Include="Converters\SshToTextConverter.cs" />
     <Compile Include="Utility\Helpers\StringBlankIfNull.cs" />
     <Compile Include="Utility\Helpers\StringProtect.cs" />
+    <Compile Include="ViewModel\AuthenticationProfileFormViewModel.cs" />
     <Compile Include="ViewModel\DevicePropertiesFormViewModel.cs" />
     <Compile Include="ViewModel\AuthenticationProfilesViewModel\AuthenticationProfilesViewModel.cs" />
     <Compile Include="ViewModel\AuthenticationProfilesViewModel\Owner.cs" />
+    <Compile Include="ViewModel\EScope.cs" />
     <Compile Include="ViewModel\SitePropertiesFormViewModel.cs" />
     <Compile Include="ViewModel\TenantPropertiesFormViewModel.cs" />
     <Compile Include="ViewModel\ValidityState.cs" />

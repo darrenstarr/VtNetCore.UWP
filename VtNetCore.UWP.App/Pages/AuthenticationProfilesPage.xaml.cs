@@ -1,11 +1,7 @@
 ﻿namespace VtNetCore.UWP.App.Pages
 {
-    using Microsoft.Toolkit.Uwp.UI;
     using System;
     using System.Collections.ObjectModel;
-    using System.ComponentModel;
-    using System.Linq;
-    using System.Threading.Tasks;
     using VtNetCore.UWP.App.Utility.Helpers;
     using VtNetCore.UWP.App.ViewModel.AuthenticationProfilesViewModel;
     using Windows.UI.Xaml;
@@ -22,32 +18,11 @@
             Edit
         }
 
-        private bool IsLoaded { get; set; }
-        private Model.Tenant NewProfileTenant { get; set; }
-        private Model.Site NewProfileSite { get; set; }
         private ObservableCollection<Model.Tenant> Tenants { get => Model.Context.Current.Tenants; }
-        private AdvancedCollectionView Sites { get; } = new AdvancedCollectionView(Model.Context.Current.Sites, true);
 
         public AuthenticationProfilesPage()
         {
             InitializeComponent();
-        }
-
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-            IsLoaded = true;
-            Sites.Filter = x =>
-            {
-                if (NewProfileTenant == null)
-                    return false;
-
-                return ((Model.Site)x).TenantId == NewProfileTenant.Id;
-            };
-
-            AuthenticationProfiles.CollectionChanged += (source, ev) =>
-            {
-                System.Diagnostics.Debug.WriteLine("Collection changed");
-            };
         }
 
         private void AddProfileButton_Tapped(object sender, TappedRoutedEventArgs e)

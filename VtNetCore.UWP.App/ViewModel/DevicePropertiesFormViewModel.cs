@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.ComponentModel.DataAnnotations;
     using VtNetCore.UWP.App.Controls;
     using VtNetCore.UWP.App.Utility.Helpers;
 
@@ -42,7 +41,6 @@
             }
         }
 
-        [Required]
         public string DeviceName
         {
             get => _deviceName;

@@ -2,18 +2,18 @@
 {
     using Microsoft.Toolkit.Uwp.UI;
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq;
-    using VtNetCore.UWP.App.Utility.Helpers;
+    using System.Reflection;
+    using VtNetCore.UWP.App.ViewModel;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
+    using Windows.UI.Xaml.Media;
 
     public sealed partial class AuthenticationProfilePropertiesForm : 
-        UserControl,
-        INotifyPropertyChanged
+        UserControl
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public class AuthenticationProfileChangedEventArgs : EventArgs
         {
             public FormOperation Operation { get; set; }
@@ -25,70 +25,21 @@
         private AdvancedCollectionView Tenants { get; } = new AdvancedCollectionView(Model.Context.Current.Tenants);
         private AdvancedCollectionView Sites { get; } = new AdvancedCollectionView(Model.Context.Current.Sites, true);
 
-        private FormOperation _operation;
-        private Model.AuthenticationProfile _authenticationProfile;
-        private Model.EAuthenticationMethod _authenticationMethod = Model.EAuthenticationMethod.UsernamePassword;
-        private string _username;
-        private string _password;
-        private Guid _tenantId;
-        private Guid _siteId;
-        private string _notes;
-
-        private string _profileName;
-
-        public FormOperation Operation
-        {
-            get => _operation;
-            set => PropertyChanged.ChangeAndNotify(ref _operation, value, () => Operation);
-        }
+        public AuthenticationProfileFormViewModel ViewModel { get; } = new AuthenticationProfileFormViewModel();
 
         public Model.AuthenticationProfile AuthenticationProfile
         {
-            get => _authenticationProfile;
-            set => PropertyChanged.ChangeAndNotify(ref _authenticationProfile, value, () => AuthenticationProfile, true);
+            get => ViewModel.AuthenticationProfile;
+            set => ViewModel.AuthenticationProfile = value;
         }
 
-        private string ProfileName
+        public FormOperation Operation
         {
-            get => _profileName;
-            set => PropertyChanged.ChangeAndNotify(ref _profileName, value, () => ProfileName);
+            get => ViewModel.Operation;
+            set => ViewModel.Operation = value;
         }
 
-        private Model.EAuthenticationMethod AuthenticationMethod
-        {
-            get => _authenticationMethod;
-            set => PropertyChanged.ChangeAndNotify(ref _authenticationMethod, value, () => AuthenticationMethod);
-        }
-
-        private string Username
-        {
-            get => _username;
-            set => PropertyChanged.ChangeAndNotify(ref _username, value, () => Username);
-        }
-
-        private string Password
-        {
-            get => _password;
-            set => PropertyChanged.ChangeAndNotify(ref _password, value, () => Password);
-        }
-
-        private Guid TenantId
-        {
-            get => _tenantId;
-            set => PropertyChanged.ChangeAndNotify(ref _tenantId, value, () => TenantId);
-        }
-
-        private Guid SiteId
-        {
-            get => _siteId;
-            set => PropertyChanged.ChangeAndNotify(ref _siteId, value, () => SiteId);
-        }
-
-        private string Notes
-        {
-            get => _notes;
-            set => PropertyChanged.ChangeAndNotify(ref _notes, value, () => Notes);
-        }
+        private List<ValidationRectangle> AllValidationRectangles = new List<ValidationRectangle>();
 
         public AuthenticationProfilePropertiesForm()
         {
@@ -96,28 +47,27 @@
 
             Sites.Filter = x =>
             {
-                if (TenantId == Guid.Empty)
+                if (ViewModel.TenantId == Guid.Empty)
                     return false;
 
-                return ((Model.Site)x).TenantId == TenantId;
+                return ((Model.Site)x).TenantId == ViewModel.TenantId;
             };
 
-            PropertyChanged += AuthenticationProfilePropertiesForm_PropertyChanged;
+            FindChildren(AllValidationRectangles, this);
+            Validate();
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+
             ScopeGlobal.Checked += ScopeRadioChecked;
             ScopeTenant.Checked += ScopeRadioChecked;
             ScopeSite.Checked += ScopeRadioChecked;
         }
 
-        private void AuthenticationProfilePropertiesForm_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
                 case "Operation":
                     OperationChanged();
-                    break;
-
-                case "AuthenticationProfile":
-                    AuthenticationProfileChanged();
                     break;
 
                 case "AuthenticationMethod":
@@ -127,9 +77,15 @@
                 case "TenantId":
                     TenantIdChanged();
                     break;
+
+                case "Scope":
+                    ScopeChanged();
+                    break;
             }
 
-            DoneButton.IsEnabled = IsDirty();
+            Validate();
+
+            DoneButton.IsEnabled = ViewModel.IsDirty;
         }
 
         private void TenantIdChanged()
@@ -137,37 +93,61 @@
             Sites.RefreshFilter();
         }
 
+        private void ScopeChanged()
+        {
+            switch(ViewModel.Scope)
+            {
+                case EScope.Tenant:
+                    ScopeTenant.IsChecked = true;
+                    break;
+
+                case EScope.Site:
+                    ScopeSite.IsChecked = true;
+                    break;
+
+                default:
+                    ScopeGlobal.IsChecked = true;
+                    break;
+            }
+        }
+
         private void ScopeRadioChecked(object sender, RoutedEventArgs e)
         {
             if(ScopeGlobal.IsChecked.Value)
             {
+                ViewModel.Scope = EScope.Global;
+
                 TenantLabel.Visibility = Visibility.Collapsed;
                 TenantField.Visibility = Visibility.Collapsed;
-                TenantId = Guid.Empty;
+                ViewModel.TenantId = Guid.Empty;
 
                 SiteLabel.Visibility = Visibility.Collapsed;
                 SiteField.Visibility = Visibility.Collapsed;
-                SiteId = Guid.Empty;
+                ViewModel.SiteId = Guid.Empty;
             }
             else if(ScopeTenant.IsChecked.Value)
             {
+                ViewModel.Scope = EScope.Tenant;
+
                 TenantLabel.Visibility = Visibility.Visible;
                 TenantField.Visibility = Visibility.Visible;
-                TenantId = Guid.Empty;
 
                 SiteLabel.Visibility = Visibility.Collapsed;
                 SiteField.Visibility = Visibility.Collapsed;
-                SiteId = Guid.Empty;
+                ViewModel.SiteId = Guid.Empty;
             }
             else if(ScopeSite.IsChecked.Value)
             {
+                ViewModel.Scope = EScope.Site;
+
                 TenantLabel.Visibility = Visibility.Visible;
                 TenantField.Visibility = Visibility.Visible;
 
                 SiteLabel.Visibility = Visibility.Visible;
                 SiteField.Visibility = Visibility.Visible;
-                SiteId = Guid.Empty;
             }
+
+            Validate();
         }
 
         private void OperationChanged()
@@ -176,92 +156,36 @@
             {
                 case FormOperation.Add:
                     FormHeadingLabel.Text = "Add profile";
+
+                    ScopeGlobal.IsEnabled = true;
+                    ScopeTenant.IsEnabled = true;
+                    ScopeSite.IsEnabled = true;
+                    TenantField.IsEnabled = true;
+                    SiteField.IsEnabled = true;
+
                     break;
 
                 case FormOperation.Edit:
                     FormHeadingLabel.Text = "Edit profile";
+
+                    ScopeGlobal.IsEnabled = false;
+                    ScopeTenant.IsEnabled = false;
+                    ScopeSite.IsEnabled = false;
+                    TenantField.IsEnabled = false;
+                    SiteField.IsEnabled = false;
+
                     break;
             }
         }
 
         public void ClearForm()
         {
-            ProfileName = string.Empty;
-            AuthenticationMethod = Model.EAuthenticationMethod.NoAuthentication;
-            Username = string.Empty;
-            Password = string.Empty;
-            ScopeGlobal.IsChecked = true;
-            TenantId = Guid.Empty;
-            SiteId = Guid.Empty;
-            Notes = string.Empty;
-        }
-
-        private void AuthenticationProfileChanged()
-        {
-            if (AuthenticationProfile == null)
-            {
-                ClearForm();
-                return;
-            }
-
-            ProfileName = AuthenticationProfile.Name.BlankIfNull();
-            AuthenticationMethod = AuthenticationProfile.AuthenticationMethod;
-            Username = AuthenticationProfile.Username.BlankIfNull();
-            Password = AuthenticationProfile.Password.BlankIfNull();
-            Notes = AuthenticationProfile.Notes.BlankIfNull();
-
-            Model.Tenant tenant;
-            Model.Site site;
-            if ((tenant = Model.Context.Current.Tenants.SingleOrDefault(x => x.Id == AuthenticationProfile.ParentId)) != null)
-            {
-                ScopeTenant.IsChecked = true;
-                TenantId = tenant.Id;
-                SiteId = Guid.Empty;
-            }
-            else if((site = Model.Context.Current.Sites.SingleOrDefault(x => x.Id == AuthenticationProfile.ParentId)) != null)
-            {
-                ScopeSite.IsChecked = true;
-                TenantId = site.TenantId;
-                SiteId = site.Id;
-            }
-            else
-            {
-                ScopeGlobal.IsChecked = true;
-                TenantId = Guid.Empty;
-                SiteId = Guid.Empty;
-            }
-        }
-
-        private bool IsDirty()
-        {
-            return
-                AuthenticationProfile == null ||
-                !(
-                    ProfileName == AuthenticationProfile.Name.BlankIfNull() &&
-                    AuthenticationMethod == AuthenticationProfile.AuthenticationMethod &&
-                    Username == AuthenticationProfile.Username.BlankIfNull() &&
-                    Password == AuthenticationProfile.Password.BlankIfNull() &&
-                    Notes == AuthenticationProfile.Notes.BlankIfNull() &&
-                    (
-                        (
-                            ScopeGlobal.IsChecked.Value &&
-                            AuthenticationProfile.ParentId == Guid.Empty
-                        ) ||
-                        (
-                            ScopeTenant.IsChecked.Value &&
-                            TenantId == AuthenticationProfile.ParentId
-                        ) ||
-                        (
-                            ScopeSite.IsChecked.Value &&
-                            SiteId == AuthenticationProfile.ParentId
-                        )
-                    )
-                );
+            ViewModel.Clear();
         }
 
         private void AuthenticationMethodChanged()
         {
-            switch (AuthenticationMethod)
+            switch (ViewModel.AuthenticationMethod)
             {
                 case Model.EAuthenticationMethod.UsernamePassword:
                     UsernameLabel.Visibility = Visibility.Visible;
@@ -288,59 +212,61 @@
 
         private void DoneButton_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
-            if (Operation == FormOperation.Add)
-            {
-                OnAuthenticationProfileChanged?.Invoke(
+            // TODO : throw on validation error here.
+
+            ViewModel.Commit();
+
+            OnAuthenticationProfileChanged?.Invoke(
                     this,
                     new AuthenticationProfileChangedEventArgs
                     {
-                        Operation = FormOperation.Add,
-                        AuthenticationProfile = new Model.AuthenticationProfile
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = ProfileName,
-                            AuthenticationMethod = AuthenticationMethod,
-                            Username = Username,
-                            Password = Password,
-                            Notes = Notes,
-                            ParentId =
-                                ScopeTenant.IsChecked.Value ? TenantId :
-                                ScopeSite.IsChecked.Value ? SiteId :
-                                Guid.Empty
-                        }
+                        Operation = ViewModel.Operation,
+                        AuthenticationProfile = ViewModel.AuthenticationProfile
                     }
-                    );
+                );
 
-                Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                AuthenticationProfile.Name = ProfileName;
-                AuthenticationProfile.AuthenticationMethod = AuthenticationMethod;
-                AuthenticationProfile.Username = Username;
-                AuthenticationProfile.Password = Password;
-                AuthenticationProfile.Notes = Notes;
-                AuthenticationProfile.ParentId =
-                    ScopeTenant.IsChecked.Value ? TenantId :
-                    ScopeSite.IsChecked.Value ? SiteId :
-                    Guid.Empty;
-
-                OnAuthenticationProfileChanged?.Invoke(
-                    this,
-                    new AuthenticationProfileChangedEventArgs
-                    {
-                        Operation = FormOperation.Edit,
-                        AuthenticationProfile = AuthenticationProfile
-                    }
-                    );
-
-                Visibility = Visibility.Collapsed;
-            }
+            Visibility = Visibility.Collapsed;
         }
 
         private void CancelButton_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
             Visibility = Visibility.Collapsed;
+        }
+
+        private bool UpdateIsValid(ValidityState state)
+        {
+            var namedObjects = AllValidationRectangles.Where(x => x.PropertyName == state.Name);
+            foreach (var namedObject in namedObjects)
+                namedObject.IsValid = state.IsValid;
+
+            return state.IsValid;
+        }
+
+        public bool Validate()
+        {
+            var isValid = true;
+
+            var items = ViewModel.Validate();
+            foreach (var item in items)
+                if (!UpdateIsValid(item))
+                    isValid = false;
+
+            return isValid;
+        }
+
+        internal static void FindChildren<T>(List<T> results, DependencyObject startNode) where T : DependencyObject
+        {
+            int count = VisualTreeHelper.GetChildrenCount(startNode);
+            for (int i = 0; i < count; i++)
+            {
+                DependencyObject current = VisualTreeHelper.GetChild(startNode, i);
+                if ((current.GetType()).Equals(typeof(T)) || (current.GetType().GetTypeInfo().IsSubclassOf(typeof(T))))
+                {
+                    T asType = (T)current;
+                    results.Add(asType);
+                }
+                FindChildren(results, current);
+            }
         }
     }
 }

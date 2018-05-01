@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="using:VtNetCore.UWP.App"
+    xmlns:controls="using:VtNetCore.UWP.App.Controls"
     xmlns:converters="using:VtNetCore.UWP.App.Converters"
     xmlns:model="using:VtNetCore.UWP.App.Model"
     mc:Ignorable="d"
@@ -23,65 +24,128 @@
             <TextBlock x:Name="FormHeadingLabel" Text="Add profile" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Left" />
 
             <TextBlock x:Name="NameLabel" Text="Name:" Margin="0,12,0,0" />
-            <TextBox x:Name="NameField" Text="{x:Bind ProfileName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <Grid HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <controls:ValidationRectangle Width="5" PropertyName="ProfileName" />
+                <TextBox x:Name="NameField" Text="{x:Bind ViewModel.ProfileName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" />
+            </Grid>
 
-            <TextBlock x:Name="AuthenticationMethodLabel" Text="Authentication method" />
-            <ComboBox
+            <TextBlock x:Name="AuthenticationMethodLabel" Text="Authentication method" Margin="0,12,0,0" />
+            <Grid HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <controls:ValidationRectangle Width="5" PropertyName="AuthenticationMethod" />
+                <ComboBox
                     x:Name="AuthenticationMethodField"
                     ItemsSource="{x:Bind local:AuthenticationMethod.ProfileAuthenticationMethods}"
                     HorizontalAlignment="Stretch"
-                    SelectedItem="{x:Bind AuthenticationMethod, Mode=TwoWay, Converter={StaticResource AuthenticationMethodItemConverter} }" 
+                    SelectedItem="{x:Bind ViewModel.AuthenticationMethod, Mode=TwoWay, Converter={StaticResource AuthenticationMethodItemConverter} }" 
+                    Grid.Column="1"
                     />
+            </Grid>
 
-            <TextBlock x:Name="UsernameLabel" Text="Username" />
-            <TextBox x:Name="UsernameField" Text="{x:Bind Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock x:Name="UsernameLabel" Text="Username" Visibility="Collapsed" Margin="0,12,0,0" />
+            <Grid HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <controls:ValidationRectangle Width="5" PropertyName="Username" />
+                <TextBox
+                    x:Name="UsernameField"
+                    Visibility="Collapsed"
+                    Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Grid.Column="1"
+                    />
+            </Grid>
 
-            <TextBlock x:Name="PasswordLabel" Text="Password" />
-            <PasswordBox x:Name="PasswordField" Password="{x:Bind Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock x:Name="PasswordLabel" Text="Password" Visibility="Collapsed" Margin="0,12,0,0" />
+            <Grid HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <controls:ValidationRectangle Width="5" PropertyName="Password" />
+                <PasswordBox
+                    x:Name="PasswordField"
+                    Visibility="Collapsed"
+                    Password="{x:Bind ViewModel.Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Grid.Column="1"
+                    />
+            </Grid>
 
-            <TextBlock x:Name="AssignToScopeLabel" Text="Assign to scope" />
-            <RadioButton x:Name="ScopeGlobal" IsChecked="True" Content="Global" GroupName="AssignToScope" />
-            <RadioButton x:Name="ScopeTenant" Content="Tenant" GroupName="AssignToScope" />
-            <RadioButton x:Name="ScopeSite" Content="Site" GroupName="AssignToScope" />
+            <TextBlock x:Name="AssignToScopeLabel" Text="Assign to scope" Margin="0,12,0,0" />
+            <RadioButton x:Name="ScopeGlobal" IsChecked="True" Content="Global" GroupName="AssignToScope" Margin="0,6,0,0" />
+            <RadioButton x:Name="ScopeTenant" Content="Tenant" GroupName="AssignToScope" Margin="0,6,0,0" />
+            <RadioButton x:Name="ScopeSite" Content="Site" GroupName="AssignToScope" Margin="0,6,0,0" />
 
-            <TextBlock x:Name="TenantLabel" Text="Tenant" Visibility="Collapsed" />
-            <ComboBox
-                x:Name="TenantField"
-                HorizontalAlignment="Stretch"
-                Visibility="Collapsed"
-                SelectedItem="{x:Bind TenantId, Mode=TwoWay, Converter={StaticResource TenantIdItemConverter}}"
-                ItemsSource="{x:Bind Tenants, Mode=OneWay}"
-                >
-                <ComboBox.ItemTemplate>
-                    <DataTemplate x:DataType="model:Tenant">
-                        <TextBlock Text="{Binding Name}" />
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
+            <TextBlock x:Name="TenantLabel" Text="Tenant" Visibility="Collapsed" Margin="0,12,0,0" />
+            <Grid HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <controls:ValidationRectangle Width="5" PropertyName="TenantId" />
+                <ComboBox
+                    x:Name="TenantField"
+                    HorizontalAlignment="Stretch"
+                    Visibility="Collapsed"
+                    SelectedItem="{x:Bind ViewModel.TenantId, Mode=TwoWay, Converter={StaticResource TenantIdItemConverter}}"
+                    ItemsSource="{x:Bind Tenants, Mode=OneWay}"
+                    Grid.Column="1"
+                    >
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="model:Tenant">
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </Grid>
 
-            <TextBlock x:Name="SiteLabel" Text="Site" Visibility="Collapsed" />
-            <ComboBox
-                x:Name="SiteField"
-                HorizontalAlignment="Stretch"
-                Visibility="Collapsed"
-                SelectedItem="{x:Bind SiteId, Mode=TwoWay, Converter={StaticResource SiteIdItemConverter}}"
-                ItemsSource="{x:Bind Sites}"
-                >
-                <ComboBox.ItemTemplate>
-                    <DataTemplate x:DataType="model:Site">
-                        <TextBlock Text="{Binding Name}" />
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
+            <TextBlock x:Name="SiteLabel" Text="Site" Visibility="Collapsed" Margin="0,12,0,0" />
+            <Grid HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <controls:ValidationRectangle Width="5" PropertyName="SiteId" />
+                <ComboBox
+                    x:Name="SiteField"
+                    HorizontalAlignment="Stretch"
+                    Visibility="Collapsed"
+                    SelectedItem="{x:Bind ViewModel.SiteId, Mode=TwoWay, Converter={StaticResource SiteIdItemConverter}}"
+                    ItemsSource="{x:Bind Sites}"
+                    Grid.Column="1"
+                    >
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="model:Site">
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </Grid>
 
-            <TextBlock x:Name="NotesLabel" Text="Notes" />
-            <TextBox
-                x:Name="NotesField"
-                TextWrapping="Wrap"
-                AcceptsReturn="True"
-                MinHeight="80"
-                Text="{x:Bind Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                />
+            <TextBlock x:Name="NotesLabel" Text="Notes:" Margin="0,12,0,0" />
+            <Grid HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <controls:ValidationRectangle Width="5" PropertyName="Notes" />
+                <TextBox
+                    x:Name="NotesField"
+                    TextWrapping="Wrap"
+                    AcceptsReturn="True"
+                    MinHeight="80"
+                    Text="{x:Bind ViewModel.Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Grid.Column="1"
+                    />
+            </Grid>
 
             <Grid>
                 <Grid.ColumnDefinitions>
