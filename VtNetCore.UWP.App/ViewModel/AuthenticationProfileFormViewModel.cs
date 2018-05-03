@@ -101,17 +101,14 @@
             }
             set
             {
-                Model.Site site;
-
                 if(Model.Context.Current.Tenants.SingleOrDefault(x => x.Id == value) != null)
                 {
                     Scope = EScope.Tenant;
                     TenantId = value;
                     SiteId = Guid.Empty;
                 }
-                else if((site = Model.Context.Current.Sites.SingleOrDefault(x => x.Id == value)) != null)
+                else if(Model.Context.Current.Sites.TrySingle(x => x.Id == value, out var site))
                 {
-                    // TODO : Make a .TrySingle() function
                     Scope = EScope.Site;
                     TenantId = site.TenantId;
                     SiteId = value;

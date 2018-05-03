@@ -11,9 +11,7 @@
             if (!(value is Guid))
                 return null;
 
-            var siteId = (Guid)value;
-
-            return Model.Context.Current.Sites.SingleOrDefault(x => x.Id == siteId);
+            return Model.Context.Current.Sites.SingleOrDefault(x => x.Id == (Guid)value);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

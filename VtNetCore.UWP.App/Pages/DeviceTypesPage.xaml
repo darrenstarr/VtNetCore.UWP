@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:VtNetCore.UWP.App.Converters"
     xmlns:model="using:VtNetCore.UWP.App.Model"
+    xmlns:controls="using:VtNetCore.UWP.App.Controls"
     mc:Ignorable="d"
     >
 
@@ -70,20 +71,6 @@
             </Grid>
         </Border>
 
-        <!-- Top right box, edit form heading -->
-        <Grid BorderThickness="2,2,2,2" Grid.Column="1">
-            <TextBlock
-                x:Name="DeviceTypeFormHeading"
-                Margin="16,0,0,0"
-                Text="Edit"
-                VerticalAlignment="Bottom"
-                FontSize="23"
-                FontWeight="Light"
-                Foreground="White"
-                Visibility="Collapsed"
-                />
-        </Grid>
-
         <!-- Device Type list -->
         <Border BorderThickness="2,2,2,2" Grid.Row="1" Margin="0 -2 0 0">
             <ListView
@@ -120,59 +107,11 @@
         </Border>
 
         <!-- Input form -->
-        <Border
+        <controls:DeviceTypePropertiesForm
             x:Name="DeviceTypeForm"
-            BorderThickness="0,0,2,2"
             Grid.Column="1"
-            Grid.Row="1"
+            Grid.RowSpan="2"
             Visibility="Collapsed"
-            >
-
-            <ScrollViewer>
-                <StackPanel Padding="2,2,20,2">
-                    <TextBlock x:Name="DeviceTypeNameLabel" Text="Name" />
-                    <TextBox x:Name="DeviceTypeNameField" TextChanged="FormTextChanged" />
-
-                    <TextBlock x:Name="DeviceTypeClassLabel" Text="Device class" />
-                    <ComboBox
-                        x:Name="DeviceTypeClassField"
-                        HorizontalAlignment="Stretch"
-                        ItemsSource="{x:Bind model:DeviceClass.Classes}"
-                        SelectedItem="{x:Bind SelectedDeviceTypeClass, Converter={StaticResource DeviceClassGuidItemConverter}, Mode=TwoWay}"
-                        SelectionChanged="DeviceTypeClassField_SelectionChanged"
-                        >
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate x:DataType="model:DeviceClass">
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="{Binding Converter={StaticResource DeviceClassIconItemConverter}}" Width="48" Height="48" />
-                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
-
-                    <TextBlock x:Name="DeviceTypeVendorLabel" Text="Vendor" Margin="0,12,0,0" />
-                    <TextBox x:Name="DeviceTypeVendorField" TextChanged="FormTextChanged" />
-
-                    <TextBlock x:Name="DeviceTypeModelLabel" Text="Model" Margin="0,12,0,0" />
-                    <TextBox x:Name ="DeviceTypeModelField" TextChanged="FormTextChanged" />
-
-                    <CheckBox x:Name="DeviceTypeEndOfSaleCheckBox" Content="End of sale scheduled?" Margin="0,12,0,0" Checked="DeviceTypeEndOfSaleCheckbox_Checked" Unchecked="DeviceTypeEndOfSaleCheckbox_Checked" />
-                    <DatePicker x:Name="DeviceTypeEndOfSaleField" Visibility="Collapsed" DateChanged="FormDateChanged" />
-
-                    <CheckBox x:Name="DeviceTypeEndOfSupportCheckBox" Content="End of support scheduled?" Margin="0,12,0,0" Checked="DeviceTypeEndOfSupportCheckBox_Checked" Unchecked="DeviceTypeEndOfSupportCheckBox_Checked" />
-                    <DatePicker x:Name="DeviceTypeEndOfSupportField" Visibility="Collapsed" DateChanged="FormDateChanged" />
-
-                    <TextBlock x:Name="DeviceTypeNotesLabel" Text="Notes:" Margin="0,12,0,0" />
-                    <TextBox x:Name="DeviceTypeNotesField" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="80" TextChanged="FormTextChanged" />
-
-                    <StackPanel Orientation="Horizontal" Margin="25 10 0 0" >
-                        <Button x:Name="SaveDeviceTypeButton" Content="Save" Margin="5" Tapped="SaveDeviceTypeButton_Tapped" />
-                        <Button x:Name="ResetDeviceTypeFormButton" Content="Reset" Margin="20 0 0 0" Tapped="ResetDeviceTypeFormButton_Tapped" />
-                        <Button x:Name="CancelDeviceTypeChangesButton" Content="Cancel" Margin="20 0 0 0" Tapped="CancelDeviceTypeChangesButton_Tapped" />
-                    </StackPanel>
-                </StackPanel>
-            </ScrollViewer>
-        </Border>
+            />
     </Grid>
 </Page>

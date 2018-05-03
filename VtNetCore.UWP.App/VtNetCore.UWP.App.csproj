@@ -19,7 +19,7 @@
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <PackageCertificateKeyFile>VtNetCore.UWP.App_TemporaryKey.pfx</PackageCertificateKeyFile>
     <BuildForLiveUnitTesting>false</BuildForLiveUnitTesting>
-    <PackageCertificateThumbprint>2FB42009057AC08A64A316D599DDC883DF38F5F9</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>8AEEB65CD577E91C9F033D14159A667D8AA13F24</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -106,12 +106,18 @@
     <Compile Include="Controls\DevicePropertiesForm.xaml.cs">
       <DependentUpon>DevicePropertiesForm.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\DeviceTypePropertiesForm.xaml.cs">
+      <DependentUpon>DeviceTypePropertiesForm.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\FormOperation.cs" />
     <Compile Include="Controls\SitePropertiesForm.xaml.cs">
       <DependentUpon>SitePropertiesForm.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\TenantPropertiesForm.xaml.cs">
       <DependentUpon>TenantPropertiesForm.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ValidatedTextField.xaml.cs">
+      <DependentUpon>ValidatedTextField.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\ValidationRectangle.xaml.cs">
       <DependentUpon>ValidationRectangle.xaml</DependentUpon>
@@ -151,6 +157,7 @@
     <Compile Include="Model\DeviceType.cs" />
     <Compile Include="Model\EAuthenticationMethod.cs" />
     <Compile Include="Model\ObjectStoreContext.cs" />
+    <Compile Include="Utility\Helpers\CollectionTrySingle.cs" />
     <Compile Include="Utility\Helpers\PropertyChangeAndNotify.cs" />
     <Compile Include="Model\Site.cs" />
     <Compile Include="Model\Tenant.cs" />
@@ -162,6 +169,7 @@
     <Compile Include="ViewModel\DevicePropertiesFormViewModel.cs" />
     <Compile Include="ViewModel\AuthenticationProfilesViewModel\AuthenticationProfilesViewModel.cs" />
     <Compile Include="ViewModel\AuthenticationProfilesViewModel\Owner.cs" />
+    <Compile Include="ViewModel\DeviceTypePropertiesFormViewModel.cs" />
     <Compile Include="ViewModel\EScope.cs" />
     <Compile Include="ViewModel\SitePropertiesFormViewModel.cs" />
     <Compile Include="ViewModel\TenantPropertiesFormViewModel.cs" />
@@ -265,11 +273,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\DeviceTypePropertiesForm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\SitePropertiesForm.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\TenantPropertiesForm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ValidatedTextField.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

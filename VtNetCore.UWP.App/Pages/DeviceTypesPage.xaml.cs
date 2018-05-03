@@ -2,256 +2,107 @@
 {
     using Microsoft.Toolkit.Uwp.UI;
     using System;
-    using System.ComponentModel;
     using System.Linq;
-    using System.Threading.Tasks;
-    using VtNetCore.UWP.App.Utility.Helpers;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
 
     public sealed partial class DeviceTypesPage : 
-        Page,
-        INotifyPropertyChanged
+        Page
     {
         public AdvancedCollectionView DeviceTypes = new AdvancedCollectionView(Model.Context.Current.DeviceTypes, true);
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private Guid _selectedDeviceTypeClass = Guid.Empty;
-        private Guid SelectedDeviceTypeClass
-        {
-            get => _selectedDeviceTypeClass;
-            set => PropertyChanged.ChangeAndNotify(ref _selectedDeviceTypeClass, value, () => SelectedDeviceTypeClass);
-        }
-
-        private Visibility _deviceTypeFormVisibility = Visibility.Collapsed;
-        private Visibility DeviceTypeFormVisibility
-        {
-            get => _deviceTypeFormVisibility;
-            set => PropertyChanged.ChangeAndNotify(ref _deviceTypeFormVisibility, value, () => DeviceTypeFormVisibility);
-        }
-
-        private bool _formDirty = false;
-        private bool FormDirty
-        {
-            get => _formDirty;
-            set => PropertyChanged.ChangeAndNotify(ref _formDirty, value, () => FormDirty);
-        }
-
-        private Model.DeviceType _currentDeviceType;
-        private Model.DeviceType CurrentDeviceType
-        {
-            get => _currentDeviceType;
-            set => PropertyChanged.ChangeAndNotify(ref _currentDeviceType, value, () => CurrentDeviceType);
-        }
 
         public DeviceTypesPage()
         {
             InitializeComponent();
 
-            PropertyChanged += DeviceTypesPage_PropertyChanged;
+            DeviceTypeForm.OnDeviceTypeChanged += DeviceTypeForm_OnDeviceTypeChanged;
+            DeviceTypeForm.OnCancelled += DeviceTypeForm_OnCancelled;
+            DeviceTypeForm.OnLockForm += DeviceTypeForm_OnLockForm;
 
-            DeviceTypes.Filter = x => { return ((Model.DeviceType)x).Id != Guid.Empty; };
+            DeviceTypes.Filter = x => { return ((Model.DeviceType)x).Id != default; };
         }
 
-        private void DeviceTypeEndOfSaleCheckbox_Checked(object sender, RoutedEventArgs e)
+        private void DeviceTypeForm_OnLockForm(object sender, Controls.DeviceTypePropertiesForm.IsDirtyEventArgs e)
         {
-            DeviceTypeEndOfSaleField.Visibility = DeviceTypeEndOfSaleCheckBox.IsChecked.Value ? Visibility.Visible : Visibility.Collapsed;
-
-            // TODO : For edit mode
-
-            var item = (Model.DeviceType)DeviceTypeList.SelectedItem;
-            FormDirty = FormChanged(item);
+            AddDeviceTypeButton.IsEnabled = !e.IsDirty;
+            RemoveDeviceTypeButton.IsEnabled = !e.IsDirty;
+            DeviceTypeList.IsEnabled = !e.IsDirty;
         }
 
-        private void DeviceTypeEndOfSupportCheckBox_Checked(object sender, RoutedEventArgs e)
+        private void DeviceTypeForm_OnCancelled(object sender, EventArgs e)
         {
-            DeviceTypeEndOfSupportField.Visibility = DeviceTypeEndOfSupportCheckBox.IsChecked.Value ? Visibility.Visible : Visibility.Collapsed;
-
-            // TODO : For edit mode
-
-            var item = (Model.DeviceType)DeviceTypeList.SelectedItem;
-            FormDirty = FormChanged(item);
+            DeviceTypeList.SelectedItem = null;
+            AddDeviceTypeButton.IsEnabled = true;
+            RemoveDeviceTypeButton.IsEnabled = true;
+            DeviceTypeList.IsEnabled = true;
         }
 
-        private bool FormChanged (Model.DeviceType other)
+        private async void DeviceTypeForm_OnDeviceTypeChanged(object sender, Controls.DeviceTypePropertiesForm.DeviceTypeChangedEventArgs e)
         {
-            return
-                other == null ||
-                !(
-                    other.Name.Equals(DeviceTypeNameField.Text) &&
-                    other.DeviceClassId.Equals((SelectedDeviceTypeClass == null) ? Guid.Empty : SelectedDeviceTypeClass) &&
-                    other.EndOfSale.Equals(DeviceTypeEndOfSaleCheckBox.IsChecked.Value ? DeviceTypeEndOfSaleField.Date : DateTimeOffset.MinValue) &&
-                    other.EndOfSupport.Equals(DeviceTypeEndOfSupportCheckBox.IsChecked.Value ? DeviceTypeEndOfSupportField.Date : DateTimeOffset.MinValue) &&
-                    other.Vendor.Equals(DeviceTypeVendorField.Text) &&
-                    other.Model.Equals(DeviceTypeModelField.Text) &&
-                    other.Notes.Equals(DeviceTypeNotesField.Text)
-                );
-        }
-
-        private async void DeviceTypeList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            await SaveBeforeContinuing();
-
-            if (DeviceTypeList.SelectedIndex == -1)
+            switch (e.Operation)
             {
-                DeviceTypeFormVisibility = Visibility.Collapsed;
+                case Controls.FormOperation.Add:
+                    Model.Context.Current.DeviceTypes.Add(e.DeviceType);
+
+                    AddDeviceTypeButton.IsEnabled = true;
+                    DeviceTypeList.IsEnabled = true;
+
+                    DeviceTypeList.SelectedItem = e.DeviceType;
+                    ActivateSelectedItem();
+                    break;
+
+                case Controls.FormOperation.Edit:
+                    await Model.Context.Current.SaveChanges(e.DeviceType);
+
+                    AddDeviceTypeButton.IsEnabled = true;
+                    DeviceTypeList.IsEnabled = true;
+
+                    DeviceTypeList.SelectedItem = e.DeviceType;
+                    ActivateSelectedItem();
+                    break;
+
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        private void DeviceTypeList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.FirstOrDefault() == DeviceTypeForm.DeviceType)
+                return;
+
+            if (DeviceTypeList.SelectedItem == null)
+            {
+                DeviceTypeForm.Visibility = Visibility.Collapsed;
                 return;
             }
 
-            CurrentDeviceType = (Model.DeviceType)e.AddedItems.First();
-            var item = CurrentDeviceType;
-
-            DeviceTypeFormHeading.Text = "Edit";
-
-            ResetForm();
-
-            DeviceTypeFormVisibility = Visibility.Visible;
+            ActivateSelectedItem();
         }
 
-        private async Task SaveBeforeContinuing()
+        private void ActivateSelectedItem()
         {
-            if (FormDirty)
-            {
-                var saveChangesDialog = new ContentDialog
-                {
-                    Title = "Save changes?",
-                    Content = "There are changes to the current entry. Would you like to save them before continuing",
-                    CloseButtonText = "No",
-                    PrimaryButtonText = "Yes"
-                };
+            DeviceTypeForm.Operation = Controls.FormOperation.Edit;
+            DeviceTypeForm.DeviceType = (Model.DeviceType)DeviceTypeList.SelectedItem;
 
-                var result = await saveChangesDialog.ShowAsync();
-                if (result == ContentDialogResult.Primary)
-                    await SaveChanges();
-            }
+            DeviceTypeForm.Visibility = Visibility.Visible;
+
+            RemoveDeviceTypeButton.IsEnabled = true;
         }
 
-        // Dirty code to fake bindings I can't get to work
-        private void DeviceTypesPage_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void AddDeviceTypeButton_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
-            switch(e.PropertyName)
-            {
-                case "DeviceTypeFormVisibility":
-                    DeviceTypeFormHeading.Visibility = DeviceTypeFormVisibility;
-                    DeviceTypeForm.Visibility = DeviceTypeFormVisibility;
-                    break;
+            DeviceTypeForm.Operation = Controls.FormOperation.Add;
 
-                case "FormDirty":
-                    SaveDeviceTypeButton.IsEnabled = FormDirty;
-                    AddDeviceTypeButton.IsEnabled = !FormDirty;
-                    DeviceTypeList.IsEnabled = !FormDirty;
-                    RemoveDeviceTypeButton.IsEnabled = !FormDirty && CurrentDeviceType != null;
-                    ResetDeviceTypeFormButton.IsEnabled = FormDirty;
-                    CancelDeviceTypeChangesButton.IsEnabled = (CurrentDeviceType == null || FormDirty);
-                    break;
+            DeviceTypeForm.DeviceType = null;
+            DeviceTypeForm.ClearForm();
 
-                case "CurrentDeviceType":
-                    RemoveDeviceTypeButton.IsEnabled = CurrentDeviceType != null;
-                    ResetDeviceTypeFormButton.IsEnabled = FormDirty;
-                    CancelDeviceTypeChangesButton.IsEnabled = (CurrentDeviceType == null || FormDirty);
-                    break;
-            }
-        }
-
-        private async Task SaveChanges()
-        {
-            var item = CurrentDeviceType;
-            if (item == null)
-                item = new Model.DeviceType { Id = Guid.NewGuid() };
-
-            if (CurrentDeviceType == null || FormChanged(item))
-            {
-                item.Name = DeviceTypeNameField.Text;
-                item.DeviceClassId = (SelectedDeviceTypeClass == null) ? Guid.Empty : SelectedDeviceTypeClass;
-                item.EndOfSale = DeviceTypeEndOfSaleCheckBox.IsChecked.Value ? DeviceTypeEndOfSaleField.Date : DateTimeOffset.MinValue;
-                item.EndOfSupport = DeviceTypeEndOfSupportCheckBox.IsChecked.Value ? DeviceTypeEndOfSupportField.Date : DateTimeOffset.MinValue;
-                item.Vendor = DeviceTypeVendorField.Text;
-                item.Model = DeviceTypeModelField.Text;
-                item.Notes = DeviceTypeNotesField.Text;
-
-                if (CurrentDeviceType == null)
-                    Model.Context.Current.DeviceTypes.Add(item);
-                else
-                    await Model.Context.Current.SaveChanges(item);
-
-                FormDirty = false;
-                DeviceTypeList.SelectedItem = item;
-            }
-        }
-
-        private async void SaveDeviceTypeButton_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
-        {
-            await SaveChanges();
-        }
-
-        private void FormTextChanged(object sender, TextChangedEventArgs e)
-        {
-            FormDirty = FormChanged(CurrentDeviceType);
-        }
-
-        private void FormDateChanged(object sender, DatePickerValueChangedEventArgs e)
-        {
-            FormDirty = FormChanged(CurrentDeviceType);
-        }
-
-        private void DeviceTypeClassField_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            FormDirty = FormChanged(CurrentDeviceType);
-        }
-
-        private void ResetForm()
-        {
-            if(CurrentDeviceType == null)
-            {
-                DeviceTypeFormHeading.Text = "Add";
-
-                DeviceTypeNameField.Text = string.Empty;
-                SelectedDeviceTypeClass = Guid.Empty;
-                DeviceTypeEndOfSaleCheckBox.IsChecked = false;
-                DeviceTypeEndOfSaleField.Date = DateTimeOffset.Now;
-                DeviceTypeEndOfSupportCheckBox.IsChecked = false;
-                DeviceTypeEndOfSupportField.Date = DateTimeOffset.Now;
-                DeviceTypeVendorField.Text = string.Empty;
-                DeviceTypeModelField.Text = string.Empty;
-                DeviceTypeNotesField.Text = string.Empty;
-
-                FormDirty = true;
-            }
-            else
-            {
-                var item = CurrentDeviceType;
-
-                DeviceTypeNameField.Text = item.Name.BlankIfNull();
-                SelectedDeviceTypeClass = item.DeviceClassId;
-                DeviceTypeEndOfSaleCheckBox.IsChecked = !(item.EndOfSale == null || item.EndOfSale.Equals(DateTimeOffset.MinValue));
-                DeviceTypeEndOfSaleField.Date = (item.EndOfSale == null || item.EndOfSale.Equals(DateTimeOffset.MinValue)) ? DateTimeOffset.Now : item.EndOfSale;
-                DeviceTypeEndOfSupportCheckBox.IsChecked = !(item.EndOfSupport == null || item.EndOfSupport.Equals(DateTimeOffset.MinValue));
-                DeviceTypeEndOfSupportField.Date = (item.EndOfSupport == null || item.EndOfSupport.Equals(DateTimeOffset.MinValue)) ? DateTimeOffset.Now : item.EndOfSupport;
-                DeviceTypeVendorField.Text = item.Vendor.BlankIfNull();
-                DeviceTypeModelField.Text = item.Model.BlankIfNull();
-                DeviceTypeNotesField.Text = item.Notes.BlankIfNull();
-
-                FormDirty = false;
-            }
-        }
-
-        private async void AddDeviceTypeButton_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
-        {
-            await SaveBeforeContinuing();
-
-            CurrentDeviceType = null;
-
-            DeviceTypeFormHeading.Text = "Add";
-
-            ResetForm();
-
-            DeviceTypeFormVisibility = Visibility.Visible;
+            DeviceTypeForm.Visibility = Visibility.Visible;
         }
 
         private async void RemoveDeviceTypeButton_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
-        {
-            if (CurrentDeviceType == null)
+        {            
+            if (DeviceTypeForm.DeviceType == null)
                 throw new InvalidOperationException("The remove device type button should not be enabled when there is no device type selected");
 
             var confirmDeletion = new ContentDialog
@@ -267,7 +118,7 @@
             {
                 try
                 {
-                    Model.Context.Current.RemoveDeviceType(CurrentDeviceType);
+                    Model.Context.Current.RemoveDeviceType(DeviceTypeForm.DeviceType);
                 }
                 catch(InvalidOperationException ex)
                 {
@@ -285,48 +136,10 @@
                     return;
                 }
 
-                CurrentDeviceType = null;
-                FormDirty = false;
+                DeviceTypeForm.DeviceType = null;
 
-                DeviceTypeFormVisibility = Visibility.Collapsed;
+                DeviceTypeForm.Visibility = Visibility.Collapsed;
             }
-        }
-
-        private async void CancelDeviceTypeChangesButton_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
-        {
-            var abandonChangesDialog = new ContentDialog
-            {
-                Title = "Abandon changes?",
-                Content = "There are changes to the current entry. Are you sure you wish to abandon them?",
-                SecondaryButtonText = "Yes",
-                PrimaryButtonText = "No"
-            };
-
-            var result = await abandonChangesDialog.ShowAsync();
-            if (result == ContentDialogResult.Primary)
-                return;
-
-            CurrentDeviceType = null;
-            FormDirty = false;
-
-            DeviceTypeFormVisibility = Visibility.Collapsed;
-        }
-
-        private async void ResetDeviceTypeFormButton_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
-        {
-            var abandonChangesDialog = new ContentDialog
-            {
-                Title = "Abandon changes?",
-                Content = "There are changes to the current entry. Are you sure you wish to abandon them?",
-                SecondaryButtonText = "Yes",
-                PrimaryButtonText = "No"
-            };
-
-            var result = await abandonChangesDialog.ShowAsync();
-            if (result == ContentDialogResult.Primary)
-                return;
-
-            ResetForm();
         }
     }
 }

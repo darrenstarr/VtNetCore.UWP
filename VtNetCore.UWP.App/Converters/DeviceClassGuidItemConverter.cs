@@ -8,9 +8,7 @@
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            Guid id = (Guid)value;
-
-            return Model.DeviceClass.Classes.SingleOrDefault(x => x.Id == id);
+            return Model.DeviceClass.Classes.SingleOrDefault(x => x.Id == (Guid)value);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

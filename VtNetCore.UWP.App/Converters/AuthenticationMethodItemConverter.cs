@@ -1,7 +1,7 @@
 ﻿namespace VtNetCore.UWP.App.Converters
 {
     using System;
-    using System.Linq;
+    using VtNetCore.UWP.App.Utility.Helpers;
     using Windows.UI.Xaml.Data;
 
     public class AuthenticationMethodItemConverter : IValueConverter
@@ -10,8 +10,7 @@
         {
             if (value is Model.EAuthenticationMethod)
             {
-                var result = AuthenticationMethod.DeviceAuthenticationMethods.SingleOrDefault(x => x.Method == ((Model.EAuthenticationMethod)value));
-                if (result == null)
+                if(!AuthenticationMethod.DeviceAuthenticationMethods.TrySingle(x => x.Method == ((Model.EAuthenticationMethod)value), out var result))
                     throw new ArgumentOutOfRangeException("value", "Unknown authentication method");
 
                 return result;

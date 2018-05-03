@@ -10,6 +10,12 @@
 
     public class UwpObjectStore : ObjectStore
     {
+        private static JsonSerializerSettings JsonSerializationSettings = new JsonSerializerSettings
+        {
+            DateTimeZoneHandling = DateTimeZoneHandling.Utc,
+            Formatting = Formatting.Indented
+        };
+
         public override void WriteObject(string folderPath, object toWrite)
         {
             var scheme = folderPath.Split(":").First();
@@ -78,7 +84,7 @@
             var idValue = (Guid)idProperty.GetValue(toWrite);
 
             // Convert the object to JSON
-            var jsonText = JsonConvert.SerializeObject(toWrite);
+            var jsonText = JsonConvert.SerializeObject(toWrite, JsonSerializationSettings);
 
             // Create the folder relative to the local data path for the UWP app.
             var localFolder = ApplicationData.Current.LocalFolder;

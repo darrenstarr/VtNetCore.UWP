@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using VtNetCore.UWP.App.Utility.Helpers;
     using Windows.UI;
     using Windows.UI.Xaml.Data;
     using Windows.UI.Xaml.Media;
@@ -26,14 +27,14 @@
 
             var destinationUri = new Uri(device.Destination);
 
-            var terminal = Terminals.Instance
+            if(!Terminals.Instance
                 .Where(x => x.Connection.Destination.Equals(destinationUri))
-                .SingleOrDefault();
+                .TrySingle(out var terminal))
+            {
+                return terminal.IsConnected ? GreenBrush : RedBrush;
+            }
 
-            if (terminal == null)
-                return RedBrush;
-
-            return terminal.IsConnected ? GreenBrush : RedBrush;
+            return RedBrush;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

@@ -8,14 +8,14 @@
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public Guid _id;
-        public string _name;
-        public string _vendor;
-        public string _model;
-        public DateTimeOffset _endOfSale;
-        public DateTimeOffset _endOfSupport;
-        public string _notes;
-        public Guid _deviceClassId = Guid.Empty;
+        private Guid _id;
+        private string _name;
+        private string _vendor;
+        private string _model;
+        private DateTimeOffset _endOfSale;
+        private DateTimeOffset _endOfSupport;
+        private string _notes;
+        private Guid _deviceClassId = Guid.Empty;
 
         public override int GetHashCode()
         {

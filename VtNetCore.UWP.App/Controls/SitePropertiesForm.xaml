@@ -37,7 +37,11 @@
                 <controls:ValidationRectangle Width="5" PropertyName="Location" />
                 <TextBox
                     x:Name="LocationField"
-                    Text="{x:Bind ViewModel.Location, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1"
+                    TextWrapping="Wrap"
+                    AcceptsReturn="True"
+                    MinHeight="80"
+                    Text="{x:Bind ViewModel.Location, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Grid.Column="1"
                     />
             </Grid>
 

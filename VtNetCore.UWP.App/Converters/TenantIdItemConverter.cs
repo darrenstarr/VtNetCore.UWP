@@ -11,9 +11,7 @@
             if (!(value is Guid))
                 return null;
 
-            var tenantId = (Guid)value;
-
-            return Model.Context.Current.Tenants.SingleOrDefault(x => x.Id == tenantId);
+            return Model.Context.Current.Tenants.SingleOrDefault(x => x.Id == (Guid)value);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)
