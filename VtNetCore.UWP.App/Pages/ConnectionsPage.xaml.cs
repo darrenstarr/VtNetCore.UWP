@@ -60,10 +60,11 @@
 
             if (newlySelectedDevice == null)
             {
-                ConnectToDeviceButton.Visibility = Visibility.Collapsed;
-                DisconnectToDeviceButton.Visibility = Visibility.Collapsed;
+                //ConnectToDeviceButton.Visibility = Visibility.Collapsed;
+                //DisconnectToDeviceButton.Visibility = Visibility.Collapsed;
 
                 DisconnectToDeviceButton.IsEnabled = false;
+                ConnectToDeviceButton.IsEnabled = false;
                 RemoveDeviceButton.IsEnabled = false;
                 EditDeviceButton.IsEnabled = false;
                 return;
@@ -71,6 +72,9 @@
 
             ConnectToDeviceButton.Visibility = Visibility.Visible;
             DisconnectToDeviceButton.Visibility = Visibility.Visible;
+
+            ConnectToDeviceButton.IsEnabled = !newlySelectedDevice.Connected;
+            DisconnectToDeviceButton.IsEnabled = newlySelectedDevice.Connected;
 
             var newBinding = new Binding
             {

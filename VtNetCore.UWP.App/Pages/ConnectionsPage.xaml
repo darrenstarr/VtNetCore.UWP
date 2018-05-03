@@ -96,8 +96,8 @@
                 </Grid>
 
                 <CommandBar x:Name="DevicesCommandBar" Grid.Row="4" Visibility="Collapsed">
-                    <AppBarButton x:Name="ConnectToDeviceButton" Icon="Phone" Label="Connect" Tapped="ConnectToDeviceButton_Tapped" />
-                    <AppBarButton x:Name="DisconnectToDeviceButton" Icon="HangUp" Label="Disconnect" Tapped="DisconnectToDeviceButton_Tapped" />
+                    <AppBarButton x:Name="ConnectToDeviceButton" Icon="Phone" Label="Connect" Tapped="ConnectToDeviceButton_Tapped" IsEnabled="False" />
+                    <AppBarButton x:Name="DisconnectToDeviceButton" Icon="HangUp" Label="Disconnect" Tapped="DisconnectToDeviceButton_Tapped" IsEnabled="False" />
                     <AppBarButton x:Name="AddDeviceButton" Icon="Add" Label="New" Tapped="AddDeviceButton_Tapped" />
                     <AppBarButton x:Name="EditDeviceButton" Icon="Edit" Label="Edit" IsEnabled="False" Tapped="EditDeviceButton_Tapped" />
                     <CommandBar.SecondaryCommands>
