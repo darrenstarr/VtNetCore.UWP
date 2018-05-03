@@ -60,6 +60,9 @@
             ScopeGlobal.Checked += ScopeRadioChecked;
             ScopeTenant.Checked += ScopeRadioChecked;
             ScopeSite.Checked += ScopeRadioChecked;
+
+            // Make sure appropriate items are visible for the given authentication method
+            AuthenticationMethodChanged();
         }
 
         private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -83,9 +86,10 @@
                     break;
             }
 
-            Validate();
+            if (!(e.PropertyName == "IsValid" || e.PropertyName == "IsDirty"))
+                Validate();
 
-            DoneButton.IsEnabled = ViewModel.IsDirty;
+            DoneButton.IsEnabled = ViewModel.IsValid && ViewModel.IsDirty;
         }
 
         private void TenantIdChanged()
@@ -237,7 +241,10 @@
         {
             var namedObjects = AllValidationRectangles.Where(x => x.PropertyName == state.Name);
             foreach (var namedObject in namedObjects)
+            {
                 namedObject.IsValid = state.IsValid;
+                namedObject.IsChanged = state.IsChanged;
+            }
 
             return state.IsValid;
         }

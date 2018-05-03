@@ -16,13 +16,19 @@
 
         public EScope _scope = EScope.Global;
 
-        private string _profileName;
+        private string _profileName = string.Empty;
         private Model.EAuthenticationMethod _authenticationMethod = Model.EAuthenticationMethod.UsernamePassword;
-        private string _username;
-        private string _password;
-        private Guid _tenantId;
-        private Guid _siteId;
-        private string _notes;
+        private string _username = string.Empty;
+        private string _password = string.Empty;
+        private Guid _tenantId = Guid.Empty;
+        private Guid _siteId = Guid.Empty;
+        private string _notes = string.Empty;
+
+        private Guid ProfileTenantId { get; set; } = Guid.Empty;
+        private Guid ProfileSiteId { get; set; } = Guid.Empty;
+
+        private bool _isValid;
+        private bool _isDirty;
 
         public FormOperation Operation
         {
@@ -122,6 +128,18 @@
             }
         }
 
+        public bool IsDirty
+        {
+            get => _isDirty;
+            set => PropertyChanged.ChangeAndNotify(ref _isDirty, value, () => IsDirty);
+        }
+
+        public bool IsValid
+        {
+            get => _isValid;
+            set => PropertyChanged.ChangeAndNotify(ref _isValid, value, () => IsValid);
+        }
+
         public void Clear()
         {
             ProfileName = string.Empty;
@@ -130,6 +148,11 @@
             Password = string.Empty;
             ParentId = Guid.Empty;
             Notes = string.Empty;
+
+            ProfileTenantId = Guid.Empty;
+            ProfileSiteId = Guid.Empty;
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsDirty"));
         }
 
         private void AuthenticationProfileChanged()
@@ -146,23 +169,11 @@
             Password = AuthenticationProfile.Password.BlankIfNull();
             Notes = AuthenticationProfile.Notes.BlankIfNull();
             ParentId = AuthenticationProfile.ParentId;
-        }
 
-        public bool IsDirty
-        {
-            get
-            {
-                return 
-                    AuthenticationProfile == null ||
-                    !(
-                      ProfileName == AuthenticationProfile.Name.BlankIfNull() &&
-                      AuthenticationMethod == AuthenticationProfile.AuthenticationMethod &&
-                      Username == AuthenticationProfile.Username.BlankIfNull() &&
-                      Password == AuthenticationProfile.Password.BlankIfNull() &&
-                      Notes == AuthenticationProfile.Notes.BlankIfNull() &&
-                      ParentId == AuthenticationProfile.ParentId
-                    );
-            }
+            ProfileTenantId = TenantId;
+            ProfileSiteId = SiteId;
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsDirty"));
         }
 
         public void Commit()
@@ -172,113 +183,189 @@
                 AuthenticationProfile = new Model.AuthenticationProfile
                 {
                     Id = Guid.NewGuid(),
-                    Name = ProfileName,
+                    Name = ProfileName.TrimEnd(),
                     AuthenticationMethod = AuthenticationMethod,
-                    Username = Username,
-                    Password = Password,
-                    Notes = Notes,
+                    Username = Username.TrimEnd(),
+                    Password = Password.TrimEnd(),
+                    Notes = Notes.TrimEnd(),
                     ParentId = ParentId
                 };
             }
             else
             {
-                AuthenticationProfile.Name = ProfileName;
+                AuthenticationProfile.Name = ProfileName.TrimEnd();
                 AuthenticationProfile.AuthenticationMethod = AuthenticationMethod;
-                AuthenticationProfile.Username = Username;
-                AuthenticationProfile.Password = Password;
-                AuthenticationProfile.Notes = Notes;
+                AuthenticationProfile.Username = Username.TrimEnd();
+                AuthenticationProfile.Password = Password.TrimEnd();
+                AuthenticationProfile.Notes = Notes.TrimEnd();
                 AuthenticationProfile.ParentId = ParentId;
             }
         }
 
-        public ValidityState IsValid(string name)
+        public ValidityState FieldIsValid(string name)
         {
+            bool valid;
             switch (name)
             {
                 case "ProfileName":
-                    if (string.IsNullOrWhiteSpace(ProfileName))
-                        return new ValidityState
-                        {
-                            Name = name,
-                            IsValid = false,
-                            Message = "Profile name is empty"
-                        };
-                    break;
+                    valid = !string.IsNullOrWhiteSpace(ProfileName);
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = valid,
+                        IsChanged =
+                        (
+                            AuthenticationProfile == null && !string.IsNullOrWhiteSpace(ProfileName)
+                        ) || (
+                            AuthenticationProfile != null &&
+                            ProfileName.TrimEnd() != AuthenticationProfile.Name
+                        ),
+                        Message = valid ? string.Empty : "Profile name is empty"
+                    };
 
-                case "DeviceAuthenticationMethod":
-                    break;
+                case "AuthenticationMethod":
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = true,
+                        IsChanged =
+                            (
+                                AuthenticationProfile == null && AuthenticationMethod != Model.EAuthenticationMethod.NoAuthentication
+                            ) || (
+                                AuthenticationProfile != null &&
+                                AuthenticationMethod != AuthenticationProfile.AuthenticationMethod
+                            ),
+                    };
 
                 case "Username":
-                    if (AuthenticationMethod == Model.EAuthenticationMethod.UsernamePassword && string.IsNullOrWhiteSpace(Username))
-                        return new ValidityState
-                        {
-                            Name = name,
-                            IsValid = false,
-                            Message = "Username is empty"
-                        };
-                    break;
+                    valid = !(AuthenticationMethod == Model.EAuthenticationMethod.UsernamePassword && string.IsNullOrWhiteSpace(Username));
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = valid,
+                        IsChanged =
+                        (
+                            AuthenticationProfile == null && !string.IsNullOrWhiteSpace(Username)
+                        ) || (
+                            AuthenticationProfile != null &&
+                            Username.TrimEnd() != AuthenticationProfile.Username
+                        ),
+                        Message = valid ? string.Empty : "Username is empty"
+                    };
 
                 case "Password":
-                    if (AuthenticationMethod == Model.EAuthenticationMethod.UsernamePassword && string.IsNullOrWhiteSpace(Password))
-                        return new ValidityState
-                        {
-                            Name = name,
-                            IsValid = false,
-                            Message = "Password is empty"
-                        };
-                    break;
+                    valid = !(AuthenticationMethod == Model.EAuthenticationMethod.UsernamePassword && string.IsNullOrWhiteSpace(Password));
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = valid,
+                        IsChanged =
+                        (
+                            AuthenticationProfile == null && !string.IsNullOrWhiteSpace(Password)
+                        ) || (
+                            AuthenticationProfile != null &&
+                            Password.TrimEnd() != AuthenticationProfile.Password
+                        ),
+                        Message = valid ? string.Empty : "Password is empty"
+                    };
 
                 case "Notes":
-                    break;
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = true,
+                        IsChanged =
+                            (
+                                AuthenticationProfile == null && !string.IsNullOrWhiteSpace(Notes)
+                            ) || (
+                                AuthenticationProfile != null &&
+                                Notes.TrimEnd() != AuthenticationProfile.Notes
+                            ),
+                    };
 
                 case "ParentId":
                     // TODO : Consider validating scope is appropriately set to the right type for the parent Id
                     break;
 
                 case "TenantId":
-                    if ((Scope == EScope.Tenant || Scope == EScope.Site) && TenantId == Guid.Empty)
-                        return new ValidityState
-                        {
-                            Name = name,
-                            IsValid = false,
-                            Message = "Tenant is not set"
-                        };
+                    valid =
+                        (
+                            (
+                                Scope == EScope.Tenant ||
+                                Scope == EScope.Site
+                            ) &&
+                            TenantId != Guid.Empty
+                        )
+                        ||
+                        (
+                            !(
+                                Scope == EScope.Tenant ||
+                                Scope == EScope.Site
+                            ) &&
+                            TenantId == Guid.Empty
+                        );
 
-                    if (Scope == EScope.Global && TenantId != Guid.Empty)
-                        return new ValidityState
-                        {
-                            Name = name,
-                            IsValid = false,
-                            Message = "Tenant is set, but scope is global"
-                        };
-
-                    break;
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = valid,
+                        IsChanged =
+                            (
+                                AuthenticationProfile == null &&
+                                (
+                                    Scope == EScope.Tenant ||
+                                    Scope == EScope.Site
+                                ) &&
+                                TenantId != Guid.Empty
+                            ) ||
+                            (
+                                AuthenticationProfile != null &&
+                                (
+                                    Scope == EScope.Tenant ||
+                                    Scope == EScope.Site
+                                ) &&
+                                TenantId != ProfileTenantId
+                            ),
+                        Message = valid ? string.Empty : "Tenant is not set"
+                    };
 
                 case "SiteId":
-                    if (Scope == EScope.Site && SiteId == Guid.Empty)
-                        return new ValidityState
-                        {
-                            Name = name,
-                            IsValid = false,
-                            Message = "Site is not set"
-                        };
+                    valid =
+                        (
+                            Scope == EScope.Site &&
+                            SiteId != Guid.Empty
+                        )
+                        ||
+                        (
+                            Scope != EScope.Site &&
+                            SiteId == Guid.Empty
+                        );
 
-                    if (Scope != EScope.Site && SiteId != Guid.Empty)
-                        return new ValidityState
-                        {
-                            Name = name,
-                            IsValid = false,
-                            Message = "Site is set, but scope is not site"
-                        };
-
-                    break;
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = valid,
+                        IsChanged =
+                            (
+                                AuthenticationProfile == null &&
+                                Scope == EScope.Site &&
+                                SiteId != Guid.Empty
+                            ) ||
+                            (
+                                AuthenticationProfile != null &&
+                                Scope == EScope.Site &&
+                                SiteId != ProfileSiteId
+                            ),
+                        Message = valid ? string.Empty : "Site is not set"
+                    };
             }
 
             return
                 new ValidityState
                 {
                     Name = name,
-                    IsValid = true
+                    IsValid = true,
+                    Message = string.Empty
                 };
         }
 
@@ -298,15 +385,18 @@
                     IsValid = true,
                 },
 
-                IsValid("ProfileName"),
-                IsValid("AuthenticationMethod"),
-                IsValid("Username"),
-                IsValid("Password"),
-                IsValid("AuthenticationProfileId"),
-                IsValid("Notes"),
-                IsValid("TenantId"),
-                IsValid("SiteId"),
+                FieldIsValid("ProfileName"),
+                FieldIsValid("AuthenticationMethod"),
+                FieldIsValid("Username"),
+                FieldIsValid("Password"),
+                FieldIsValid("AuthenticationProfileId"),
+                FieldIsValid("Notes"),
+                FieldIsValid("TenantId"),
+                FieldIsValid("SiteId"),
             };
+
+            IsValid = result.Count(x => !x.IsValid) == 0;
+            IsDirty = result.Count(x => x.IsChanged) > 0;
 
             return result;
         }

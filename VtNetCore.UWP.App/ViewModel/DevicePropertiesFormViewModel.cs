@@ -14,15 +14,15 @@
         private FormOperation _operation;
         private Model.Device _device;
 
-        private string _deviceName;
+        private string _deviceName = string.Empty;
         private Guid _siteId = Guid.Empty;
-        private string _destination;
+        private string _destination = string.Empty;
         private Guid _deviceTypeId = Guid.Empty;
         private Model.EAuthenticationMethod _deviceAuthenticationMethod = Model.EAuthenticationMethod.InheritFromSite;
-        private string _username;
-        private string _password;
+        private string _username = string.Empty;
+        private string _password = string.Empty;
         private Guid _authenticationProfileId = Guid.Empty;
-        private string _notes;
+        private string _notes = string.Empty;
 
         private bool _isValid;
         private bool _isDirty;
