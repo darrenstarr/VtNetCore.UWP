@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Linq;
     using VtNetCore.UWP.App.Controls;
     using VtNetCore.UWP.App.Utility.Helpers;
 
@@ -17,6 +18,9 @@
         private Guid _tenantId;
         private string _location;
         private string _notes;
+
+        private bool _isValid;
+        private bool _isDirty;
 
         public FormOperation Operation
         {
@@ -72,16 +76,14 @@
 
         public bool IsDirty
         {
-            get
-            {
-                return
-                    Site == null ||
-                    !(
-                        SiteName == Site.Name.BlankIfNull() &&
-                        Location == Site.Location.BlankIfNull() &&
-                        Notes == Site.Notes.BlankIfNull()
-                    );
-            }
+            get => _isDirty;
+            set => PropertyChanged.ChangeAndNotify(ref _isDirty, value, () => IsDirty);
+        }
+
+        public bool IsValid
+        {
+            get => _isValid;
+            set => PropertyChanged.ChangeAndNotify(ref _isValid, value, () => IsValid);
         }
 
         private void SiteChanged()
@@ -108,38 +110,66 @@
                 {
                     Id = Guid.NewGuid(),
                     TenantId = TenantId,
-                    Name = SiteName,
-                    Location = Location,
-                    Notes = Notes
+                    Name = SiteName.TrimEnd(),
+                    Location = Location.TrimEnd(),
+                    Notes = Notes.TrimEnd()
                 };
             }
             else
             {
-                Site.Name = SiteName;
-                Site.Location = Location;
-                Site.Notes = Notes;
+                Site.Name = SiteName.TrimEnd();
+                Site.Location = Location.TrimEnd();
+                Site.Notes = Notes.TrimEnd();
             }
         }
 
-        public ValidityState IsValid(string name)
+        public ValidityState FieldIsValid(string name)
         {
             switch (name)
             {
                 case "SiteName":
-                    if (string.IsNullOrWhiteSpace(SiteName))
-                        return new ValidityState
-                        {
-                            Name = name,
-                            IsValid = false,
-                            Message = "Site name is empty"
-                        };
-                    break;
+                    var valid = !string.IsNullOrWhiteSpace(SiteName);
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = valid,
+                        IsChanged =
+                        (
+                            Site == null && !string.IsNullOrWhiteSpace(SiteName)
+                        ) || (
+                            Site != null &&
+                            SiteName.TrimEnd() != Site.Name
+                        ),
+                        Message = valid ? string.Empty : "Site name is empty"
+                    };
 
                 case "Location":
-                    break;
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = true,
+                        IsChanged =
+                            (
+                                Site == null && !string.IsNullOrWhiteSpace(Location)
+                            ) || (
+                                Site != null &&
+                                Location.TrimEnd() != Site.Location
+                            ),
+                    };
 
                 case "Notes":
-                    break;
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = true,
+                        IsChanged =
+                            (
+                                Site == null && !string.IsNullOrWhiteSpace(Notes)
+                            ) || (
+                                Site != null &&
+                                Notes.TrimEnd() != Site.Notes
+                            ),
+                    };
             }
 
             return
@@ -156,68 +186,28 @@
 
             // TODO : Validate Id ?
 
-            if (Operation == FormOperation.Add && TenantId != Guid.Empty)
-            {
-                result.Add(
-                    new ValidityState
-                    {
-                        Name = "Operation",
-                        IsValid = false,
-                        Message = "TenantId must be empty when adding"
-                    }
-                    );
+            result.Add(
+                new ValidityState
+                {
+                    Name = "Operation",
+                    IsValid = true,
+                }
+                );
 
-                result.Add(
-                    new ValidityState
-                    {
-                        Name = "TenantId",
-                        IsValid = false,
-                        Message = "TenantId must be empty when adding"
-                    }
-                    );
-            }
-            else if (Operation == FormOperation.Edit && TenantId == Guid.Empty)
-            {
-                result.Add(
-                    new ValidityState
-                    {
-                        Name = "Operation",
-                        IsValid = false,
-                        Message = "TenantId must not be empty when editing"
-                    }
-                    );
+            result.Add(
+                new ValidityState
+                {
+                    Name = "TenantId",
+                    IsValid = true,
+                }
+                );
 
-                result.Add(
-                    new ValidityState
-                    {
-                        Name = "TenantId",
-                        IsValid = false,
-                        Message = "TenantId must not be empty when editing"
-                    }
-                    );
-            }
-            else
-            {
-                result.Add(
-                    new ValidityState
-                    {
-                        Name = "Operation",
-                        IsValid = true,
-                    }
-                    );
+            result.Add(FieldIsValid("SiteName"));
+            result.Add(FieldIsValid("Location"));
+            result.Add(FieldIsValid("Notes"));
 
-                result.Add(
-                    new ValidityState
-                    {
-                        Name = "TenantId",
-                        IsValid = true,
-                    }
-                    );
-            }
-
-            result.Add(IsValid("SiteName"));
-            result.Add(IsValid("Location"));
-            result.Add(IsValid("Notes"));
+            IsValid = result.Count(x => !x.IsValid) == 0;
+            IsDirty = result.Count(x => x.IsChanged) > 0;
 
             return result;
         }
