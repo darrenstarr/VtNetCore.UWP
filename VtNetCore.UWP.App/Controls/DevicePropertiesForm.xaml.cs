@@ -21,6 +21,8 @@
 
         public event EventHandler<DeviceChangedEventArgs> OnDeviceChanged;
 
+        public event EventHandler OnCancelled;
+
         private AdvancedCollectionView AuthenticationProfiles { get; } = new AdvancedCollectionView(Model.Context.Current.AuthenticationProfiles);
 
         private AdvancedCollectionView DeviceTypes { get; } = new AdvancedCollectionView(Model.Context.Current.DeviceTypes);
@@ -143,6 +145,8 @@
         private void CancelButton_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
             Visibility = Visibility.Collapsed;
+
+            OnCancelled?.Invoke(this, new EventArgs());
         }
 
         public void ClearForm()

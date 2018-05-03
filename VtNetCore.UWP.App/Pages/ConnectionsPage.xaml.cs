@@ -243,22 +243,26 @@
             if (selectedSite == null)
                 throw new Exception("It should not be possible to select add device if no site is selected");
 
-            AddConnectionFlyout.Operation = Controls.FormOperation.Add;
-            AddConnectionFlyout.Device = null;
-            AddConnectionFlyout.ClearForm();
-            AddConnectionFlyout.SiteId = selectedSite.Id;
-            AddConnectionFlyout.Visibility = Visibility.Visible;
-            AddConnectionFlyout.SetInitialFocus();
+            SetSelectionEnabled(false);
+
+            DeviceProperties.Operation = Controls.FormOperation.Add;
+            DeviceProperties.Device = null;
+            DeviceProperties.ClearForm();
+            DeviceProperties.SiteId = selectedSite.Id;
+            DeviceProperties.Visibility = Visibility.Visible;
+            DeviceProperties.SetInitialFocus();
         }
 
         private void EditDeviceButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
             var selectedDevice = (Model.Device)DevicesView.SelectedItem;
 
-            AddConnectionFlyout.Operation = Controls.FormOperation.Edit;
-            AddConnectionFlyout.Device = selectedDevice ?? throw new Exception("Edit device button should not be active when no device is selected");
-            AddConnectionFlyout.Visibility = Visibility.Visible;
-            AddConnectionFlyout.SetInitialFocus();
+            SetSelectionEnabled(false);
+
+            DeviceProperties.Operation = Controls.FormOperation.Edit;
+            DeviceProperties.Device = selectedDevice ?? throw new Exception("Edit device button should not be active when no device is selected");
+            DeviceProperties.Visibility = Visibility.Visible;
+            DeviceProperties.SetInitialFocus();
         }
 
         private async void AddConnectionFlyout_OnDeviceChanged(object sender, Controls.DevicePropertiesForm.DeviceChangedEventArgs e)
@@ -270,6 +274,7 @@
                         e.Device.Password = "\u00FF" + await e.Device.Password.Protect();
 
                     Model.Context.Current.Devices.Add(e.Device);
+                    SetSelectionEnabled(true);
 
                     DevicesView.SelectedItem = e.Device;
                     break;
@@ -282,6 +287,10 @@
                     }
 
                     await Model.Context.Current.SaveChanges(e.Device);
+
+                    SetSelectionEnabled(true);
+
+                    DevicesView.SelectedItem = e.Device;
                     break;
 
                 default:
@@ -291,21 +300,25 @@
 
         private void AddTenantButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            AddTenantFlyout.Operation = Controls.FormOperation.Add;
-            AddTenantFlyout.Tenant = null;
-            AddTenantFlyout.ClearForm();
-            AddTenantFlyout.Visibility = Visibility.Visible;
-            AddTenantFlyout.SetInitialFocus();
+            SetSelectionEnabled(false);
+
+            TenantProperties.Operation = Controls.FormOperation.Add;
+            TenantProperties.Tenant = null;
+            TenantProperties.ClearForm();
+            TenantProperties.Visibility = Visibility.Visible;
+            TenantProperties.SetInitialFocus();
         }
 
         private void EditTenantButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
             var selectedTenant = (Model.Tenant)TenantsView.SelectedItem;
 
-            AddTenantFlyout.Operation = Controls.FormOperation.Edit;
-            AddTenantFlyout.Tenant = selectedTenant ?? throw new Exception("Edit tenant button should not be active when no tenant is selected");
-            AddTenantFlyout.Visibility = Visibility.Visible;
-            AddTenantFlyout.SetInitialFocus();
+            SetSelectionEnabled(false);
+
+            TenantProperties.Operation = Controls.FormOperation.Edit;
+            TenantProperties.Tenant = selectedTenant ?? throw new Exception("Edit tenant button should not be active when no tenant is selected");
+            TenantProperties.Visibility = Visibility.Visible;
+            TenantProperties.SetInitialFocus();
         }
 
         private async void AddTenantFlyout_OnTenantChanged(object sender, Controls.TenantPropertiesForm.TenantChangedEventArgs e)
@@ -314,11 +327,16 @@
             {
                 case Controls.FormOperation.Add:
                     Model.Context.Current.Tenants.Add(e.Tenant);
+                    SetSelectionEnabled(true);
+
                     DevicesView.SelectedItem = e.Tenant;
                     break;
 
                 case Controls.FormOperation.Edit:
                     await Model.Context.Current.SaveChanges(e.Tenant);
+                    SetSelectionEnabled(true);
+
+                    DevicesView.SelectedItem = e.Tenant;
                     break;
 
                 default:
@@ -332,11 +350,18 @@
             {
                 case Controls.FormOperation.Add:
                     Model.Context.Current.Sites.Add(e.Site);
+                    SetSelectionEnabled(true);
+
                     SitesView.SelectedItem = e.Site;
+
                     break;
 
                 case Controls.FormOperation.Edit:
                     await Model.Context.Current.SaveChanges(e.Site);
+                    SetSelectionEnabled(true);
+
+                    SitesView.SelectedItem = e.Site;
+
                     break;
 
                 default:
@@ -348,11 +373,13 @@
         {
             var selectedSite = (Model.Site)SitesView.SelectedItem;
 
-            AddSiteFlyout.Operation = Controls.FormOperation.Edit;
-            AddSiteFlyout.Site = selectedSite ?? throw new Exception("Edit site button should not be active when no device is selected");
+            SetSelectionEnabled(false);
 
-            AddSiteFlyout.Visibility = Visibility.Visible;
-            AddSiteFlyout.SetInitialFocus();
+            SiteProperties.Operation = Controls.FormOperation.Edit;
+            SiteProperties.Site = selectedSite ?? throw new Exception("Edit site button should not be active when no device is selected");
+
+            SiteProperties.Visibility = Visibility.Visible;
+            SiteProperties.SetInitialFocus();
         }
 
         private void AddSiteButton_Tapped(object sender, TappedRoutedEventArgs e)
@@ -361,12 +388,42 @@
             if (selectedTenant == null)
                 throw new Exception("It should not be possible to select add site if no tenant is selected");
 
-            AddSiteFlyout.Operation = Controls.FormOperation.Add;
-            AddSiteFlyout.Site = null;
-            AddSiteFlyout.ClearForm();
-            AddSiteFlyout.TenantId = selectedTenant.Id;
-            AddSiteFlyout.Visibility = Visibility.Visible;
-            AddSiteFlyout.SetInitialFocus();
+            SetSelectionEnabled(false);
+
+            SiteProperties.Operation = Controls.FormOperation.Add;
+            SiteProperties.Site = null;
+            SiteProperties.ClearForm();
+            SiteProperties.TenantId = selectedTenant.Id;
+            SiteProperties.Visibility = Visibility.Visible;
+            SiteProperties.SetInitialFocus();
+        }
+
+        private void SetSelectionEnabled(bool enabled)
+        {
+            //AddTenantButton.IsEnabled = enabled;
+            //RemoveTenantButton.IsEnabled = enabled;
+            //EditTenantButton.IsEnabled = enabled;
+            TenantsCommandBar.IsEnabled = enabled;
+            TenantsView.IsEnabled = enabled;
+
+            //AddSiteButton.IsEnabled = enabled;
+            //RemoveSiteButton.IsEnabled = enabled;
+            //EditSiteButton.IsEnabled = enabled;
+            SitesCommandBar.IsEnabled = enabled;
+            SitesView.IsEnabled = enabled;
+
+            //AddDeviceButton.IsEnabled = enabled;
+            //RemoveDeviceButton.IsEnabled = enabled;
+            //EditDeviceButton.IsEnabled = enabled;
+            //ConnectToDeviceButton.IsEnabled = enabled;
+            //DisconnectToDeviceButton.IsEnabled = enabled;
+            DevicesCommandBar.IsEnabled = enabled;
+            DevicesView.IsEnabled = enabled;
+        }
+
+        private void FormCancelled(object sender, EventArgs e)
+        {
+            SetSelectionEnabled(true);
         }
     }
 }

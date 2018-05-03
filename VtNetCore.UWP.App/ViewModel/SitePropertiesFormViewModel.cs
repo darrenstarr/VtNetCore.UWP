@@ -138,7 +138,7 @@
                             Site == null && !string.IsNullOrWhiteSpace(SiteName)
                         ) || (
                             Site != null &&
-                            SiteName.TrimEnd() != Site.Name
+                            SiteName.TrimEnd() != Site.Name.BlankIfNull()
                         ),
                         Message = valid ? string.Empty : "Site name is empty"
                     };
@@ -153,7 +153,7 @@
                                 Site == null && !string.IsNullOrWhiteSpace(Location)
                             ) || (
                                 Site != null &&
-                                Location.TrimEnd() != Site.Location
+                                Location.TrimEnd() != Site.Location.BlankIfNull()
                             ),
                     };
 
@@ -167,7 +167,7 @@
                                 Site == null && !string.IsNullOrWhiteSpace(Notes)
                             ) || (
                                 Site != null &&
-                                Notes.TrimEnd() != Site.Notes
+                                Notes.TrimEnd() != Site.Notes.BlankIfNull()
                             ),
                     };
             }

@@ -21,6 +21,8 @@
 
         public event EventHandler<TenantChangedEventArgs> OnTenantChanged;
 
+        public event EventHandler OnCancelled;
+
         public TenantPropertiesFormViewModel ViewModel { get; set; } = new TenantPropertiesFormViewModel();
 
         private List<ValidationRectangle> AllValidationRectangles = new List<ValidationRectangle>();
@@ -101,6 +103,8 @@
         private void CancelButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
             Visibility = Visibility.Collapsed;
+
+            OnCancelled?.Invoke(this, new EventArgs());
         }
 
         private bool UpdateIsValid(ValidityState state)

@@ -33,7 +33,10 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <CommandBar Grid.Row="0">
+                <CommandBar
+                    x:Name="TenantsCommandBar"
+                    Grid.Row="0"
+                    >
                     <AppBarButton x:Name="AddTenantButton" Icon="Add" Label="New" Tapped="AddTenantButton_Tapped" />
                     <AppBarButton x:Name="EditTenantButton" Icon="Edit" Label="Edit" IsEnabled="False" Tapped="EditTenantButton_Tapped" />
                     <CommandBar.SecondaryCommands>
@@ -95,7 +98,7 @@
                 <CommandBar x:Name="DevicesCommandBar" Grid.Row="4" Visibility="Collapsed">
                     <AppBarButton x:Name="ConnectToDeviceButton" Icon="Phone" Label="Connect" Tapped="ConnectToDeviceButton_Tapped" />
                     <AppBarButton x:Name="DisconnectToDeviceButton" Icon="HangUp" Label="Disconnect" Tapped="DisconnectToDeviceButton_Tapped" />
-                    <AppBarButton x:Name="NewConnectionButton" Icon="Add" Label="New" Tapped="AddDeviceButton_Tapped" />
+                    <AppBarButton x:Name="AddDeviceButton" Icon="Add" Label="New" Tapped="AddDeviceButton_Tapped" />
                     <AppBarButton x:Name="EditDeviceButton" Icon="Edit" Label="Edit" IsEnabled="False" Tapped="EditDeviceButton_Tapped" />
                     <CommandBar.SecondaryCommands>
                         <AppBarButton x:Name="RemoveDeviceButton" Icon="Remove" Label="Remove" IsEnabled="False" Tapped="RemoveDeviceButton_Tapped" />
@@ -136,33 +139,36 @@
         </ScrollViewer>
 
         <controls:TenantPropertiesForm
-            x:Name="AddTenantFlyout"
+            x:Name="TenantProperties"
             VerticalAlignment="Stretch"
             HorizontalAlignment="Right"
             Visibility="Collapsed"
             MaxWidth="300"
             OnTenantChanged="AddTenantFlyout_OnTenantChanged"
             Grid.Column="1"
+            OnCancelled="FormCancelled"
             />
 
         <controls:SitePropertiesForm
-            x:Name="AddSiteFlyout"
+            x:Name="SiteProperties"
             VerticalAlignment="Stretch"
             HorizontalAlignment="Right"
             Visibility="Collapsed"
             MaxWidth="300"
             OnSiteChanged="AddSiteFlyout_OnSiteChanged"
             Grid.Column="1"
+            OnCancelled="FormCancelled"
             />
 
         <controls:DevicePropertiesForm
-            x:Name="AddConnectionFlyout"
+            x:Name="DeviceProperties"
             VerticalAlignment="Stretch"
             HorizontalAlignment="Right"
             Visibility="Collapsed"
             MaxWidth="300"
             OnDeviceChanged="AddConnectionFlyout_OnDeviceChanged"
             Grid.Column="1"
+            OnCancelled="FormCancelled"
             />
         
         <Interactivity:Interaction.Behaviors>
@@ -182,7 +188,7 @@
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddSiteFlyout}" PropertyName="Visibility" Value="Visible" />
             </Core:EventTriggerBehavior>
 
-            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=NewConnectionButton}" EventName="Tapped">
+            <Core:EventTriggerBehavior SourceObject="{Binding ElementName=AddDeviceButton}" EventName="Tapped">
                 <Core:ChangePropertyAction TargetObject="{Binding ElementName=AddConnectionFlyout}" PropertyName="Visibility" Value="Visible" />
             </Core:EventTriggerBehavior>
 

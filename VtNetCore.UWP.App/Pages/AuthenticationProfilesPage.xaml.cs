@@ -27,7 +27,10 @@
 
         private void AddProfileButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
+            SetSelectionEnabled(false);
+
             AuthenticationProfileForm.Operation = Controls.FormOperation.Add;
+            AuthenticationProfileForm.AuthenticationProfile = null;
             AuthenticationProfileForm.ClearForm();
             AuthenticationProfileForm.Visibility = Visibility.Visible;
             AuthenticationProfileForm.SetInitialFocus();
@@ -36,6 +39,8 @@
         private void EditProfileButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
             var selectedProfile = (Model.AuthenticationProfile)AuthenticationProfilesView.SelectedItem;
+
+            SetSelectionEnabled(false);
 
             AuthenticationProfileForm.Operation = Controls.FormOperation.Edit;
             AuthenticationProfileForm.AuthenticationProfile = selectedProfile ?? throw new Exception("Edit authentication profile button should not be active when no profile is selected");
@@ -93,6 +98,7 @@
 
                     Model.Context.Current.AuthenticationProfiles.Add(e.AuthenticationProfile);
 
+                    SetSelectionEnabled(true);
                     AuthenticationProfilesView.SelectedItem = e.AuthenticationProfile;
                     break;
 
@@ -106,6 +112,7 @@
                     await Model.Context.Current.SaveChanges(e.AuthenticationProfile);
                     AuthenticationProfiles.SaveChanges(e.AuthenticationProfile);
 
+                    SetSelectionEnabled(true);
                     AuthenticationProfilesView.SelectedItem = e.AuthenticationProfile;
 
                     break;
@@ -113,6 +120,17 @@
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+        private void FormCancelled(object sender, EventArgs e)
+        {
+            SetSelectionEnabled(true);
+        }
+
+        private void SetSelectionEnabled(bool enabled)
+        {
+            ProfilesCommandBar.IsEnabled = enabled;
+            AuthenticationProfilesView.IsEnabled = enabled;
         }
     }
 }

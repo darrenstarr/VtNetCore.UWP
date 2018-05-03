@@ -22,6 +22,8 @@
 
         public event EventHandler<AuthenticationProfileChangedEventArgs> OnAuthenticationProfileChanged;
 
+        public event EventHandler OnCancelled;
+
         private AdvancedCollectionView Tenants { get; } = new AdvancedCollectionView(Model.Context.Current.Tenants);
         private AdvancedCollectionView Sites { get; } = new AdvancedCollectionView(Model.Context.Current.Sites, true);
 
@@ -235,6 +237,8 @@
         private void CancelButton_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
             Visibility = Visibility.Collapsed;
+
+            OnCancelled?.Invoke(this, new EventArgs());
         }
 
         private bool UpdateIsValid(ValidityState state)

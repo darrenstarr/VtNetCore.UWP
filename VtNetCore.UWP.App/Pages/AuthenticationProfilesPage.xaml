@@ -33,7 +33,9 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <CommandBar>
+        <CommandBar
+            x:Name="ProfilesCommandBar"
+            >
             <AppBarButton x:Name="AddProfileButton" Icon="Add" Label="Add" Tapped="AddProfileButton_Tapped" />
             <AppBarButton x:Name="EditProfileButton" Icon="Edit" Label="Edit" Tapped="EditProfileButton_Tapped" />
             <CommandBar.SecondaryCommands>
@@ -87,6 +89,7 @@
             Grid.Column="1"
             MaxWidth="300"
             OnAuthenticationProfileChanged="AuthenticationProfileForm_OnAuthenticationProfileChanged"
+            OnCancelled="FormCancelled"
             />
     </Grid>
 

@@ -21,6 +21,8 @@
 
         public event EventHandler<SiteChangedEventArgs> OnSiteChanged;
 
+        public event EventHandler OnCancelled;
+
         public SitePropertiesFormViewModel ViewModel { get; set; } = new SitePropertiesFormViewModel();
 
         private List<ValidationRectangle> AllValidationRectangles = new List<ValidationRectangle>();
@@ -107,6 +109,8 @@
         private void CancelButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
             Visibility = Visibility.Collapsed;
+
+            OnCancelled?.Invoke(this, new EventArgs());
         }
 
         private bool UpdateIsValid(ValidityState state)
