@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Linq;
     using VtNetCore.UWP.App.Controls;
     using VtNetCore.UWP.App.Utility.Helpers;
 
@@ -12,8 +13,11 @@
 
         private FormOperation _operation;
         private Model.Tenant _tenant;
-        private string _tenantName;
-        private string _notes;
+        private string _tenantName = string.Empty;
+        private string _notes = string.Empty;
+
+        bool _isDirty;
+        bool _isValid;
 
         public FormOperation Operation
         {
@@ -45,25 +49,26 @@
             set => PropertyChanged.ChangeAndNotify(ref _notes, value, () => Notes);
         }
 
+        public bool IsValid
+        {
+            get => _isValid;
+            set => PropertyChanged.ChangeAndNotify(ref _isValid, value, () => IsValid);
+        }
+
+        public bool IsDirty
+        {
+            get => _isDirty;
+            set => PropertyChanged.ChangeAndNotify(ref _isDirty, value, () => IsDirty);
+        }
+
+        public bool IsValidAndClean => IsValid && !IsDirty;
+
         public void Clear()
         {
             TenantName = string.Empty;
             Notes = string.Empty;
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsDirty"));
-        }
-
-        public bool IsDirty
-        {
-            get
-            {
-                return
-                    Tenant == null ||
-                    !(
-                        TenantName == Tenant.Name.BlankIfNull() &&
-                        Notes == Tenant.Notes.BlankIfNull()
-                    );
-            }
         }
 
         private void TenantChanged()
@@ -87,35 +92,52 @@
                 Tenant = new Model.Tenant
                 {
                     Id = Guid.NewGuid(),
-                    Name = TenantName,
-                    Notes = Notes
+                    Name = TenantName.TrimEnd(),
+                    Notes = Notes.TrimEnd()
                 };
             }
             else
             {
-                Tenant.Name = TenantName;
-                Tenant.Notes = Notes;
+                Tenant.Name = TenantName.TrimEnd();
+                Tenant.Notes = Notes.TrimEnd();
             }
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsDirty"));
         }
 
-        public ValidityState IsValid(string name)
+        public ValidityState FieldIsValid(string name)
         {
             switch (name)
             {
                 case "TenantName":
-                    if (string.IsNullOrWhiteSpace(TenantName))
-                        return new ValidityState
-                        {
-                            Name = name,
-                            IsValid = false,
-                            Message = "Tenant name is empty"
-                        };
-                    break;
+                    var valid = !string.IsNullOrWhiteSpace(TenantName);
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = valid,
+                        IsChanged =
+                            (
+                                Tenant == null && !string.IsNullOrWhiteSpace(TenantName)
+                            ) || (
+                                Tenant != null &&
+                                TenantName.TrimEnd() != Tenant.Name
+                            ),
+                        Message = valid ? string.Empty : "Tenant name is empty"
+                    };
 
                 case "Notes":
-                    break;
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = true,
+                        IsChanged =
+                            (
+                                Tenant == null && !string.IsNullOrWhiteSpace(Notes)
+                            ) || (
+                                Tenant != null &&
+                                Notes.TrimEnd() != Tenant.Notes
+                            ),
+                    };
             }
 
             return
@@ -138,9 +160,17 @@
                     IsValid = true,
                 },
 
-                IsValid("TenantName"),
-                IsValid("Notes")
+                FieldIsValid("TenantName"),
+                FieldIsValid("Notes")
             };
+
+            IsValid = result.Count(x => !x.IsValid) == 0;
+            IsDirty =
+                Tenant == null ||
+                !(
+                    TenantName.TrimEnd() == Tenant.Name.BlankIfNull() &&
+                    Notes.TrimEnd() == Tenant.Notes.BlankIfNull()
+                );
 
             return result;
         }
