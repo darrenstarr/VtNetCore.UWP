@@ -43,7 +43,11 @@
             </CommandBar.SecondaryCommands>
         </CommandBar>
         <ScrollViewer Grid.Row="1">
-            <GridView x:Name="AuthenticationProfilesView" ItemsSource="{Binding Source={StaticResource AuthenticationProfileItems}}">
+            <GridView
+                x:Name="AuthenticationProfilesView"
+                ItemsSource="{Binding Source={StaticResource AuthenticationProfileItems}}"
+                SelectionChanged="AuthenticationProfilesView_SelectionChanged"
+                >
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="model:AuthenticationProfile">
                         <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}" Padding="5">

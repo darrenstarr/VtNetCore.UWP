@@ -140,6 +140,11 @@
 
         private void DoneButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
+            CommitAndClose();
+        }
+
+        public void CommitAndClose()
+        {
             // TODO : throw on validation error here.
 
             ViewModel.Commit();
@@ -154,7 +159,12 @@
                 );
         }
 
-        private async void CancelButton_Tapped(object sender, TappedRoutedEventArgs e)
+        private void CancelButton_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            ProcessCancel();
+        }
+
+        private async void ProcessCancel()
         {
             if (ViewModel.IsDirty)
             {
@@ -241,6 +251,22 @@
         public void SetInitialFocus()
         {
             NameField.Focus(FocusState.Programmatic);
+        }
+
+        private void ControlKeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Escape)
+            {
+                ProcessCancel();
+            }
+            else if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                if (NotesField.IsFocusEngaged)
+                    return;
+
+                if (DoneButton.IsEnabled)
+                    CommitAndClose();
+            }
         }
     }
 }

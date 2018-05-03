@@ -12,6 +12,7 @@
     d:DesignHeight="600"
     d:DesignWidth="300"
     Width="300"
+    KeyDown="ControlKeyDown"
     >
 
     <Control.Resources>

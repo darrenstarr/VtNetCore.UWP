@@ -9,7 +9,9 @@
     xmlns:model="using:VtNetCore.UWP.App.Model"
     mc:Ignorable="d"
     d:DesignHeight="600"
-    d:DesignWidth="400">
+    d:DesignWidth="400"
+    KeyDown="ControlKeyDown"
+    >
 
     <Control.Resources>
         <converters:DeviceClassIconItemConverter x:Key="DeviceClassIconItemConverter" />

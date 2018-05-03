@@ -69,6 +69,8 @@
                 try
                 {
                     Model.Context.Current.RemoveAuthenticationProfile(currentAuthenticationProfile);
+                    EditProfileButton.IsEnabled = false;
+                    RemoveProfileButton.IsEnabled = false;
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -131,6 +133,20 @@
         {
             ProfilesCommandBar.IsEnabled = enabled;
             AuthenticationProfilesView.IsEnabled = enabled;
+        }
+
+        private void AuthenticationProfilesView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if(e.AddedItems == null)
+            {
+                EditProfileButton.IsEnabled = false;
+                RemoveProfileButton.IsEnabled = false;
+            }
+            else
+            {
+                EditProfileButton.IsEnabled = true;
+                RemoveProfileButton.IsEnabled = true;
+            }
         }
     }
 }

@@ -220,6 +220,11 @@
         {
             // TODO : throw on validation error here.
 
+            CommitAndClose();
+        }
+
+        private void CommitAndClose()
+        {
             ViewModel.Commit();
 
             OnAuthenticationProfileChanged?.Invoke(
@@ -283,6 +288,23 @@
         public void SetInitialFocus()
         {
             NameField.Focus(FocusState.Programmatic);
+        }
+
+        private void ControlKeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Escape)
+            {
+                Visibility = Visibility.Collapsed;
+                OnCancelled?.Invoke(this, new EventArgs());
+            }
+            else if(e.Key == Windows.System.VirtualKey.Enter)
+            {
+                if (NotesField.IsFocusEngaged)
+                    return;
+
+                if (DoneButton.IsEnabled)
+                    CommitAndClose();
+            }
         }
     }
 }

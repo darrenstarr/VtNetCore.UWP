@@ -9,6 +9,7 @@
     d:DesignHeight="500"
     d:DesignWidth="250"
     Width="300"
+    KeyDown="ControlKeyDown"
     >
 
     <Grid Background="{ThemeResource FlyoutBackgroundThemeBrush}">

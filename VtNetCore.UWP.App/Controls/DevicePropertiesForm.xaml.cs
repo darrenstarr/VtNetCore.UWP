@@ -126,6 +126,11 @@
 
         private void DoneButton_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
+            CommitAndClose();
+        }
+
+        private void CommitAndClose()
+        {
             // TODO : throw on validation error here.
 
             ViewModel.Commit();
@@ -196,6 +201,23 @@
         public void SetInitialFocus()
         {
             NameField.Focus(FocusState.Programmatic);
+        }
+
+        private void ControlKeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Escape)
+            {
+                Visibility = Visibility.Collapsed;
+                OnCancelled?.Invoke(this, new EventArgs());
+            }
+            else if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                if (NotesField.IsFocusEngaged)
+                    return;
+
+                if (DoneButton.IsEnabled)
+                    CommitAndClose();
+            }
         }
     }
 }
