@@ -69,8 +69,10 @@
                     break;
             }
 
-            Validate();
-            DoneButton.IsEnabled = ViewModel.IsDirty;
+            if (!(e.PropertyName == "IsValid" || e.PropertyName == "IsDirty"))
+                Validate();
+
+            DoneButton.IsEnabled = ViewModel.IsValid && ViewModel.IsDirty;
         }
 
         private void AuthenticationMethodChanged()
@@ -152,7 +154,10 @@
         {
             var namedObjects = AllValidationRectangles.Where(x => x.PropertyName == state.Name);
             foreach (var namedObject in namedObjects)
+            {
                 namedObject.IsValid = state.IsValid;
+                namedObject.IsChanged = state.IsChanged;
+            }
 
             return state.IsValid;
         }

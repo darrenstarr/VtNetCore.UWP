@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Linq;
     using VtNetCore.UWP.App.Controls;
     using VtNetCore.UWP.App.Utility.Helpers;
 
@@ -22,6 +23,9 @@
         private string _password;
         private Guid _authenticationProfileId = Guid.Empty;
         private string _notes;
+
+        private bool _isValid;
+        private bool _isDirty;
 
         public FormOperation Operation
         {
@@ -95,6 +99,18 @@
             set => PropertyChanged.ChangeAndNotify(ref _notes, value, () => Notes);
         }
 
+        public bool IsDirty
+        {
+            get => _isDirty;
+            set => PropertyChanged.ChangeAndNotify(ref _isDirty, value, () => IsDirty);
+        }
+
+        public bool IsValid
+        {
+            get => _isValid;
+            set => PropertyChanged.ChangeAndNotify(ref _isValid, value, () => IsValid);
+        }
+
         public void Clear()
         {
             DeviceName = string.Empty;
@@ -131,26 +147,6 @@
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsDirty"));
         }
 
-        public bool IsDirty
-        {
-            get
-            {
-                return
-                    Device == null ||
-                    !(
-                        DeviceName == Device.Name.BlankIfNull() &&
-                        SiteId == Device.SiteId &&
-                        Destination == Device.Destination.BlankIfNull() &&
-                        DeviceTypeId == Device.DeviceTypeId &&
-                        DeviceAuthenticationMethod == Device.AuthenticationMethod &&
-                        Username == Device.Username.BlankIfNull() &&
-                        Password == Device.Password.BlankIfNull() &&
-                        AuthenticationProfileId == Device.AuthenticationProfileId &&
-                        Notes == Device.Notes.BlankIfNull()
-                    );
-            }
-        }
-
         public void Commit()
         {
             if (Operation == FormOperation.Add)
@@ -159,100 +155,162 @@
                 {
                     Id = Guid.NewGuid(),
                     SiteId = SiteId,
-                    Name = DeviceName,
-                    Destination = Destination,
+                    Name = DeviceName.TrimEnd(),
+                    Destination = Destination.Trim(),
                     DeviceTypeId = DeviceTypeId,
                     AuthenticationMethod = DeviceAuthenticationMethod,
                     AuthenticationProfileId = AuthenticationProfileId,
-                    Username = Username,
-                    Password = Password,
-                    Notes = Notes
+                    Username = Username.TrimEnd(),
+                    Password = Password.TrimEnd(),
+                    Notes = Notes.TrimEnd()
                 };
             }
             else
             {
-                Device.Name = DeviceName;
-                Device.Destination = Destination;
+                Device.Name = DeviceName.TrimEnd();
+                Device.Destination = Destination.Trim();
                 Device.DeviceTypeId = DeviceTypeId;
                 Device.AuthenticationMethod = DeviceAuthenticationMethod;
                 Device.AuthenticationProfileId = AuthenticationProfileId;
-                Device.Username = Username;
-                Device.Password = Password;
-                Device.Notes = Notes;
+                Device.Username = Username.TrimEnd();
+                Device.Password = Password.TrimEnd();
+                Device.Notes = Notes.TrimEnd();
             }
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsDirty"));
         }
 
-        public ValidityState IsValid(string name)
+        public ValidityState FieldIsValid(string name)
         {
+            bool valid;
             switch(name)
             {
                 case "DeviceName":
-                    if (string.IsNullOrWhiteSpace(DeviceName))
-                        return new ValidityState
-                        {
-                            Name = name,
-                            IsValid = false,
-                            Message = "Device name is empty"
-                        };
-                    break;
+                    valid = !string.IsNullOrWhiteSpace(DeviceName);
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = valid,
+                        IsChanged =
+                        (
+                            Device == null && !string.IsNullOrWhiteSpace(DeviceName)
+                        ) || (
+                            Device != null &&
+                            DeviceName.TrimEnd() != Device.Name
+                        ),
+                        Message = valid ? string.Empty : "Device name is empty"
+                    };
 
                 case "Destination":
-                    if (!Uri.IsWellFormedUriString(Destination, UriKind.Absolute))
-                        return new ValidityState
-                        {
-                            Name = name,
-                            IsValid = false,
-                            Message = "Destination is not a properly formed URI"
-                        };
-                    break;
+                    valid = Uri.IsWellFormedUriString(Destination, UriKind.Absolute);
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = valid,
+                        IsChanged =
+                        (
+                            Device == null && !string.IsNullOrWhiteSpace(Destination)
+                        ) || (
+                            Device != null &&
+                            Destination.TrimEnd() != Device.Name
+                        ),
+                        Message = valid ? string.Empty : "Destination is not a properly formed URI"
+                    };
 
                 case "DeviceTypeId":
-                    if (DeviceTypeId == Guid.Empty)
-                        return new ValidityState
-                        {
-                            Name = name,
-                            IsValid = false,
-                            Message = "No device type selected"
-                        };
-                    break;
+                    valid = DeviceTypeId != Guid.Empty;
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = valid,
+                        IsChanged =
+                        (
+                            Device == null && DeviceTypeId != Guid.Empty
+                        ) || (
+                            Device != null &&
+                            DeviceTypeId != Device.DeviceTypeId
+                        ),
+                        Message = valid ? string.Empty : "No device type selected"
+                    };
 
                 case "DeviceAuthenticationMethod":
-                    break;
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = true,
+                        IsChanged =
+                            (
+                                Device == null && DeviceAuthenticationMethod != Model.EAuthenticationMethod.NoAuthentication
+                            ) || (
+                                Device != null &&
+                                DeviceAuthenticationMethod != Device.AuthenticationMethod
+                            ),
+                    };
 
                 case "Username":
-                    if (DeviceAuthenticationMethod == Model.EAuthenticationMethod.UsernamePassword &&  string.IsNullOrWhiteSpace(Username))
-                        return new ValidityState
-                        {
-                            Name = name,
-                            IsValid = false,
-                            Message = "Username is empty"
-                        };
-                    break;
+                    valid = !(DeviceAuthenticationMethod == Model.EAuthenticationMethod.UsernamePassword && string.IsNullOrWhiteSpace(Username));
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = valid,
+                        IsChanged =
+                        (
+                            Device == null && !string.IsNullOrWhiteSpace(Username)
+                        ) || (
+                            Device != null &&
+                            Username.TrimEnd() != Device.Username
+                        ),
+                        Message = valid ? string.Empty : "Username is empty"
+                    };
 
                 case "Password":
-                    if (DeviceAuthenticationMethod == Model.EAuthenticationMethod.UsernamePassword && string.IsNullOrWhiteSpace(Password))
-                        return new ValidityState
-                        {
-                            Name = name,
-                            IsValid = false,
-                            Message = "Password is empty"
-                        };
-                    break;
+                    valid = !(DeviceAuthenticationMethod == Model.EAuthenticationMethod.UsernamePassword && string.IsNullOrWhiteSpace(Password));
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = valid,
+                        IsChanged =
+                        (
+                            Device == null && !string.IsNullOrWhiteSpace(Password)
+                        ) || (
+                            Device != null &&
+                            Password.TrimEnd() != Device.Password
+                        ),
+                        Message = valid ? string.Empty : "Password is empty"
+                    };
 
                 case "AuthenticationProfileId":
-                    if (DeviceAuthenticationMethod == Model.EAuthenticationMethod.AuthenticationProfile && AuthenticationProfileId == Guid.Empty)
-                        return new ValidityState
-                        {
-                            Name = name,
-                            IsValid = false,
-                            Message = "No authentication profile selected"
-                        };
-                    break;
+                    valid = DeviceAuthenticationMethod != Model.EAuthenticationMethod.AuthenticationProfile || AuthenticationProfileId != Guid.Empty;
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = valid,
+                        IsChanged =
+                        (
+                            Device == null &&
+                            DeviceAuthenticationMethod == Model.EAuthenticationMethod.AuthenticationProfile &&
+                            AuthenticationProfileId != Guid.Empty
+                        ) || (
+                            Device != null &&
+                            DeviceAuthenticationMethod == Model.EAuthenticationMethod.AuthenticationProfile &&
+                            AuthenticationProfileId != Device.AuthenticationProfileId
+                        ),
+                        Message = valid ? string.Empty : "No authentication profile selected"
+                    };
 
                 case "Notes":
-                    break;
+                    return new ValidityState
+                    {
+                        Name = name,
+                        IsValid = true,
+                        IsChanged =
+                            (
+                                Device == null && !string.IsNullOrWhiteSpace(Notes)
+                            ) || (
+                                Device != null &&
+                                Notes.TrimEnd() != Device.Notes
+                            ),
+                    };
             }
 
             return
@@ -269,73 +327,33 @@
 
             // TODO : Validate Id ?
 
-            if (Operation == FormOperation.Add && SiteId != Guid.Empty)
-            {
-                result.Add(
-                    new ValidityState
-                    {
-                        Name = "Operation",
-                        IsValid = false,
-                        Message = "SiteId must be empty when adding"
-                    }
-                    );
+            result.Add(
+                new ValidityState
+                {
+                    Name = "Operation",
+                    IsValid = true,
+                }
+                );
 
-                result.Add(
-                    new ValidityState
-                    {
-                        Name = "SiteId",
-                        IsValid = false,
-                        Message = "SiteId must be empty when adding"
-                    }
-                    );
-            }
-            else if(Operation == FormOperation.Edit && SiteId == Guid.Empty)
-            {
-                result.Add(
-                    new ValidityState
-                    {
-                        Name = "Operation",
-                        IsValid = false,
-                        Message = "SiteId must not be empty when editing"
-                    }
-                    );
+            result.Add(
+                new ValidityState
+                {
+                    Name = "SiteId",
+                    IsValid = true,
+                }
+                );
 
-                result.Add(
-                    new ValidityState
-                    {
-                        Name = "SiteId",
-                        IsValid = false,
-                        Message = "SiteId must not be empty when editing"
-                    }
-                    );
-            }
-            else
-            {
-                result.Add(
-                    new ValidityState
-                    {
-                        Name = "Operation",
-                        IsValid = true,
-                    }
-                    );
+            result.Add(FieldIsValid("DeviceName"));
+            result.Add(FieldIsValid("Destination"));
+            result.Add(FieldIsValid("DeviceTypeId"));
+            result.Add(FieldIsValid("DeviceAuthenticationMethod"));
+            result.Add(FieldIsValid("Username"));
+            result.Add(FieldIsValid("Password"));
+            result.Add(FieldIsValid("AuthenticationProfileId"));
+            result.Add(FieldIsValid("Notes"));
 
-                result.Add(
-                    new ValidityState
-                    {
-                        Name = "SiteId",
-                        IsValid = true,
-                    }
-                    );
-            }
-
-            result.Add(IsValid("DeviceName"));
-            result.Add(IsValid("Destination"));
-            result.Add(IsValid("DeviceTypeId"));
-            result.Add(IsValid("DeviceAuthenticationMethod"));
-            result.Add(IsValid("Username"));
-            result.Add(IsValid("Password"));
-            result.Add(IsValid("AuthenticationProfileId"));
-            result.Add(IsValid("Notes"));
+            IsValid = result.Count(x => !x.IsValid) == 0;
+            IsDirty = result.Count(x => x.IsChanged) > 0;
 
             return result;
         }
