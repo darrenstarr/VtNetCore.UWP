@@ -166,7 +166,7 @@
             ProfileName = AuthenticationProfile.Name.BlankIfNull();
             AuthenticationMethod = AuthenticationProfile.AuthenticationMethod;
             Username = AuthenticationProfile.Username.BlankIfNull();
-            Password = AuthenticationProfile.Password.BlankIfNull();
+            Password = AuthenticationProfile.Password.PresentablePassword();
             Notes = AuthenticationProfile.Notes.BlankIfNull();
             ParentId = AuthenticationProfile.ParentId;
 
@@ -196,10 +196,12 @@
                 AuthenticationProfile.Name = ProfileName.TrimEnd();
                 AuthenticationProfile.AuthenticationMethod = AuthenticationMethod;
                 AuthenticationProfile.Username = Username.TrimEnd();
-                AuthenticationProfile.Password = Password.TrimEnd();
+                AuthenticationProfile.Password = Password.IsEncryptedPassword() ? AuthenticationProfile.Password : Password.TrimEnd();
                 AuthenticationProfile.Notes = Notes.TrimEnd();
                 AuthenticationProfile.ParentId = ParentId;
             }
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsDirty"));
         }
 
         public ValidityState FieldIsValid(string name)
@@ -218,7 +220,7 @@
                             AuthenticationProfile == null && !string.IsNullOrWhiteSpace(ProfileName)
                         ) || (
                             AuthenticationProfile != null &&
-                            ProfileName.TrimEnd() != AuthenticationProfile.Name
+                            ProfileName.TrimEnd() != AuthenticationProfile.Name.BlankIfNull()
                         ),
                         Message = valid ? string.Empty : "Profile name is empty"
                     };
@@ -248,7 +250,7 @@
                             AuthenticationProfile == null && !string.IsNullOrWhiteSpace(Username)
                         ) || (
                             AuthenticationProfile != null &&
-                            Username.TrimEnd() != AuthenticationProfile.Username
+                            Username.TrimEnd() != AuthenticationProfile.Username.BlankIfNull()
                         ),
                         Message = valid ? string.Empty : "Username is empty"
                     };
@@ -264,7 +266,7 @@
                             AuthenticationProfile == null && !string.IsNullOrWhiteSpace(Password)
                         ) || (
                             AuthenticationProfile != null &&
-                            Password.TrimEnd() != AuthenticationProfile.Password
+                            Password.TrimEnd() != AuthenticationProfile.Password.PresentablePassword()
                         ),
                         Message = valid ? string.Empty : "Password is empty"
                     };
@@ -279,7 +281,7 @@
                                 AuthenticationProfile == null && !string.IsNullOrWhiteSpace(Notes)
                             ) || (
                                 AuthenticationProfile != null &&
-                                Notes.TrimEnd() != AuthenticationProfile.Notes
+                                Notes.TrimEnd() != AuthenticationProfile.Notes.BlankIfNull()
                             ),
                     };
 

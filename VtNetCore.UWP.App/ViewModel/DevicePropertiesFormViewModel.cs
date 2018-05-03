@@ -140,7 +140,7 @@
             DeviceTypeId = Device.DeviceTypeId;
             DeviceAuthenticationMethod = Device.AuthenticationMethod;
             Username = Device.Username.BlankIfNull();
-            Password = Device.Password.BlankIfNull(); ;
+            Password = Device.Password.PresentablePassword();
             AuthenticationProfileId = Device.AuthenticationProfileId;
             Notes = Device.Notes.BlankIfNull();
 
@@ -173,7 +173,7 @@
                 Device.AuthenticationMethod = DeviceAuthenticationMethod;
                 Device.AuthenticationProfileId = AuthenticationProfileId;
                 Device.Username = Username.TrimEnd();
-                Device.Password = Password.TrimEnd();
+                Device.Password = Password.IsEncryptedPassword() ? Device.Password : Password.TrimEnd();
                 Device.Notes = Notes.TrimEnd();
             }
 
@@ -196,7 +196,7 @@
                             Device == null && !string.IsNullOrWhiteSpace(DeviceName)
                         ) || (
                             Device != null &&
-                            DeviceName.TrimEnd() != Device.Name
+                            DeviceName.TrimEnd() != Device.Name.BlankIfNull()
                         ),
                         Message = valid ? string.Empty : "Device name is empty"
                     };
@@ -212,7 +212,7 @@
                             Device == null && !string.IsNullOrWhiteSpace(Destination)
                         ) || (
                             Device != null &&
-                            Destination.TrimEnd() != Device.Destination
+                            Destination.TrimEnd() != Device.Destination.BlankIfNull()
                         ),
                         Message = valid ? string.Empty : "Destination is not a properly formed URI"
                     };
@@ -258,7 +258,7 @@
                             Device == null && !string.IsNullOrWhiteSpace(Username)
                         ) || (
                             Device != null &&
-                            Username.TrimEnd() != Device.Username
+                            Username.TrimEnd() != Device.Username.BlankIfNull()
                         ),
                         Message = valid ? string.Empty : "Username is empty"
                     };
@@ -274,7 +274,7 @@
                             Device == null && !string.IsNullOrWhiteSpace(Password)
                         ) || (
                             Device != null &&
-                            Password.TrimEnd() != Device.Password
+                            Password.TrimEnd() != Device.Password.PresentablePassword()
                         ),
                         Message = valid ? string.Empty : "Password is empty"
                     };
@@ -308,7 +308,7 @@
                                 Device == null && !string.IsNullOrWhiteSpace(Notes)
                             ) || (
                                 Device != null &&
-                                Notes.TrimEnd() != Device.Notes
+                                Notes.TrimEnd() != Device.Notes.BlankIfNull()
                             ),
                     };
             }
@@ -323,34 +323,31 @@
 
         public IEnumerable<ValidityState> Validate()
         {
-            List<ValidityState> result = new List<ValidityState>();
+            List<ValidityState> result = new List<ValidityState>
+            {
+                // TODO : Validate Id ?
 
-            // TODO : Validate Id ?
-
-            result.Add(
                 new ValidityState
                 {
                     Name = "Operation",
                     IsValid = true,
-                }
-                );
+                },
 
-            result.Add(
                 new ValidityState
                 {
                     Name = "SiteId",
                     IsValid = true,
-                }
-                );
+                },
 
-            result.Add(FieldIsValid("DeviceName"));
-            result.Add(FieldIsValid("Destination"));
-            result.Add(FieldIsValid("DeviceTypeId"));
-            result.Add(FieldIsValid("DeviceAuthenticationMethod"));
-            result.Add(FieldIsValid("Username"));
-            result.Add(FieldIsValid("Password"));
-            result.Add(FieldIsValid("AuthenticationProfileId"));
-            result.Add(FieldIsValid("Notes"));
+                FieldIsValid("DeviceName"),
+                FieldIsValid("Destination"),
+                FieldIsValid("DeviceTypeId"),
+                FieldIsValid("DeviceAuthenticationMethod"),
+                FieldIsValid("Username"),
+                FieldIsValid("Password"),
+                FieldIsValid("AuthenticationProfileId"),
+                FieldIsValid("Notes")
+            };
 
             IsValid = result.Count(x => !x.IsValid) == 0;
             IsDirty = result.Count(x => x.IsChanged) > 0;

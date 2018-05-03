@@ -164,6 +164,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Converters\SshToTextConverter.cs" />
     <Compile Include="Utility\Helpers\StringBlankIfNull.cs" />
+    <Compile Include="Utility\Helpers\StringIsEncryptedPassword.cs" />
+    <Compile Include="Utility\Helpers\StringPresentablePassword.cs" />
     <Compile Include="Utility\Helpers\StringProtect.cs" />
     <Compile Include="ViewModel\AuthenticationProfileFormViewModel.cs" />
     <Compile Include="ViewModel\DevicePropertiesFormViewModel.cs" />

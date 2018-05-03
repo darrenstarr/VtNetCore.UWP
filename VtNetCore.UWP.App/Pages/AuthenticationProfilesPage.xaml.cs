@@ -96,7 +96,7 @@
             {
                 case Controls.FormOperation.Add:
                     if (e.AuthenticationProfile.AuthenticationMethod == Model.EAuthenticationMethod.UsernamePassword)
-                        e.AuthenticationProfile.Password = "\u00FF" + await e.AuthenticationProfile.Password.Protect();
+                        e.AuthenticationProfile.Password = await e.AuthenticationProfile.Password.Protect();
 
                     Model.Context.Current.AuthenticationProfiles.Add(e.AuthenticationProfile);
 
@@ -107,8 +107,8 @@
                 case Controls.FormOperation.Edit:
                     if (e.AuthenticationProfile.AuthenticationMethod == Model.EAuthenticationMethod.UsernamePassword)
                     {
-                        if (!e.AuthenticationProfile.Password.StartsWith("\u00FF"))
-                            e.AuthenticationProfile.Password = "\u00FF" + await e.AuthenticationProfile.Password.Protect();
+                        if (!e.AuthenticationProfile.Password.IsEncryptedPassword())
+                            e.AuthenticationProfile.Password = await e.AuthenticationProfile.Password.Protect();
                     }
 
                     await Model.Context.Current.SaveChanges(e.AuthenticationProfile);

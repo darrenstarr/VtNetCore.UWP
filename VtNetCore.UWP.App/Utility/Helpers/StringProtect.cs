@@ -48,12 +48,15 @@
         {
             var resultAsBuffer = await ProtectAsync(source, "LOCAL=user");
 
-            return CryptographicBuffer.EncodeToBase64String(resultAsBuffer);
+            return "\u00FF" + CryptographicBuffer.EncodeToBase64String(resultAsBuffer);
         }
 
         public static async Task<string> Unprotect(this string source)
         {
-            var buffer = CryptographicBuffer.DecodeFromBase64String(source);
+            if (!source.IsEncryptedPassword())
+                return source;
+
+            var buffer = CryptographicBuffer.DecodeFromBase64String(source.Substring(1));
 
             return await UnprotectAsync(buffer);
         }

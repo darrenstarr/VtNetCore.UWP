@@ -118,7 +118,7 @@
             else if(device.AuthenticationMethod == Model.EAuthenticationMethod.UsernamePassword)
             {
                 username = device.Username;
-                password = device.Password.StartsWith("\u00FF") ? await device.Password.Substring(1).Unprotect() : device.Password;
+                password = await device.Password.Unprotect();
             }
             else
             {
@@ -129,7 +129,7 @@
                     return;
                 }
                 username = authenticationProfile.Username;
-                password = device.Password.StartsWith("\u00FF") ? await device.Password.Substring(1).Unprotect() : device.Password;
+                password = await device.Password.Unprotect();
             }
 
             DisconnectToDeviceButton.ClearValue(IsEnabledProperty);
@@ -275,7 +275,7 @@
             {
                 case Controls.FormOperation.Add:
                     if (e.Device.AuthenticationMethod == Model.EAuthenticationMethod.UsernamePassword)
-                        e.Device.Password = "\u00FF" + await e.Device.Password.Protect();
+                        e.Device.Password = await e.Device.Password.Protect();
 
                     Model.Context.Current.Devices.Add(e.Device);
                     SetSelectionEnabled(true);
@@ -286,8 +286,8 @@
                 case Controls.FormOperation.Edit:
                     if (e.Device.AuthenticationMethod == Model.EAuthenticationMethod.UsernamePassword)
                     {
-                        if (!e.Device.Password.StartsWith("\u00FF"))
-                            e.Device.Password = "\u00FF" + await e.Device.Password.Protect();
+                        if (!e.Device.Password.IsEncryptedPassword())
+                            e.Device.Password = await e.Device.Password.Protect();
                     }
 
                     await Model.Context.Current.SaveChanges(e.Device);
