@@ -141,5 +141,10 @@
                 FindChildren(results, current);
             }
         }
+
+        public void SetInitialFocus()
+        {
+            NameField.Focus(FocusState.Programmatic);
+        }
     }
 }

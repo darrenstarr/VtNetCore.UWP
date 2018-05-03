@@ -30,6 +30,7 @@
             AuthenticationProfileForm.Operation = Controls.FormOperation.Add;
             AuthenticationProfileForm.ClearForm();
             AuthenticationProfileForm.Visibility = Visibility.Visible;
+            AuthenticationProfileForm.SetInitialFocus();
         }
 
         private void EditProfileButton_Tapped(object sender, TappedRoutedEventArgs e)
@@ -39,6 +40,7 @@
             AuthenticationProfileForm.Operation = Controls.FormOperation.Edit;
             AuthenticationProfileForm.AuthenticationProfile = selectedProfile ?? throw new Exception("Edit authentication profile button should not be active when no profile is selected");
             AuthenticationProfileForm.Visibility = Visibility.Visible;
+            AuthenticationProfileForm.SetInitialFocus();
         }
 
         private async void RemoveProfileButton_Tapped(object sender, TappedRoutedEventArgs e)

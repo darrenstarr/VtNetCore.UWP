@@ -86,6 +86,7 @@
             DeviceTypeForm.DeviceType = (Model.DeviceType)DeviceTypeList.SelectedItem;
 
             DeviceTypeForm.Visibility = Visibility.Visible;
+            DeviceTypeForm.SetInitialFocus();
 
             RemoveDeviceTypeButton.IsEnabled = true;
         }
@@ -98,6 +99,7 @@
             DeviceTypeForm.ClearForm();
 
             DeviceTypeForm.Visibility = Visibility.Visible;
+            DeviceTypeForm.SetInitialFocus();
         }
 
         private async void RemoveDeviceTypeButton_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)

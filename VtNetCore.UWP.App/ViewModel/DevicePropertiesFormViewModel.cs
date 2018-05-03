@@ -212,7 +212,7 @@
                             Device == null && !string.IsNullOrWhiteSpace(Destination)
                         ) || (
                             Device != null &&
-                            Destination.TrimEnd() != Device.Name
+                            Destination.TrimEnd() != Device.Destination
                         ),
                         Message = valid ? string.Empty : "Destination is not a properly formed URI"
                     };

@@ -247,6 +247,8 @@
             AddConnectionFlyout.Device = null;
             AddConnectionFlyout.ClearForm();
             AddConnectionFlyout.SiteId = selectedSite.Id;
+            AddConnectionFlyout.Visibility = Visibility.Visible;
+            AddConnectionFlyout.SetInitialFocus();
         }
 
         private void EditDeviceButton_Tapped(object sender, TappedRoutedEventArgs e)
@@ -255,6 +257,8 @@
 
             AddConnectionFlyout.Operation = Controls.FormOperation.Edit;
             AddConnectionFlyout.Device = selectedDevice ?? throw new Exception("Edit device button should not be active when no device is selected");
+            AddConnectionFlyout.Visibility = Visibility.Visible;
+            AddConnectionFlyout.SetInitialFocus();
         }
 
         private async void AddConnectionFlyout_OnDeviceChanged(object sender, Controls.DevicePropertiesForm.DeviceChangedEventArgs e)
@@ -290,6 +294,8 @@
             AddTenantFlyout.Operation = Controls.FormOperation.Add;
             AddTenantFlyout.Tenant = null;
             AddTenantFlyout.ClearForm();
+            AddTenantFlyout.Visibility = Visibility.Visible;
+            AddTenantFlyout.SetInitialFocus();
         }
 
         private void EditTenantButton_Tapped(object sender, TappedRoutedEventArgs e)
@@ -298,6 +304,8 @@
 
             AddTenantFlyout.Operation = Controls.FormOperation.Edit;
             AddTenantFlyout.Tenant = selectedTenant ?? throw new Exception("Edit tenant button should not be active when no tenant is selected");
+            AddTenantFlyout.Visibility = Visibility.Visible;
+            AddTenantFlyout.SetInitialFocus();
         }
 
         private async void AddTenantFlyout_OnTenantChanged(object sender, Controls.TenantPropertiesForm.TenantChangedEventArgs e)
@@ -342,6 +350,9 @@
 
             AddSiteFlyout.Operation = Controls.FormOperation.Edit;
             AddSiteFlyout.Site = selectedSite ?? throw new Exception("Edit site button should not be active when no device is selected");
+
+            AddSiteFlyout.Visibility = Visibility.Visible;
+            AddSiteFlyout.SetInitialFocus();
         }
 
         private void AddSiteButton_Tapped(object sender, TappedRoutedEventArgs e)
@@ -354,6 +365,8 @@
             AddSiteFlyout.Site = null;
             AddSiteFlyout.ClearForm();
             AddSiteFlyout.TenantId = selectedTenant.Id;
+            AddSiteFlyout.Visibility = Visibility.Visible;
+            AddSiteFlyout.SetInitialFocus();
         }
     }
 }

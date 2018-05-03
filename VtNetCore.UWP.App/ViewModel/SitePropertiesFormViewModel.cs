@@ -14,10 +14,10 @@
         private FormOperation _operation;
         private Model.Site _site;
 
-        private string _siteName;
-        private Guid _tenantId;
-        private string _location;
-        private string _notes;
+        private string _siteName = string.Empty;
+        private Guid _tenantId = Guid.Empty;
+        private string _location = string.Empty;
+        private string _notes = string.Empty;
 
         private bool _isValid;
         private bool _isDirty;
