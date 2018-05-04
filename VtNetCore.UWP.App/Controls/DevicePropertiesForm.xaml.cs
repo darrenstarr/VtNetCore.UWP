@@ -46,8 +46,26 @@
         public Guid SiteId
         {
             get => ViewModel.SiteId;
-            set => ViewModel.SiteId = value;
+            set
+            {
+                ViewModel.SiteId = value;
+                TenantId = ResolveTenantFromSiteId(value);
+                AuthenticationProfiles.RefreshFilter();
+            }
         }
+
+
+        public Guid TenantId
+        {
+            get;
+            set;
+        }
+
+        private Guid ResolveTenantFromSiteId(Guid siteId)
+        {
+            return Model.Context.Current.Sites.Single(x => x.Id == siteId).TenantId;
+        }
+
 
         public DevicePropertiesForm()
         {
@@ -56,6 +74,14 @@
             FindChildren(AllValidationRectangles, this);
             Validate();
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+            AuthenticationProfiles.Filter = x =>
+            {
+                var profile = (Model.AuthenticationProfile)x;
+                return
+                    profile.ParentId == Guid.Empty ||
+                    profile.ParentId == SiteId ||
+                    profile.ParentId == TenantId;
+            };
         }
 
         private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)

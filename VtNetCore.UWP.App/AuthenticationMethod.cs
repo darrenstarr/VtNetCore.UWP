@@ -44,8 +44,8 @@
             NoAuthentication,
             UsernameAndPassword,
             AuthenticationProfile,
-            InheritFromSite,
-            InheritFromTenant
+            //InheritFromSite,
+            //InheritFromTenant
         };
 
         public static readonly List<AuthenticationMethod> ProfileAuthenticationMethods = new List<AuthenticationMethod>
