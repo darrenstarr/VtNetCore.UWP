@@ -6,6 +6,7 @@
     using System.ComponentModel;
     using System.Linq;
     using System.Reflection;
+    using VtNetCore.UWP.App.Utility.Helpers;
     using VtNetCore.UWP.App.ViewModel;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
@@ -48,7 +49,7 @@
             get => ViewModel.SiteId;
             set
             {
-                ViewModel.SiteId = value;
+                ViewModel.SiteId = value == null ? Guid.Empty : value;
                 TenantId = ResolveTenantFromSiteId(value);
                 AuthenticationProfiles.RefreshFilter();
             }
@@ -63,7 +64,10 @@
 
         private Guid ResolveTenantFromSiteId(Guid siteId)
         {
-            return Model.Context.Current.Sites.Single(x => x.Id == siteId).TenantId;
+            if(siteId != null && Model.Context.Current.Sites.TrySingle(x => x.Id == siteId, out var site))
+                return site.TenantId;
+
+            return Guid.Empty;
         }
 
 
