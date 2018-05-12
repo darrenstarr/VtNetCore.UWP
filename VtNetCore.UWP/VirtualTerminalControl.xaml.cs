@@ -9,7 +9,6 @@
     using System.Numerics;
     using System.Text;
     using System.Threading.Tasks;
-    using VtConnect;
     using VtNetCore.VirtualTerminal;
     using VtNetCore.XTermParser;
     using Windows.ApplicationModel.DataTransfer;
