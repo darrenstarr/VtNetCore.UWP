@@ -128,11 +128,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\VtConnect\VtConnect\VtConnect.csproj">
-      <Project>{9fd02a9a-9c55-40ee-878e-db02ecd2a2e4}</Project>
-      <Name>VtConnect</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\VtNetCore\VtNetCore\VtNetCore.csproj">
+    <ProjectReference Include="$(SolutionDir)\Modules\VtNetCore\VtNetCore\VtNetCore.csproj">
       <Project>{ff4d83bc-79e8-4014-8f57-ad4f9d2b89d4}</Project>
       <Name>VtNetCore</Name>
     </ProjectReference>

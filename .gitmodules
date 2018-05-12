@@ -1,15 +1,3 @@
 [submodule "modules/VtNetCore"]
 	path = modules/VtNetCore
 	url = https://github.com/darrenstarr/VtNetCore.git
-[submodule "modules/SSH.NET"]
-	path = modules/SSH.NET
-	url = https://github.com/darrenstarr/SSH.NET.git
-[submodule "modules\\VtConnect"]
-	path = modules/VtConnect
-	url = https://github.com/darrenstarr/VtConnect.git
-[submodule "modules/SerialPortStream"]
-	path = modules/SerialPortStream
-	url = https://github.com/darrenstarr/SerialPortStream.git
-[submodule "modules/SshNetCryptography"]
-	path = modules/SshNetCryptography
-	url = https://github.com/darrenstarr/Cryptography.git

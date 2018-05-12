@@ -117,10 +117,6 @@
     <InterfaceDefinition Include="Main.storyboard" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\modules\VtConnect\VtConnect\VtConnect.csproj">
-      <Project>{6E786F2C-4EB7-4406-9274-392F13D492D6}</Project>
-      <Name>VtConnect</Name>
-    </ProjectReference>
     <ProjectReference Include="..\modules\VtNetCore\VtNetCore\VtNetCore.csproj">
       <Project>{4480AD73-B513-4714-9EEA-B5AE011C1B0E}</Project>
       <Name>VtNetCore</Name>
