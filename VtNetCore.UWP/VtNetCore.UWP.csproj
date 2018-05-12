@@ -128,12 +128,12 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\modules\VtConnect\VtConnect\VtConnect.csproj">
-      <Project>{6e786f2c-4eb7-4406-9274-392f13d492d6}</Project>
+    <ProjectReference Include="..\..\VtConnect\VtConnect\VtConnect.csproj">
+      <Project>{9fd02a9a-9c55-40ee-878e-db02ecd2a2e4}</Project>
       <Name>VtConnect</Name>
     </ProjectReference>
-    <ProjectReference Include="..\modules\VtNetCore\VtNetCore\VtNetCore.csproj">
-      <Project>{4480ad73-b513-4714-9eea-b5ae011c1b0e}</Project>
+    <ProjectReference Include="..\..\VtNetCore\VtNetCore\VtNetCore.csproj">
+      <Project>{ff4d83bc-79e8-4014-8f57-ad4f9d2b89d4}</Project>
       <Name>VtNetCore</Name>
     </ProjectReference>
   </ItemGroup>
