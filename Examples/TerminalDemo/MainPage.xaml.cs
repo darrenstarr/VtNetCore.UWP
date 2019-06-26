@@ -29,7 +29,14 @@ namespace TerminalDemo
             terminalController.SizeChanged += TerminalSizeChanged;
             terminalController.WindowTitleChanged += OnWindowTitleChanged;
 
+            terminalController.OnLog += OnLog;
+
             terminalStream = new DataConsumer(terminal.Terminal);
+        }
+
+        private void OnLog(object sender, TextEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine(e.Text);
         }
 
         private void OnWindowTitleChanged(object sender, TextEventArgs e)
@@ -121,6 +128,11 @@ namespace TerminalDemo
 
             connectButton.Visibility = Windows.UI.Xaml.Visibility.Visible;
             disconnectButton.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+        }
+
+        private void Logging_Checked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            terminalController.Debugging = logging.IsChecked.Value;
         }
     }
 }
