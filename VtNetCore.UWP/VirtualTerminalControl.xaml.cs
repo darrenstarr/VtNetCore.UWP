@@ -389,41 +389,44 @@
             Color cursorColor = Colors.Green;
             int TerminalTop = -1;
 
-            lock (Terminal)
+            if (Terminal != null)
             {
-                TerminalTop = Terminal.ViewPort.TopRow;
+                lock (Terminal)
+                {
+                    TerminalTop = Terminal.ViewPort.TopRow;
 
-                if (Terminal.ViewPort.CursorPosition.Row > Rows)
-                    throw new Exception("We should never be here");
+                    if (Terminal.ViewPort.CursorPosition.Row > Rows)
+                        throw new Exception("We should never be here");
 
-                spans = Terminal.ViewPort.GetPageSpans(ViewTop, Rows, Columns, TextSelection);
-                showCursor = Terminal.CursorState.ShowCursor;
-                cursorPosition = Terminal.ViewPort.CursorPosition.Clone();
-                cursorColor = GetSolidColorBrush(Terminal.CursorState.Attributes.WebColor);
-            }
+                    spans = Terminal.ViewPort.GetPageSpans(ViewTop, Rows, Columns, TextSelection);
+                    showCursor = Terminal.CursorState.ShowCursor;
+                    cursorPosition = Terminal.ViewPort.CursorPosition.Clone();
+                    cursorColor = GetSolidColorBrush(Terminal.CursorState.Attributes.WebColor);
+                }
 
-            if (!Scrolling && ViewTop != TerminalTop)
-                ViewTop = TerminalTop;
+                if (!Scrolling && ViewTop != TerminalTop)
+                    ViewTop = TerminalTop;
 
-            var defaultTransform = drawingSession.Transform;
+                var defaultTransform = drawingSession.Transform;
 
-            PaintBackgroundLayer(drawingSession, spans);
+                PaintBackgroundLayer(drawingSession, spans);
 
-            PaintTextLayer(drawingSession, spans, textFormat, showBlink);
+                PaintTextLayer(drawingSession, spans, textFormat, showBlink);
 
-            if (showCursor)
-                PaintCursor(
-                    drawingSession,
-                    spans,
-                    textFormat,
-                    cursorPosition.OffsetBy(0, TerminalTop - ViewTop),
-                    cursorColor
-                    );
+                if (showCursor)
+                    PaintCursor(
+                        drawingSession,
+                        spans,
+                        textFormat,
+                        cursorPosition.OffsetBy(0, TerminalTop - ViewTop),
+                        cursorColor
+                        );
             
-            drawingSession.Transform = defaultTransform;
+                drawingSession.Transform = defaultTransform;
 
-            if (ViewDebugging)
-                AnnotateView(drawingSession);
+                if (ViewDebugging)
+                    AnnotateView(drawingSession);
+            }
         }
 
         private void AnnotateView(CanvasDrawingSession drawingSession)
@@ -486,7 +489,7 @@
             //System.Diagnostics.Debug.WriteLine("  Character size " + CharacterWidth.ToString() + "," + CharacterHeight.ToString());
             //System.Diagnostics.Debug.WriteLine("  Terminal size " + Columns.ToString() + "," + Rows.ToString());
 
-            Terminal.ResizeView(Columns, Rows);
+            Terminal?.ResizeView(Columns, Rows);
         }
 
         //public void ClearRawText()
@@ -662,6 +665,9 @@
 
         private void TerminalPointerMoved(object sender, PointerRoutedEventArgs e)
         {
+            if(Terminal == null)
+                return;
+
             var pointer = e.GetCurrentPoint(canvas);
             var position = ToPosition(pointer.Position);
 
@@ -744,6 +750,9 @@
 
         private void TerminalPointerPressed(object sender, PointerRoutedEventArgs e)
         {
+            if (Terminal == null)
+                return;
+
             var pointer = e.GetCurrentPoint(canvas);
             var position = ToPosition(pointer.Position);
 
@@ -774,6 +783,9 @@
 
         private void TerminalPointerReleased(object sender, PointerRoutedEventArgs e)
         {
+            if (Terminal == null)
+                return;
+
             var pointer = e.GetCurrentPoint(canvas);
             var position = ToPosition(pointer.Position);
             var textPosition = position.OffsetBy(0, ViewTop);

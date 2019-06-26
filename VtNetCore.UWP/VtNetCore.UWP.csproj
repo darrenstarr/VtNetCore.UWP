@@ -128,7 +128,11 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(SolutionDir)\Modules\VtNetCore\VtNetCore\VtNetCore.csproj">
+    <ProjectReference Include="..\modules\VtNetCore\VtNetCore\VtNetCore.csproj">
+      <Project>{4480ad73-b513-4714-9eea-b5ae011c1b0e}</Project>
+      <Name>VtNetCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Development\VtNetCore.UWP\\Modules\VtNetCore\VtNetCore\VtNetCore.csproj">
       <Project>{ff4d83bc-79e8-4014-8f57-ad4f9d2b89d4}</Project>
       <Name>VtNetCore</Name>
     </ProjectReference>

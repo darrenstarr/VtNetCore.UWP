@@ -1,0 +1,33 @@
+﻿<Page
+    x:Class="TerminalDemo.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:TerminalDemo"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vtNetCore="using:VtNetCore.UWP"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Padding="4">
+            <TextBlock VerticalAlignment="Center" Margin="4,0,0,0">Server:</TextBlock>
+            <TextBox x:Name="server" Text="10.200.17.5" Margin="4,0,0,0"></TextBox>
+
+            <TextBlock VerticalAlignment="Center" Margin="4,0,0,0">Username:</TextBlock>
+            <TextBox x:Name="username" Text="johnny" Margin="4,0,0,0"></TextBox>
+
+            <TextBlock VerticalAlignment="Center" Margin="4,0,0,0">Password:</TextBlock>
+            <PasswordBox x:Name="password" Password="begood" Margin="4,0,0,0"></PasswordBox>
+
+            <Button x:Name="connectButton" Tapped="ConnectButton_Click" Margin="4,0,0,0">Connect</Button>
+            <Button x:Name="disconnectButton" Visibility="Collapsed" Tapped="DisconnectButton_Click" Margin="4,0,0,0">Disconnect</Button>
+            <TextBlock x:Name="windowTitle" VerticalAlignment="Center" Margin="4,0,0,0" />
+        </StackPanel>
+        <vtNetCore:VirtualTerminalControl Grid.Row="1" x:Name="terminal"></vtNetCore:VirtualTerminalControl>
+    </Grid>
+</Page>
