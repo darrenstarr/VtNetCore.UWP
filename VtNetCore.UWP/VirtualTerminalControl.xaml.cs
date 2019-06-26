@@ -401,7 +401,8 @@
                     spans = Terminal.ViewPort.GetPageSpans(ViewTop, Rows, Columns, TextSelection);
                     showCursor = Terminal.CursorState.ShowCursor;
                     cursorPosition = Terminal.ViewPort.CursorPosition.Clone();
-                    cursorColor = GetSolidColorBrush(Terminal.CursorState.Attributes.WebColor);
+                    
+                    cursorColor = GetSolidColorBrush(Terminal.CursorState.ReverseVideoMode ? Terminal.NullAttribute.BackgroundWebColor : Terminal.NullAttribute.WebColor);
                 }
 
                 if (!Scrolling && ViewTop != TerminalTop)
