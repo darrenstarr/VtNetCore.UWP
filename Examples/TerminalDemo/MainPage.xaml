@@ -27,7 +27,7 @@
             <Button x:Name="connectButton" Tapped="ConnectButton_Click" Margin="4,0,0,0">Connect</Button>
             <Button x:Name="disconnectButton" Visibility="Collapsed" Tapped="DisconnectButton_Click" Margin="4,0,0,0">Disconnect</Button>
             <TextBlock x:Name="windowTitle" VerticalAlignment="Center" Margin="4,0,0,0" />
-            <CheckBox x:Name="logging" Margin="4,0,0,0" Checked="Logging_Checked"></CheckBox>
+            <CheckBox x:Name="logging" Margin="4,0,0,0" Checked="Logging_Checked" Unchecked="Logging_Checked"></CheckBox>
         </StackPanel>
         <vtNetCore:VirtualTerminalControl Grid.Row="1" x:Name="terminal"></vtNetCore:VirtualTerminalControl>
     </Grid>
