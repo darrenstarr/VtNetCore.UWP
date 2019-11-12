@@ -245,7 +245,7 @@
 
             if (ViewTop != Terminal.ViewPort.TopRow)
             {
-                Terminal.ViewPort.SetTopLine(ViewTop);
+                Terminal.ViewPort.TopRow = ViewTop;
                 NeedsDisplay = true;
             }
 		}
@@ -289,10 +289,11 @@
                     var spanStart = 0;
                     while (column < line.Count)
                     {
-                        bool selected = TextSelection == null ? false : TextSelection.Within(column, row);
+                        bool selected = TextSelection == null ? false : TextSelection.Contains(column, row);
+
                         var backgroundColor = GetBackgroundColor(line[column].Attributes, selected);
 
-                        if (column < (line.Count - 1) && GetBackgroundColor(line[column + 1].Attributes, TextSelection == null ? false : TextSelection.Within(column + 1, row)) == backgroundColor)
+                        if (column < (line.Count - 1) && GetBackgroundColor(line[column + 1].Attributes, TextSelection == null ? false : TextSelection.Contains(column + 1, row)) == backgroundColor)
                         {
                             column++;
                             continue;
@@ -336,13 +337,13 @@
                     string toDisplay = string.Empty;
                     while (column < line.Count)
                     {
-                        bool selected = TextSelection == null ? false : TextSelection.Within(column, row);
+                        bool selected = TextSelection == null ? false : TextSelection.Contains(column, row);
                         var foregroundColor = GetForegroundColor(line[column].Attributes, selected);
 
                         toDisplay += line[column].Char.ToString() + line[column].CombiningCharacters;
                         if (
                             column < (line.Count - 1) &&
-                            GetForegroundColor(line[column + 1].Attributes, TextSelection == null ? false : TextSelection.Within(column + 1, row)) == foregroundColor &&
+                            GetForegroundColor(line[column + 1].Attributes, TextSelection == null ? false : TextSelection.Contains(column + 1, row)) == foregroundColor &&
                             line[column + 1].Attributes.Underscore == line[column].Attributes.Underscore &&
                             line[column + 1].Attributes.Reverse == line[column].Attributes.Reverse &&
                             line[column + 1].Attributes.Bright == line[column].Attributes.Bright
